@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import subprocess
 import sys
 from pathlib import Path
 
+from . import __version__
 from .config_ui import configure_project_interactively, should_prompt_for_init_ui
 from .bootstrap import init_project
 from .codex_cli import run_interactive
+from .docs_harness import ensure_docs_harness
 from .layout import find_project_root, tower_dir
 from .memory import mark_runtime_sync
 from .project import load_agent_registry, load_project_config, load_runtime_state
@@ -18,7 +21,8 @@ from .sessions import find_latest_session_id_for_project, sync_and_capture_lates
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="tower")
-    subparsers = parser.add_subparsers(dest="command", required=True)
+    parser.add_argument("-v", "--version", action="store_true", help="Show installed Tower version and source information")
+    subparsers = parser.add_subparsers(dest="command")
 
     init_parser = subparsers.add_parser("init", help="Initialize .control-tower in the current repo")
     init_parser.add_argument("--force", action="store_true", help="Overwrite existing bootstrap files")
@@ -35,7 +39,10 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     subparsers.add_parser("status", help="Show Control Tower project status")
     subparsers.add_parser("update", help="Update the installed Tower CLI and refresh this repo's .control-tower runtime")
 
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    if not args.version and not args.command:
+        parser.error("the following arguments are required: command")
+    return args
 
 
 def _add_codex_options(parser: argparse.ArgumentParser) -> None:
@@ -58,12 +65,23 @@ def _add_codex_options(parser: argparse.ArgumentParser) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv or sys.argv[1:])
+    if args.version:
+        return cmd_version()
     project_root = find_project_root()
 
     if args.command == "init":
         init_project(project_root, force=args.force)
         if not args.defaults and should_prompt_for_init_ui():
             configure_project_interactively(project_root)
+        elif args.defaults:
+            project_state = tower_dir(project_root) / "state" / "project.json"
+            config = load_project_config(project_root)
+            config["docs_harness"] = ensure_docs_harness(
+                project_root,
+                config.get("docs_harness", {}),
+                scaffold_missing=True,
+            )
+            project_state.write_text(json.dumps(config, indent=2) + "\n")
         update_git_branch(project_root)
         sync_and_capture_latest(project_root)
         print(f"Initialized Control Tower in {tower_dir(project_root)}")
@@ -106,12 +124,11 @@ def main(argv: list[str] | None = None) -> int:
         session_id = runtime.get("last_tower_session_id") or find_latest_session_id_for_project(project_root)
         if session_id:
             mark_runtime_sync(project_root, last_tower_session_id=session_id)
-        prompt = " ".join(args.prompt).strip() or "Resume Tower control for this repository, reconcile memory, and continue the current workstream."
-        assembled = build_tower_prompt(project_root, prompt)
+        resume_prompt = " ".join(args.prompt).strip() or None
         try:
             return run_interactive(
                 project_root,
-                assembled,
+                resume_prompt,
                 resume=True,
                 session_id=session_id,
                 model=codex_options["model"],
@@ -150,9 +167,31 @@ def cmd_status(project_root: Path) -> int:
     print(f"Last sync: {runtime.get('last_sync_time', 'never')}")
     print(f"Enabled agents: {', '.join(active_agents) if active_agents else 'none'}")
     print(f"Tower dangerous mode: {codex_defaults.get('dangerously_bypass', False)}")
+    docs_harness = config.get("docs_harness", {}) if isinstance(config, dict) else {}
+    print(f"Docs harness: {'enabled' if docs_harness.get('enabled') else 'disabled'}")
+    if docs_harness.get("enabled"):
+        print(f"Docs mode: {docs_harness.get('mode', 'unknown')}")
+        print(f"Docs roots: {', '.join(docs_harness.get('doc_roots', [])) or 'none'}")
+        print(f"Auto Scribe docs: {docs_harness.get('auto_scribe_mode', 'disabled')}")
     print("")
     print("L0")
     print(l0)
+    return 0
+
+
+def cmd_version() -> int:
+    source_root = _source_repo_root().resolve()
+    print(f"tower {__version__}")
+    print(f"source: {source_root}")
+    git_commit = _git_output(source_root, ["rev-parse", "--short", "HEAD"])
+    if git_commit:
+        print(f"commit: {git_commit}")
+    git_branch = _git_output(source_root, ["rev-parse", "--abbrev-ref", "HEAD"])
+    if git_branch:
+        print(f"branch: {git_branch}")
+    managed_repo = _managed_install_repo_root().resolve()
+    print(f"managed install repo: {managed_repo}")
+    print(f"managed install active: {source_root == managed_repo}")
     return 0
 
 
@@ -207,6 +246,23 @@ def _update_installed_control_tower(source_repo_root: Path) -> Path:
         subprocess.run(["git", "pull", "--ff-only"], cwd=source_repo_root, check=True)
     subprocess.run([str(install_script)], cwd=source_repo_root, check=True)
     return source_repo_root
+
+
+def _git_output(repo_root: Path, args: list[str]) -> str | None:
+    if not (repo_root / ".git").exists():
+        return None
+    try:
+        result = subprocess.run(
+            ["git", *args],
+            cwd=repo_root,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except Exception:
+        return None
+    value = result.stdout.strip()
+    return value or None
 
 
 if __name__ == "__main__":

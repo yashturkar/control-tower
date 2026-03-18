@@ -17,6 +17,20 @@
     "Git-master",
     "Scribe"
   ],
+  "docs_harness": {
+    "enabled": false,
+    "mode": "disabled",
+    "doc_roots": [],
+    "root_map_files": [],
+    "index_files": [],
+    "auto_scribe_mode": "after-most-work",
+    "auto_scribe_agents": [
+      "builder",
+      "inspector",
+      "git-master"
+    ],
+    "scaffolded_by_init": false
+  },
   "codex_defaults": {
     "sandbox": "workspace-write",
     "approval": "on-request",

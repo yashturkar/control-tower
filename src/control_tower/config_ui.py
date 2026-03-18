@@ -4,24 +4,94 @@ import sys
 from pathlib import Path
 
 from .agents import AGENT_DEFINITIONS, default_agent_registry
+from .docs_harness import detect_docs_harness, ensure_docs_harness
 from .project import load_agent_registry, load_project_config, save_agent_registry, write_json
 
 
 SANDBOX_OPTIONS = ["workspace-write", "read-only", "danger-full-access"]
 INIT_BANNER = [
-    "              .-.",
-    "         .---(   )---.",
-    "        /_____.-._____\\\\",
-    "            /_/ \\_\\\\",
-    "       .----/--.-.--\\\\----.",
-    "      /____/__/ | \\__\\\\____\\\\",
-    "         /___/  |  \\___\\\\",
-    "            |   |   |",
-    "            |  TWR  |",
-    "            |   |   |",
-    "            |   |   |",
-    "            |___|___|",
-    "              /___\\\\",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                       @@@                                          ",
+    "                                                      @--->                                         ",
+    "                                                        @                                           ",
+    "                                            +@@         %                                           ",
+    "                                       @@@----@         %                                           ",
+    "                                      {@---@@@          @                                           ",
+    "                                          @@            @                                           ",
+    "                                    @@@@-@----------------@-@@@@                                    ",
+    "                                   @@-@@@@@@@@@@@@@@@@@@@@@@@@-@@                                   ",
+    "                               @@@@@----------------------------@@@@@                               ",
+    "                            @@------@@@@@@@@@@@@@@@@@@@@@@@@@@@@------@{                            ",
+    "                             @@@@@-@----@@-------@@-------@@----@-@@@@@                             ",
+    "                              %@----@-==-@-=><><-@@->><>~-@-=>-@----@@                              ",
+    "                               @@-+-@@->-@@*[[[[-@@-[[[[*@@-<~-@-+-@@                               ",
+    "                                @@---@-+~^@------@@------@)==-@---@@                                ",
+    "                                @@@@@@@-----====----===+-----@@@@@@@                                ",
+    "                                ^@%@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%@@+                                ",
+    "                              %   @@@----@@@@@@@@@@@@@@@@@@-*--@@%   @                              ",
+    "                              %@@@@@@@-<~--~~~~=~~~~~~~~--=+[-@@@@@@@@.                             ",
+    "                              %@------------------------------------@@                              ",
+    "                               @@@@@@@@@@@@~<[[[[[[[[[[<-@@@@@@@@@@@@:                              ",
+    "                                    @@@---@@-<<<<<)))<)-@@---@@%                                    ",
+    "                                      @@---@------------@---@@                                      ",
+    "                                       @@@:@@@@@@@@@@@@@@-@@@                                       ",
+    "                                        @@----------------@@                                        ",
+    "                                         @@@~<<>><<<<>>~@@@                                         ",
+    "                                          %@-><)>><<>>)-@@                                          ",
+    "                                          @@-<<<<><><><-@%                                          ",
+    "                                          %@->>><>)<<><-@%                                          ",
+    "                                          @@-<>>>><>><>-@%                                          ",
+    "                                          @@------------@@                                          ",
+    "                                         :@@@@@@@@@@@@@@@@:                                         ",
+    "                                         @@--------------@@                                         ",
+    "                                         %@-}]}[[[[]][[[-@%                                         ",
+    "                                         @@->^>^>^^>^^>^-@@                                         ",
+    "                                         %@-<>>><<>>>>><-@#                                         ",
+    "                                         %@->><>)>><<<><-@@                                         ",
+    "                                         @@-<><<><><>><<-@%                                         ",
+    "                                         %@->><<><<<<<<<-@@                                         ",
+    "                                         @@-><>>>>>><<>>*-@@                                        ",
+    "                                        @@-+<<<<<<>><>><(-@#                                        ",
+    "                                        #@-<<<<>>>><>><>>-@@                                        ",
+    "                                        @@-><<<<<>><<>><<-@@                                        ",
+    "                                        %@-<>)>>><)>)<><<-@@                                        ",
+    "                                        %@-<>><<>>>>><<>>-@%                                        ",
+    "                                        %@----------------@@                                        ",
+    "                                        @@@@@@@@@@@@@@@@@@@%@                                        ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
+    "                                                                                                    ",
 ]
 
 
@@ -55,6 +125,7 @@ def configure_project_interactively(project_root: Path) -> None:
         _print_quick_setup_notice()
 
     project_config["enabled_agents"] = [key for key, config in configured_agents.items() if config["enabled"]]
+    project_config["docs_harness"] = _configure_docs_harness(project_root, project_config.get("docs_harness", {}))
     write_json(project_root / ".control-tower" / "state" / "project.json", project_config)
     save_agent_registry(project_root, {"agents": configured_agents})
 
@@ -75,6 +146,26 @@ def configure_project_interactively(project_root: Path) -> None:
     print(f"- {project_root / '.control-tower' / 'state' / 'agent-registry.json'}")
     print(f"- {project_root / '.control-tower' / 'state' / 'project.json'}")
     print("")
+
+
+def _configure_docs_harness(project_root: Path, existing: dict[str, object]) -> dict[str, object]:
+    detected = detect_docs_harness(project_root, existing)
+    if detected.get("enabled"):
+        print("Detected repo docs harness:")
+        print(f"- Roots: {', '.join(detected.get('doc_roots', [])) or 'none'}")
+        print(f"- Index files: {', '.join(detected.get('index_files', [])) or 'none'}")
+        print("")
+        return detected
+
+    if _prompt_yes_no("No repo docs harness detected. Scaffold minimal docs harness", True):
+        configured = ensure_docs_harness(project_root, existing, scaffold_missing=True)
+        print("Scaffolded minimal repo docs harness.")
+        print("")
+        return configured
+
+    print("Leaving repo docs harness disabled for now.")
+    print("")
+    return detect_docs_harness(project_root, existing)
 
 
 def _configure_agents_custom(registry: dict[str, dict[str, object]]) -> dict[str, dict[str, object]]:
@@ -109,8 +200,20 @@ def _configure_agents_custom(registry: dict[str, dict[str, object]]) -> dict[str
 
 
 def _print_banner() -> None:
-    for line in INIT_BANNER:
-        print(line)
+    lines = list(INIT_BANNER)
+    while lines and not lines[0].strip():
+        lines.pop(0)
+    while lines and not lines[-1].strip():
+        lines.pop()
+
+    non_empty = [line for line in lines if line.strip()]
+    if non_empty:
+        left_margin = min(len(line) - len(line.lstrip(" ")) for line in non_empty)
+    else:
+        left_margin = 0
+
+    for line in lines:
+        print(line[left_margin:].rstrip())
     print("")
 
 

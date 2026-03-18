@@ -6,6 +6,7 @@ from importlib import resources
 from pathlib import Path
 
 from .agents import default_agent_registry
+from .docs_harness import detect_docs_harness
 from .layout import tower_dir
 
 
@@ -27,6 +28,7 @@ def _merge_project_config(template_config: dict[str, object], existing_config: d
     merged.update(existing_config)
     merged["project_name"] = project_root.name
     merged["project_root"] = str(project_root)
+    merged["docs_harness"] = detect_docs_harness(project_root, existing_config.get("docs_harness", {}))
     return merged
 
 

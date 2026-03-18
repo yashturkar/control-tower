@@ -9,11 +9,13 @@ from pathlib import Path
 
 from .bootstrap import init_project
 from .codex_cli import run_exec
+from .docs_harness import docs_harness_context_refs
 from .layout import find_project_root, tower_dir
 from .memory import import_project_sessions, mark_runtime_sync
 from .packets import (
     create_task_packet,
     load_packet,
+    new_scribe_docs_followup_packet,
     new_scribe_memory_sync_packet,
     slugify,
     validate_result_packet,
@@ -252,7 +254,10 @@ def cmd_delegate(
                 "This usually means the Codex subprocess failed before writing its final message."
             ) from exc
         sync_and_capture_latest(project_root, role=agent)
+        follow_up_path = maybe_emit_scribe_docs_followup(project_root, agent, result_packet, output_path)
         print(str(output_path))
+        if follow_up_path is not None:
+            print(f"Created Scribe docs packet: {follow_up_path}")
     return exit_code
 
 
@@ -286,6 +291,50 @@ def _project_ref(project_root: Path, path: Path) -> str:
 
 def _iso_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def maybe_emit_scribe_docs_followup(
+    project_root: Path,
+    agent: str,
+    result_packet: dict[str, object],
+    result_path: Path,
+) -> Path | None:
+    config = load_project_config(project_root)
+    docs_harness = config.get("docs_harness", {}) if isinstance(config, dict) else {}
+    if not docs_harness.get("enabled"):
+        return None
+    if docs_harness.get("auto_scribe_mode") != "after-most-work":
+        return None
+    if agent not in docs_harness.get("auto_scribe_agents", []):
+        return None
+    if result_packet.get("status") != "success":
+        return None
+
+    changed_files = _dedupe_strings(
+        list(result_packet.get("artifacts_changed", [])) + list(result_packet.get("artifacts_created", []))
+    )
+    result_ref = _project_ref(project_root, result_path)
+    runtime = load_runtime_state(project_root)
+    project_id = config.get("project_name", project_root.name)
+    session_id = runtime.get("last_tower_session_id") or runtime.get("last_imported_session_id") or "tower-session"
+    packet = new_scribe_docs_followup_packet(
+        project_id,
+        session_id,
+        str(result_packet.get("trace_id") or uuid.uuid4()),
+        agent,
+        result_ref,
+        changed_files,
+        docs_harness_context_refs(project_root, docs_harness),
+    )
+    validate_task_packet(packet)
+    packet_path = (
+        tower_dir(project_root)
+        / "packets"
+        / "outbox"
+        / f"scribe-docs-followup-{agent}-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.json"
+    )
+    write_json(packet_path, packet)
+    return packet_path
 
 
 if __name__ == "__main__":
