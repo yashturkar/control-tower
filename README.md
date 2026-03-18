@@ -56,7 +56,7 @@ tower init
 tower start
 ```
 
-`tower init` defaults to a quick setup that keeps the standard agent lineup. If you choose `custom`, it opens the detailed per-agent configurator for enablement, sandbox, and model overrides. You can always edit `.control-tower/state/agent-registry.json` and `.control-tower/state/project.json` later.
+`tower init` defaults to a quick setup that keeps the standard agent lineup and enables dangerous bypass for every subagent except `Scout`, which stays sandboxed. If you choose `custom`, it opens the detailed per-agent configurator for enablement, bypass/sandbox, and model overrides. You can always edit `.control-tower/state/agent-registry.json` and `.control-tower/state/project.json` later.
 
 Tower now runs without sandboxing or approval gates by default:
 

@@ -8,6 +8,21 @@ from .project import load_agent_registry, load_project_config, save_agent_regist
 
 
 SANDBOX_OPTIONS = ["workspace-write", "read-only", "danger-full-access"]
+INIT_BANNER = [
+    "              .-.",
+    "         .---(   )---.",
+    "        /_____.-._____\\\\",
+    "            /_/ \\_\\\\",
+    "       .----/--.-.--\\\\----.",
+    "      /____/__/ | \\__\\\\____\\\\",
+    "         /___/  |  \\___\\\\",
+    "            |   |   |",
+    "            |  TWR  |",
+    "            |   |   |",
+    "            |   |   |",
+    "            |___|___|",
+    "              /___\\\\",
+]
 
 
 def should_prompt_for_init_ui() -> bool:
@@ -21,6 +36,7 @@ def configure_project_interactively(project_root: Path) -> None:
         registry = default_agent_registry()
 
     print("")
+    _print_banner()
     print("Control Tower init")
     print(f"Project: {project_root.name}")
     print("Choose a quick setup or open the detailed per-agent configurator.")
@@ -35,7 +51,8 @@ def configure_project_interactively(project_root: Path) -> None:
     if setup_mode == "custom":
         configured_agents = _configure_agents_custom(registry)
     else:
-        configured_agents = registry["agents"]
+        configured_agents = default_agent_registry()["agents"]
+        _print_quick_setup_notice()
 
     project_config["enabled_agents"] = [key for key, config in configured_agents.items() if config["enabled"]]
     write_json(project_root / ".control-tower" / "state" / "project.json", project_config)
@@ -46,7 +63,10 @@ def configure_project_interactively(project_root: Path) -> None:
         status = "enabled" if config["enabled"] else "disabled"
         line = f"- {config['name']} [{status}]"
         if config["enabled"]:
-            line += f" sandbox={config['sandbox']}"
+            if config.get("dangerously_bypass"):
+                line += " mode=bypass"
+            else:
+                line += f" sandbox={config['sandbox']}"
             if config["model"]:
                 line += f" model={config['model']}"
         print(line)
@@ -66,10 +86,13 @@ def _configure_agents_custom(registry: dict[str, dict[str, object]]) -> dict[str
         model = current.get("model") or ""
         sandbox = str(current.get("sandbox", definition.default_sandbox))
         search = bool(current.get("search", definition.default_search))
+        dangerously_bypass = bool(current.get("dangerously_bypass", definition.default_dangerously_bypass))
 
         if enabled:
             model = _prompt_text("Model override", model, allow_blank=True)
-            sandbox = _prompt_choice("Sandbox", SANDBOX_OPTIONS, sandbox)
+            dangerously_bypass = _prompt_yes_no("Use dangerous bypass", dangerously_bypass)
+            if not dangerously_bypass:
+                sandbox = _prompt_choice("Sandbox", SANDBOX_OPTIONS, sandbox)
 
         configured_agents[definition.key] = {
             "name": definition.display_name,
@@ -77,11 +100,30 @@ def _configure_agents_custom(registry: dict[str, dict[str, object]]) -> dict[str
             "description": definition.description,
             "enabled": enabled,
             "model": model or None,
+            "dangerously_bypass": dangerously_bypass,
             "sandbox": sandbox,
             "search": search,
         }
         print("")
     return configured_agents
+
+
+def _print_banner() -> None:
+    for line in INIT_BANNER:
+        print(line)
+    print("")
+
+
+def _print_quick_setup_notice() -> None:
+    print("+--------------------------------------------------------------+")
+    print("|                   !!! QUICK SETUP NOTICE !!!                 |")
+    print("+--------------------------------------------------------------+")
+    print("| Builder, Inspector, Git-master, and Scribe will run in       |")
+    print("| dangerous bypass mode by default. Scout stays sandboxed.     |")
+    print("| Use `custom` now or edit `.control-tower/state/agent-        |")
+    print("| registry.json` later if you want stricter agent settings.    |")
+    print("+--------------------------------------------------------------+")
+    print("")
 
 
 def _prompt_text(label: str, default: str, allow_blank: bool = False) -> str:

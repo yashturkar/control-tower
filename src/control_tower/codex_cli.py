@@ -64,11 +64,14 @@ def run_exec(
     output_path: Path,
     model: str | None = None,
     sandbox: str | None = None,
+    dangerous: bool = False,
 ) -> int:
     args = ["codex", "exec", "-C", str(project_root), "--output-schema", str(output_schema), "-o", str(output_path)]
     if model:
         args.extend(["-m", model])
-    if sandbox:
+    if dangerous:
+        args.append("--dangerously-bypass-approvals-and-sandbox")
+    elif sandbox:
         args.extend(["-s", sandbox])
     args.append(prompt)
     result = subprocess.run(args, cwd=project_root, env=_codex_env())

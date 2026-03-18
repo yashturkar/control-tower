@@ -6,6 +6,7 @@
       "description": "Writes product code, tests, and refactors within scope.",
       "enabled": true,
       "model": null,
+      "dangerously_bypass": true,
       "sandbox": "workspace-write",
       "search": false
     },
@@ -15,6 +16,7 @@
       "description": "Reviews work for correctness, regressions, and quality gaps.",
       "enabled": true,
       "model": null,
+      "dangerously_bypass": true,
       "sandbox": "workspace-write",
       "search": false
     },
@@ -24,6 +26,7 @@
       "description": "Researches options, risks, and technical approaches.",
       "enabled": true,
       "model": null,
+      "dangerously_bypass": false,
       "sandbox": "workspace-write",
       "search": true
     },
@@ -33,6 +36,7 @@
       "description": "Handles branch, commit, diff, and PR-oriented repo operations.",
       "enabled": true,
       "model": null,
+      "dangerously_bypass": true,
       "sandbox": "workspace-write",
       "search": false
     },
@@ -42,6 +46,7 @@
       "description": "Maintains docs, task state, and durable memory.",
       "enabled": true,
       "model": null,
+      "dangerously_bypass": true,
       "sandbox": "workspace-write",
       "search": false
     }

@@ -11,6 +11,7 @@ class AgentDefinition:
     description: str
     default_enabled: bool
     default_search: bool
+    default_dangerously_bypass: bool = False
     default_sandbox: str = "workspace-write"
 
 
@@ -22,6 +23,7 @@ AGENT_DEFINITIONS = [
         description="Writes product code, tests, and refactors within scope.",
         default_enabled=True,
         default_search=False,
+        default_dangerously_bypass=True,
     ),
     AgentDefinition(
         key="inspector",
@@ -30,6 +32,7 @@ AGENT_DEFINITIONS = [
         description="Reviews work for correctness, regressions, and quality gaps.",
         default_enabled=True,
         default_search=False,
+        default_dangerously_bypass=True,
     ),
     AgentDefinition(
         key="scout",
@@ -38,6 +41,7 @@ AGENT_DEFINITIONS = [
         description="Researches options, risks, and technical approaches.",
         default_enabled=True,
         default_search=True,
+        default_dangerously_bypass=False,
     ),
     AgentDefinition(
         key="git-master",
@@ -46,6 +50,7 @@ AGENT_DEFINITIONS = [
         description="Handles branch, commit, diff, and PR-oriented repo operations.",
         default_enabled=True,
         default_search=False,
+        default_dangerously_bypass=True,
     ),
     AgentDefinition(
         key="scribe",
@@ -54,6 +59,7 @@ AGENT_DEFINITIONS = [
         description="Maintains docs, task state, and durable memory.",
         default_enabled=True,
         default_search=False,
+        default_dangerously_bypass=True,
     ),
 ]
 
@@ -67,6 +73,7 @@ def default_agent_registry() -> dict[str, dict[str, object]]:
                 "description": definition.description,
                 "enabled": definition.default_enabled,
                 "model": None,
+                "dangerously_bypass": definition.default_dangerously_bypass,
                 "sandbox": definition.default_sandbox,
                 "search": definition.default_search,
             }

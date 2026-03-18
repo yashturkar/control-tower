@@ -72,6 +72,12 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     delegate_parser.add_argument("--output", help="Path for the ResultPacket JSON output")
     delegate_parser.add_argument("--model", help="Optional Codex model override")
     delegate_parser.add_argument("--sandbox", help="Codex sandbox mode for the subagent")
+    delegate_parser.add_argument(
+        "--dangerous",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Run the subagent with --dangerously-bypass-approvals-and-sandbox",
+    )
 
     return parser.parse_args(argv)
 
@@ -96,6 +102,7 @@ def main(argv: list[str] | None = None) -> int:
             output=Path(args.output).expanduser().resolve() if args.output else None,
             model=args.model,
             sandbox=args.sandbox,
+            dangerous=args.dangerous,
         )
 
     raise RuntimeError(f"Unhandled command: {args.command}")
@@ -204,6 +211,7 @@ def cmd_delegate(
     output: Path | None,
     model: str | None,
     sandbox: str | None,
+    dangerous: bool | None = None,
 ) -> int:
     resolved_packet_path = packet_path.expanduser().resolve()
     packet = load_packet(resolved_packet_path)
@@ -222,7 +230,8 @@ def cmd_delegate(
     prompt = build_subagent_prompt(project_root, agent, json.dumps(packet, indent=2))
     schema_path = tower_dir(project_root) / "schemas" / "packets" / "result.schema.json"
     effective_model = model or agent_config.get("model")
-    effective_sandbox = sandbox or agent_config.get("sandbox") or "workspace-write"
+    effective_dangerous = dangerous if dangerous is not None else bool(agent_config.get("dangerously_bypass", False))
+    effective_sandbox = None if effective_dangerous else (sandbox or agent_config.get("sandbox") or "workspace-write")
     exit_code = run_exec(
         project_root,
         prompt,
@@ -230,6 +239,7 @@ def cmd_delegate(
         output_path=output_path,
         model=effective_model,
         sandbox=effective_sandbox,
+        dangerous=effective_dangerous,
     )
     if exit_code == 0:
         try:

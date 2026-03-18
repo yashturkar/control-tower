@@ -3,6 +3,7 @@ import os
 import subprocess
 import tempfile
 import unittest
+from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
 
@@ -144,6 +145,7 @@ class BootstrapTests(unittest.TestCase):
                 "",
                 "",
                 "",
+                "",
             ]
             responses = iter(prompts)
 
@@ -160,12 +162,55 @@ class BootstrapTests(unittest.TestCase):
             (root / ".git").mkdir()
             init_project(root)
 
-            with patch("builtins.input", side_effect=[""]):
+            captured = StringIO()
+            with patch("builtins.input", side_effect=[""]), patch("sys.stdout", new=captured):
                 configure_project_interactively(root)
 
             registry = load_agent_registry(root)
             self.assertTrue(registry["agents"]["builder"]["enabled"])
             self.assertTrue(registry["agents"]["inspector"]["enabled"])
+            self.assertTrue(registry["agents"]["builder"]["dangerously_bypass"])
+            self.assertFalse(registry["agents"]["scout"]["dangerously_bypass"])
+            output = captured.getvalue()
+            self.assertIn("!!! QUICK SETUP NOTICE !!!", output)
+            self.assertIn("dangerous bypass mode by default", output)
+            self.assertIn(".---(   )---.", output)
+
+    def test_custom_config_can_set_sandboxed_builder(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            prompts = [
+                "custom",
+                "",
+                "",
+                "n",
+                "danger-full-access",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+            ]
+            responses = iter(prompts)
+
+            with patch("builtins.input", side_effect=lambda _: next(responses)):
+                configure_project_interactively(root)
+
+            registry = load_agent_registry(root)
+            self.assertFalse(registry["agents"]["builder"]["dangerously_bypass"])
+            self.assertEqual("danger-full-access", registry["agents"]["builder"]["sandbox"])
 
     def test_start_syncs_tower_session_even_on_interrupt(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -388,6 +433,77 @@ class BootstrapTests(unittest.TestCase):
                 with self.assertRaises(SystemExit) as exc:
                     cmd_delegate(root, "builder", packet_path, output_path, None, "workspace-write")
             self.assertIn("did not produce a valid ResultPacket", str(exc.exception))
+
+    def test_cmd_delegate_uses_dangerous_bypass_defaults(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            packet_path = tower_dir(root) / "packets" / "outbox" / "builder-task.json"
+            packet = {
+                "schema_version": "1.0.0",
+                "packet_type": "task",
+                "packet_id": "packet-1",
+                "trace_id": "trace-1",
+                "parent_packet_id": None,
+                "created_at": "2026-03-18T00:00:00Z",
+                "from_agent": "tower",
+                "to_agent": "builder",
+                "task_type": "implementation",
+                "priority": "normal",
+                "project_id": "sample-project",
+                "session_id": "session-1",
+                "title": "Implement feature",
+                "objective": "Add feature",
+                "instructions": [],
+                "constraints": [],
+                "inputs": {"files": [], "artifacts": [], "references": []},
+                "expected_outputs": [],
+                "definition_of_done": [],
+                "memory_context_refs": [],
+                "doc_context_refs": [],
+                "time_budget": {"soft_seconds": 10, "hard_seconds": 20},
+                "requires_review": False,
+                "allow_partial": False,
+                "metadata": {},
+            }
+            packet_path.write_text(json.dumps(packet) + "\n")
+            output_path = tower_dir(root) / "packets" / "inbox" / "builder-result.json"
+            result_packet = {
+                "schema_version": "1.0.0",
+                "packet_type": "result",
+                "packet_id": "result-1",
+                "trace_id": "trace-1",
+                "parent_packet_id": "packet-1",
+                "created_at": "2026-03-18T00:00:00Z",
+                "from_agent": "builder",
+                "to_agent": "tower",
+                "status": "success",
+                "summary": "ok",
+                "work_completed": [],
+                "artifacts_changed": [],
+                "artifacts_created": [],
+                "artifacts_deleted": [],
+                "findings": [],
+                "follow_up_recommendations": [],
+                "review_requested": False,
+                "doc_update_needed": False,
+                "memory_worthy": [],
+                "metrics": {"tokens_used": 0, "files_touched": 0, "tests_added": 0, "tests_passed": 0},
+                "raw_output_ref": None,
+                "metadata": {},
+            }
+
+            def fake_run_exec(*args, **kwargs):
+                self.assertTrue(kwargs["dangerous"])
+                self.assertIsNone(kwargs["sandbox"])
+                output_path.write_text(json.dumps(result_packet) + "\n")
+                return 0
+
+            with patch("control_tower.runtime_cli.run_exec", side_effect=fake_run_exec):
+                exit_code = cmd_delegate(root, "builder", packet_path, output_path, None, "workspace-write")
+            self.assertEqual(0, exit_code)
 
     def test_runtime_delegate_help_does_not_expose_search_flag(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
