@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -385,6 +386,101 @@ class BootstrapTests(unittest.TestCase):
             init_mock.assert_called_with(project_root, force=False)
             branch_mock.assert_called_once_with(project_root)
             sync_mock.assert_called_once_with(project_root)
+
+    def test_bootstrap_remote_install_handles_forced_remote_updates(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_root = Path(tmp)
+            remote_root = tmp_root / "remote.git"
+            author_root = tmp_root / "author"
+            install_root = tmp_root / "install-root"
+            bootstrap_script = Path(__file__).resolve().parents[1] / "scripts" / "bootstrap_remote_install.sh"
+
+            subprocess.run(["git", "init", "--bare", remote_root], check=True, capture_output=True)
+            subprocess.run(["git", "init", "-b", "main", author_root], check=True, capture_output=True)
+            subprocess.run(["git", "config", "user.name", "Tower Tests"], cwd=author_root, check=True, capture_output=True)
+            subprocess.run(
+                ["git", "config", "user.email", "tower-tests@example.com"],
+                cwd=author_root,
+                check=True,
+                capture_output=True,
+            )
+            subprocess.run(["git", "remote", "add", "origin", str(remote_root)], cwd=author_root, check=True, capture_output=True)
+
+            def commit_version(version: str, message: str, orphan: bool = False) -> str:
+                if orphan:
+                    subprocess.run(
+                        ["git", "checkout", "--orphan", "rewritten-main"],
+                        cwd=author_root,
+                        check=True,
+                        capture_output=True,
+                    )
+                    for child in author_root.iterdir():
+                        if child.name == ".git":
+                            continue
+                        if child.is_dir():
+                            shutil.rmtree(child)
+                        else:
+                            child.unlink()
+                    subprocess.run(["git", "add", "-A"], cwd=author_root, check=True, capture_output=True)
+                    subprocess.run(
+                        ["git", "commit", "--allow-empty", "-m", "reset history"],
+                        cwd=author_root,
+                        check=True,
+                        capture_output=True,
+                    )
+
+                scripts_dir = author_root / "scripts"
+                scripts_dir.mkdir(parents=True, exist_ok=True)
+                install_script = scripts_dir / "install_tower.sh"
+                install_script.write_text(
+                    "#!/usr/bin/env bash\n"
+                    "set -euo pipefail\n"
+                    f"printf '%s\\n' '{version}' > \"$(dirname \"$0\")/../installed-version.txt\"\n"
+                )
+                install_script.chmod(0o755)
+                (author_root / "version.txt").write_text(f"{version}\n")
+                subprocess.run(["git", "add", "."], cwd=author_root, check=True, capture_output=True)
+                subprocess.run(["git", "commit", "-m", message], cwd=author_root, check=True, capture_output=True)
+                if orphan:
+                    subprocess.run(["git", "branch", "-M", "main"], cwd=author_root, check=True, capture_output=True)
+                subprocess.run(["git", "push", "--force", "origin", "main"], cwd=author_root, check=True, capture_output=True)
+                return (
+                    subprocess.run(
+                        ["git", "rev-parse", "HEAD"],
+                        cwd=author_root,
+                        check=True,
+                        capture_output=True,
+                        text=True,
+                    )
+                    .stdout.strip()
+                )
+
+            original_commit = commit_version("v1", "initial version")
+            env = os.environ.copy()
+            env["CONTROL_TOWER_REPO_URL"] = str(remote_root)
+            env["CONTROL_TOWER_INSTALL_ROOT"] = str(install_root)
+
+            subprocess.run([str(bootstrap_script)], check=True, capture_output=True, text=True, env=env)
+
+            rewritten_commit = commit_version("v2", "rewritten version", orphan=True)
+
+            subprocess.run([str(bootstrap_script)], check=True, capture_output=True, text=True, env=env)
+
+            installed_repo = install_root / "repo"
+            head_commit = (
+                subprocess.run(
+                    ["git", "rev-parse", "HEAD"],
+                    cwd=installed_repo,
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                )
+                .stdout.strip()
+            )
+
+            self.assertNotEqual(original_commit, rewritten_commit)
+            self.assertEqual(rewritten_commit, head_commit)
+            self.assertEqual("v2\n", (installed_repo / "installed-version.txt").read_text())
 
     def test_runtime_cli_create_packet_writes_task_packet(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

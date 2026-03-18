@@ -20,8 +20,7 @@ mkdir -p "${INSTALL_BASE}"
 
 if [[ -d "${REPO_DIR}/.git" ]]; then
   git -C "${REPO_DIR}" fetch origin "${REPO_REF}" --depth=1
-  git -C "${REPO_DIR}" checkout "${REPO_REF}"
-  git -C "${REPO_DIR}" pull --ff-only origin "${REPO_REF}"
+  git -C "${REPO_DIR}" checkout -B "${REPO_REF}" "FETCH_HEAD"
 else
   rm -rf "${REPO_DIR}"
   git clone --depth=1 --branch "${REPO_REF}" "${REPO_URL}" "${REPO_DIR}"
