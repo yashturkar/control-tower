@@ -516,7 +516,7 @@ class BootstrapTests(unittest.TestCase):
 
             self.assertEqual(0, exit_code)
             output = captured.getvalue()
-            self.assertIn("tower 0.1.0", output)
+            self.assertIn("tower 0.1.0+gabc1234", output)
             self.assertIn(f"source: {source_root.resolve()}", output)
             self.assertIn("commit: abc1234", output)
             self.assertIn("branch: main", output)
@@ -539,7 +539,7 @@ class BootstrapTests(unittest.TestCase):
                     exit_code = tower_main(["-v"])
 
             self.assertEqual(0, exit_code)
-            self.assertIn("tower 0.1.0", captured.getvalue())
+            self.assertIn("tower 0.1.0+gabc1234", captured.getvalue())
 
     def test_runtime_cli_create_packet_writes_task_packet(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

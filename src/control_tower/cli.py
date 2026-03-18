@@ -181,9 +181,13 @@ def cmd_status(project_root: Path) -> int:
 
 def cmd_version() -> int:
     source_root = _source_repo_root().resolve()
-    print(f"tower {__version__}")
-    print(f"source: {source_root}")
     git_commit = _git_output(source_root, ["rev-parse", "--short", "HEAD"])
+    display_version = __version__
+    if git_commit:
+        display_version = f"{display_version}+g{git_commit}"
+
+    print(f"tower {display_version}")
+    print(f"source: {source_root}")
     if git_commit:
         print(f"commit: {git_commit}")
     git_branch = _git_output(source_root, ["rev-parse", "--abbrev-ref", "HEAD"])
