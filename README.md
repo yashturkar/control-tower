@@ -53,6 +53,28 @@ tower start
 
 `tower init` opens a small CLI configuration flow where you can choose which subagents are enabled and set per-agent defaults like sandbox, web search, and an optional model override.
 
+Tower now runs without sandboxing or approval gates by default:
+
+```bash
+tower start
+```
+
+If you want to disable that for a specific session:
+
+```bash
+tower start --no-dangerous
+```
+
+The repo default lives in `.control-tower/state/project.json`:
+
+```json
+{
+  "codex_defaults": {
+    "dangerously_bypass": true
+  }
+}
+```
+
 Resume the last Tower session for the current repo:
 
 ```bash

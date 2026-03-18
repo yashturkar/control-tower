@@ -242,8 +242,15 @@ def cmd_delegate(
         search=effective_search,
     )
     if exit_code == 0:
-        result_packet = load_packet(output_path)
-        validate_result_packet(result_packet)
+        try:
+            result_packet = load_packet(output_path)
+            validate_result_packet(result_packet)
+        except Exception as exc:
+            raise SystemExit(
+                "codex exec did not produce a valid ResultPacket. "
+                f"Expected JSON at `{output_path}` but got an invalid or empty file. "
+                "This usually means the Codex subprocess failed before writing its final message."
+            ) from exc
         sync_and_capture_latest(project_root, role=agent)
         print(str(output_path))
     return exit_code

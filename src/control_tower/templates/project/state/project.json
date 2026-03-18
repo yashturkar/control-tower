@@ -20,6 +20,7 @@
   "codex_defaults": {
     "sandbox": "workspace-write",
     "approval": "on-request",
-    "search": false
+    "search": false,
+    "dangerously_bypass": true
   }
 }

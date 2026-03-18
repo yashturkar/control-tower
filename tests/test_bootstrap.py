@@ -14,6 +14,7 @@ from control_tower.packets import validate_task_packet
 from control_tower.project import load_agent_registry
 from control_tower.prompts import build_tower_prompt
 from control_tower.runtime_cli import cmd_delegate
+from control_tower.sessions import find_latest_session_id_for_project
 
 
 class BootstrapTests(unittest.TestCase):
@@ -302,8 +303,9 @@ class BootstrapTests(unittest.TestCase):
                 return 0
 
             with patch("control_tower.runtime_cli.run_exec", side_effect=fake_run_exec):
-                with self.assertRaises(ValueError):
+                with self.assertRaises(SystemExit) as exc:
                     cmd_delegate(root, "builder", packet_path, output_path, None, "workspace-write", False)
+            self.assertIn("did not produce a valid ResultPacket", str(exc.exception))
 
     def test_create_packet_from_result_uses_relative_refs(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -379,6 +381,56 @@ class BootstrapTests(unittest.TestCase):
                 [".control-tower/packets/inbox/builder-result.json"],
                 packet["memory_context_refs"],
             )
+
+    def test_find_latest_session_id_for_project(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "sample-project"
+            root.mkdir()
+            (root / ".git").mkdir()
+            codex_home = Path(tmp) / "codex-home"
+            session_dir = codex_home / "sessions" / "2026" / "03" / "18"
+            session_dir.mkdir(parents=True)
+
+            older = session_dir / "older.jsonl"
+            older.write_text(
+                json.dumps(
+                    {
+                        "type": "session_meta",
+                        "payload": {
+                            "id": "session-older",
+                            "timestamp": "2026-03-18T00:00:00Z",
+                            "cwd": str(root),
+                        },
+                    }
+                )
+                + "\n"
+            )
+            newer = session_dir / "newer.jsonl"
+            newer.write_text(
+                json.dumps(
+                    {
+                        "type": "session_meta",
+                        "payload": {
+                            "id": "session-newer",
+                            "timestamp": "2026-03-18T01:00:00Z",
+                            "cwd": str(root),
+                        },
+                    }
+                )
+                + "\n"
+            )
+
+            old = os.environ.get("CONTROL_TOWER_CODEX_HOME")
+            try:
+                os.environ["CONTROL_TOWER_CODEX_HOME"] = str(codex_home)
+                latest = find_latest_session_id_for_project(root)
+            finally:
+                if old is None:
+                    os.environ.pop("CONTROL_TOWER_CODEX_HOME", None)
+                else:
+                    os.environ["CONTROL_TOWER_CODEX_HOME"] = old
+
+            self.assertEqual("session-newer", latest)
 
 
 if __name__ == "__main__":

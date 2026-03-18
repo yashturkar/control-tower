@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import json
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
+from .layout import sessions_root
 from .memory import import_project_sessions, mark_runtime_sync
 from .project import load_runtime_state
 
@@ -42,3 +44,37 @@ def sync_and_capture_latest(project_root: Path, role: str | None = None) -> str 
         updates["last_agent_sessions"] = agent_runs
     mark_runtime_sync(project_root, **updates)
     return latest
+
+
+def find_latest_session_id_for_project(project_root: Path) -> str | None:
+    project_root = project_root.resolve()
+    candidates: list[tuple[str, str]] = []
+    root = sessions_root()
+    if not root.exists():
+        return None
+
+    for session_path in root.rglob("*.jsonl"):
+        try:
+            first_line = session_path.read_text().splitlines()[0]
+            event = json.loads(first_line)
+        except Exception:
+            continue
+        if event.get("type") != "session_meta":
+            continue
+        payload = event.get("payload", {})
+        session_id = payload.get("id")
+        cwd = payload.get("cwd")
+        timestamp = payload.get("timestamp")
+        if not session_id or not cwd or not timestamp:
+            continue
+        try:
+            normalized_cwd = Path(cwd).expanduser().resolve()
+        except Exception:
+            continue
+        if normalized_cwd == project_root:
+            candidates.append((timestamp, session_id))
+
+    if not candidates:
+        return None
+    candidates.sort()
+    return candidates[-1][1]

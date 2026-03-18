@@ -9,7 +9,7 @@ from .codex_cli import run_interactive
 from .layout import find_project_root, tower_dir
 from .project import load_agent_registry, load_project_config, load_runtime_state
 from .prompts import build_tower_prompt
-from .sessions import sync_and_capture_latest, update_git_branch
+from .sessions import find_latest_session_id_for_project, sync_and_capture_latest, update_git_branch
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -35,9 +35,20 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 def _add_codex_options(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--model", help="Optional Codex model override")
-    parser.add_argument("--sandbox", default="workspace-write", help="Codex sandbox mode")
-    parser.add_argument("--approval", default="on-request", help="Codex approval policy")
-    parser.add_argument("--search", action="store_true", help="Enable Codex web search")
+    parser.add_argument("--sandbox", help="Codex sandbox mode")
+    parser.add_argument("--approval", help="Codex approval policy")
+    parser.add_argument(
+        "--search",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Enable or disable Codex web search",
+    )
+    parser.add_argument(
+        "--dangerous",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Run Tower with --dangerously-bypass-approvals-and-sandbox",
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -60,15 +71,18 @@ def main(argv: list[str] | None = None) -> int:
         init_project(project_root, force=False)
         update_git_branch(project_root)
         sync_and_capture_latest(project_root)
+        config = load_project_config(project_root)
+        codex_options = resolve_codex_options(config, args)
         prompt = " ".join(args.prompt).strip() or None
         assembled = build_tower_prompt(project_root, prompt)
         exit_code = run_interactive(
             project_root,
             assembled,
-            model=args.model,
-            sandbox=args.sandbox,
-            approval=args.approval,
-            search=args.search,
+            model=codex_options["model"],
+            sandbox=codex_options["sandbox"],
+            approval=codex_options["approval"],
+            search=codex_options["search"],
+            dangerous=codex_options["dangerous"],
         )
         sync_and_capture_latest(project_root, role="tower")
         return exit_code
@@ -77,18 +91,22 @@ def main(argv: list[str] | None = None) -> int:
         init_project(project_root, force=False)
         update_git_branch(project_root)
         sync_and_capture_latest(project_root)
+        config = load_project_config(project_root)
+        codex_options = resolve_codex_options(config, args)
         runtime = load_runtime_state(project_root)
+        session_id = runtime.get("last_tower_session_id") or find_latest_session_id_for_project(project_root)
         prompt = " ".join(args.prompt).strip() or "Resume Tower control for this repository, reconcile memory, and continue the current workstream."
         assembled = build_tower_prompt(project_root, prompt)
         exit_code = run_interactive(
             project_root,
             assembled,
             resume=True,
-            session_id=runtime.get("last_tower_session_id"),
-            model=args.model,
-            sandbox=args.sandbox,
-            approval=args.approval,
-            search=args.search,
+            session_id=session_id,
+            model=codex_options["model"],
+            sandbox=codex_options["sandbox"],
+            approval=codex_options["approval"],
+            search=codex_options["search"],
+            dangerous=codex_options["dangerous"],
         )
         sync_and_capture_latest(project_root, role="tower")
         return exit_code
@@ -105,6 +123,7 @@ def cmd_status(project_root: Path) -> int:
     config = load_project_config(project_root)
     registry = load_agent_registry(project_root)
     runtime = load_runtime_state(project_root)
+    codex_defaults = config.get("codex_defaults", {})
     active_agents = [
         agent_config.get("name", agent_key)
         for agent_key, agent_config in registry.get("agents", {}).items()
@@ -118,10 +137,22 @@ def cmd_status(project_root: Path) -> int:
     print(f"Last Tower session: {runtime.get('last_tower_session_id', 'none')}")
     print(f"Last sync: {runtime.get('last_sync_time', 'never')}")
     print(f"Enabled agents: {', '.join(active_agents) if active_agents else 'none'}")
+    print(f"Tower dangerous mode: {codex_defaults.get('dangerously_bypass', False)}")
     print("")
     print("L0")
     print(l0)
     return 0
+
+
+def resolve_codex_options(config: dict[str, object], args: argparse.Namespace) -> dict[str, object]:
+    defaults = config.get("codex_defaults", {}) if isinstance(config, dict) else {}
+    return {
+        "model": args.model,
+        "sandbox": args.sandbox if args.sandbox is not None else defaults.get("sandbox", "workspace-write"),
+        "approval": args.approval if args.approval is not None else defaults.get("approval", "on-request"),
+        "search": args.search if args.search is not None else bool(defaults.get("search", False)),
+        "dangerous": args.dangerous if args.dangerous is not None else bool(defaults.get("dangerously_bypass", True)),
+    }
 
 
 if __name__ == "__main__":

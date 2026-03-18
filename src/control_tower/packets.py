@@ -13,7 +13,12 @@ def utc_now() -> str:
 
 
 def load_packet(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text())
+    if not path.exists():
+        raise ValueError(f"Packet file does not exist: {path}")
+    raw = path.read_text().strip()
+    if not raw:
+        raise ValueError(f"Packet file is empty: {path}")
+    return json.loads(raw)
 
 
 def slugify(value: str) -> str:
