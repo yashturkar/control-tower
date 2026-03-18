@@ -10,6 +10,7 @@ from .config_ui import configure_project_interactively, should_prompt_for_init_u
 from .bootstrap import init_project
 from .codex_cli import run_interactive
 from .layout import find_project_root, tower_dir
+from .memory import mark_runtime_sync
 from .project import load_agent_registry, load_project_config, load_runtime_state
 from .prompts import build_tower_prompt
 from .sessions import find_latest_session_id_for_project, sync_and_capture_latest, update_git_branch
@@ -103,6 +104,8 @@ def main(argv: list[str] | None = None) -> int:
         codex_options = resolve_codex_options(config, args)
         runtime = load_runtime_state(project_root)
         session_id = runtime.get("last_tower_session_id") or find_latest_session_id_for_project(project_root)
+        if session_id:
+            mark_runtime_sync(project_root, last_tower_session_id=session_id)
         prompt = " ".join(args.prompt).strip() or "Resume Tower control for this repository, reconcile memory, and continue the current workstream."
         assembled = build_tower_prompt(project_root, prompt)
         try:

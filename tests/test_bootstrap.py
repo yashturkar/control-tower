@@ -16,7 +16,7 @@ from control_tower.packets import validate_task_packet
 from control_tower.project import load_agent_registry
 from control_tower.prompts import build_tower_prompt
 from control_tower.runtime_cli import cmd_delegate
-from control_tower.sessions import find_latest_session_id_for_project
+from control_tower.sessions import find_latest_session_id_for_project, sync_and_capture_latest
 
 
 class BootstrapTests(unittest.TestCase):
@@ -807,6 +807,80 @@ class BootstrapTests(unittest.TestCase):
                     os.environ["CONTROL_TOWER_CODEX_HOME"] = old
 
             self.assertEqual("session-newer", latest)
+
+    def test_find_latest_session_id_for_project_ignores_exec_sessions(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "sample-project"
+            root.mkdir()
+            (root / ".git").mkdir()
+            codex_home = Path(tmp) / "codex-home"
+            session_dir = codex_home / "sessions" / "2026" / "03" / "18"
+            session_dir.mkdir(parents=True)
+
+            interactive = session_dir / "interactive.jsonl"
+            interactive.write_text(
+                json.dumps(
+                    {
+                        "type": "session_meta",
+                        "payload": {
+                            "id": "session-interactive",
+                            "timestamp": "2026-03-18T00:00:00Z",
+                            "cwd": str(root),
+                            "source": "cli",
+                            "originator": "codex_cli_rs",
+                        },
+                    }
+                )
+                + "\n"
+            )
+            exec_session = session_dir / "exec.jsonl"
+            exec_session.write_text(
+                json.dumps(
+                    {
+                        "type": "session_meta",
+                        "payload": {
+                            "id": "session-exec",
+                            "timestamp": "2026-03-18T01:00:00Z",
+                            "cwd": str(root),
+                            "source": "exec",
+                            "originator": "codex_exec",
+                        },
+                    }
+                )
+                + "\n"
+            )
+
+            old = os.environ.get("CONTROL_TOWER_CODEX_HOME")
+            try:
+                os.environ["CONTROL_TOWER_CODEX_HOME"] = str(codex_home)
+                latest = find_latest_session_id_for_project(root)
+            finally:
+                if old is None:
+                    os.environ.pop("CONTROL_TOWER_CODEX_HOME", None)
+                else:
+                    os.environ["CONTROL_TOWER_CODEX_HOME"] = old
+
+            self.assertEqual("session-interactive", latest)
+
+    def test_sync_and_capture_latest_tower_ignores_exec_sessions(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            class Session:
+                def __init__(self, session_id: str, source: str, originator: str) -> None:
+                    self.session_id = session_id
+                    self.source = source
+                    self.originator = originator
+
+            with patch(
+                "control_tower.sessions.import_project_sessions",
+                return_value=[Session("exec-1", "exec", "codex_exec"), Session("tower-1", "cli", "codex_cli_rs")],
+            ):
+                latest = sync_and_capture_latest(root, role="tower")
+
+            self.assertEqual("tower-1", latest)
 
 
 if __name__ == "__main__":

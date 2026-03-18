@@ -35,8 +35,10 @@ def sync_and_capture_latest(project_root: Path, role: str | None = None) -> str 
     new_sessions = import_project_sessions(project_root)
     latest = new_sessions[-1].session_id if new_sessions else None
     updates = {"last_sync_time": iso_now()}
-    if role == "tower" and latest:
-        updates["last_tower_session_id"] = latest
+    if role == "tower":
+        latest = _latest_interactive_session_id(new_sessions)
+        if latest:
+            updates["last_tower_session_id"] = latest
     elif role and latest:
         runtime = load_runtime_state(project_root)
         agent_runs = runtime.get("last_agent_sessions", {})
@@ -67,6 +69,8 @@ def find_latest_session_id_for_project(project_root: Path) -> str | None:
         timestamp = payload.get("timestamp")
         if not session_id or not cwd or not timestamp:
             continue
+        if not _is_interactive_session(payload):
+            continue
         try:
             normalized_cwd = Path(cwd).expanduser().resolve()
         except Exception:
@@ -78,3 +82,14 @@ def find_latest_session_id_for_project(project_root: Path) -> str | None:
         return None
     candidates.sort()
     return candidates[-1][1]
+
+
+def _is_interactive_session(payload: dict[str, object]) -> bool:
+    return payload.get("source") != "exec" and payload.get("originator") != "codex_exec"
+
+
+def _latest_interactive_session_id(sessions: list[object]) -> str | None:
+    for session in reversed(sessions):
+        if _is_interactive_session({"source": getattr(session, "source", None), "originator": getattr(session, "originator", None)}):
+            return getattr(session, "session_id", None)
+    return None
