@@ -64,15 +64,12 @@ def run_exec(
     output_path: Path,
     model: str | None = None,
     sandbox: str | None = None,
-    search: bool = False,
 ) -> int:
     args = ["codex", "exec", "-C", str(project_root), "--output-schema", str(output_schema), "-o", str(output_path)]
     if model:
         args.extend(["-m", model])
     if sandbox:
         args.extend(["-s", sandbox])
-    if search:
-        args.append("--search")
     args.append(prompt)
     result = subprocess.run(args, cwd=project_root, env=_codex_env())
     return result.returncode

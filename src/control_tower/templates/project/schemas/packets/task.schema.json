@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
+  "additionalProperties": false,
   "required": [
     "schema_version",
     "packet_type",
@@ -29,7 +30,7 @@
   ],
   "properties": {
     "schema_version": {"type": "string"},
-    "packet_type": {"const": "task"},
+    "packet_type": {"type": "string", "const": "task"},
     "packet_id": {"type": "string"},
     "trace_id": {"type": "string"},
     "parent_packet_id": {"type": ["string", "null"]},
@@ -46,6 +47,7 @@
     "constraints": {"type": "array", "items": {"type": "string"}},
     "inputs": {
       "type": "object",
+      "additionalProperties": false,
       "required": ["files", "artifacts", "references"],
       "properties": {
         "files": {"type": "array", "items": {"type": "string"}},
@@ -59,6 +61,7 @@
     "doc_context_refs": {"type": "array", "items": {"type": "string"}},
     "time_budget": {
       "type": "object",
+      "additionalProperties": false,
       "required": ["soft_seconds", "hard_seconds"],
       "properties": {
         "soft_seconds": {"type": "integer"},
@@ -67,6 +70,15 @@
     },
     "requires_review": {"type": "boolean"},
     "allow_partial": {"type": "boolean"},
-    "metadata": {"type": "object"}
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "generated_by": {"type": "string"},
+        "seed_result_packet": {"type": "string"},
+        "seed_result_agent": {"type": "string"},
+        "seed_result_status": {"type": "string"}
+      }
+    }
   }
 }

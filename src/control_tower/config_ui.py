@@ -42,7 +42,6 @@ def configure_project_interactively(project_root: Path) -> None:
         if enabled:
             model = _prompt_text("Model override", model, allow_blank=True)
             sandbox = _prompt_choice("Sandbox", SANDBOX_OPTIONS, sandbox)
-            search = _prompt_yes_no("Enable web search", search)
 
         configured_agents[definition.key] = {
             "name": definition.display_name,
@@ -65,7 +64,6 @@ def configure_project_interactively(project_root: Path) -> None:
         line = f"- {config['name']} [{status}]"
         if config["enabled"]:
             line += f" sandbox={config['sandbox']}"
-            line += f" search={'on' if config['search'] else 'off'}"
             if config["model"]:
                 line += f" model={config['model']}"
         print(line)

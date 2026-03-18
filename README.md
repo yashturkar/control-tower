@@ -5,10 +5,15 @@ Control Tower is a bootstrap for a Codex-driven multi-agent orchestration workfl
 It installs a `tower` command for humans and a `tower-run` command for Tower’s internal runtime operations. Together they wrap OpenAI Codex CLI, initialize a project-local `.control-tower/` runtime, load Tower with persistent project memory, and provide delegated subagent entrypoints for:
 
 - `Builder`
+  Implementation specialist for product code, tests, and refactors.
 - `Inspector`
+  Review specialist for correctness, regressions, and quality checks.
 - `Scout`
+  Research specialist for discovery, options, and technical tradeoffs.
 - `Git-master`
+  Repository operations specialist for branch, commit, and PR workflows.
 - `Scribe`
+  Documentation and memory specialist for summaries, docs, and durable project state.
 
 ## What this bootstrap does
 
@@ -51,7 +56,7 @@ tower init
 tower start
 ```
 
-`tower init` opens a small CLI configuration flow where you can choose which subagents are enabled and set per-agent defaults like sandbox, web search, and an optional model override.
+`tower init` opens a small CLI configuration flow where you can choose which subagents are enabled and set per-agent defaults like sandbox and an optional model override.
 
 Tower now runs without sandboxing or approval gates by default:
 

@@ -105,7 +105,7 @@ class BootstrapTests(unittest.TestCase):
             init_project(root)
 
             prompts = [""] * 18
-            prompts[5] = "n"
+            prompts[4] = "n"
             responses = iter(prompts)
 
             with patch("builtins.input", side_effect=lambda _: next(responses)):
@@ -304,8 +304,42 @@ class BootstrapTests(unittest.TestCase):
 
             with patch("control_tower.runtime_cli.run_exec", side_effect=fake_run_exec):
                 with self.assertRaises(SystemExit) as exc:
-                    cmd_delegate(root, "builder", packet_path, output_path, None, "workspace-write", False)
+                    cmd_delegate(root, "builder", packet_path, output_path, None, "workspace-write")
             self.assertIn("did not produce a valid ResultPacket", str(exc.exception))
+
+    def test_runtime_delegate_help_does_not_expose_search_flag(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            env = os.environ.copy()
+            env["PYTHONPATH"] = str(Path(__file__).resolve().parents[1] / "src")
+
+            result = subprocess.run(
+                ["python3", "-m", "control_tower.runtime_cli", "delegate", "--help"],
+                cwd=tmp,
+                env=env,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            self.assertNotIn("--search", result.stdout)
+
+    def test_packet_schemas_are_strict_for_structured_output(self) -> None:
+        base = Path(__file__).resolve().parents[1] / "src" / "control_tower" / "templates" / "project" / "schemas" / "packets"
+
+        result_schema = json.loads((base / "result.schema.json").read_text())
+        self.assertFalse(result_schema["additionalProperties"])
+        self.assertEqual("string", result_schema["properties"]["packet_type"]["type"])
+        self.assertFalse(result_schema["properties"]["metrics"]["additionalProperties"])
+        self.assertFalse(result_schema["properties"]["findings"]["items"]["additionalProperties"])
+        self.assertFalse(result_schema["properties"]["metadata"]["additionalProperties"])
+        self.assertEqual({}, result_schema["properties"]["metadata"]["properties"])
+
+        task_schema = json.loads((base / "task.schema.json").read_text())
+        self.assertFalse(task_schema["additionalProperties"])
+        self.assertEqual("string", task_schema["properties"]["packet_type"]["type"])
+        self.assertFalse(task_schema["properties"]["inputs"]["additionalProperties"])
+        self.assertFalse(task_schema["properties"]["time_budget"]["additionalProperties"])
+        self.assertFalse(task_schema["properties"]["metadata"]["additionalProperties"])
 
     def test_create_packet_from_result_uses_relative_refs(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

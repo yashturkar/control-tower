@@ -1,6 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
+  "additionalProperties": false,
   "required": [
     "schema_version",
     "packet_type",
@@ -20,7 +21,7 @@
   ],
   "properties": {
     "schema_version": {"type": "string"},
-    "packet_type": {"const": "error"},
+    "packet_type": {"type": "string", "const": "error"},
     "packet_id": {"type": "string"},
     "trace_id": {"type": "string"},
     "parent_packet_id": {"type": "string"},
@@ -33,6 +34,15 @@
     "retryable": {"type": "boolean"},
     "suggested_retry_strategy": {"type": "string"},
     "partial_artifacts": {"type": "array", "items": {"type": "string"}},
-    "metadata": {"type": "object"}
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "generated_by": {"type": "string"},
+        "seed_result_packet": {"type": "string"},
+        "seed_result_agent": {"type": "string"},
+        "seed_result_status": {"type": "string"}
+      }
+    }
   }
 }

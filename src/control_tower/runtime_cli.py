@@ -72,12 +72,6 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     delegate_parser.add_argument("--output", help="Path for the ResultPacket JSON output")
     delegate_parser.add_argument("--model", help="Optional Codex model override")
     delegate_parser.add_argument("--sandbox", help="Codex sandbox mode for the subagent")
-    delegate_parser.add_argument(
-        "--search",
-        action=argparse.BooleanOptionalAction,
-        default=None,
-        help="Enable or disable Codex web search for the subagent",
-    )
 
     return parser.parse_args(argv)
 
@@ -102,7 +96,6 @@ def main(argv: list[str] | None = None) -> int:
             output=Path(args.output).expanduser().resolve() if args.output else None,
             model=args.model,
             sandbox=args.sandbox,
-            search=args.search,
         )
 
     raise RuntimeError(f"Unhandled command: {args.command}")
@@ -211,7 +204,6 @@ def cmd_delegate(
     output: Path | None,
     model: str | None,
     sandbox: str | None,
-    search: bool | None,
 ) -> int:
     resolved_packet_path = packet_path.expanduser().resolve()
     packet = load_packet(resolved_packet_path)
@@ -231,7 +223,6 @@ def cmd_delegate(
     schema_path = tower_dir(project_root) / "schemas" / "packets" / "result.schema.json"
     effective_model = model or agent_config.get("model")
     effective_sandbox = sandbox or agent_config.get("sandbox") or "workspace-write"
-    effective_search = search if search is not None else bool(agent_config.get("search", False))
     exit_code = run_exec(
         project_root,
         prompt,
@@ -239,7 +230,6 @@ def cmd_delegate(
         output_path=output_path,
         model=effective_model,
         sandbox=effective_sandbox,
-        search=effective_search,
     )
     if exit_code == 0:
         try:
