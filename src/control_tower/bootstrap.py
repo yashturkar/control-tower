@@ -13,6 +13,23 @@ def _template_root() -> Path:
     return Path(str(resources.files("control_tower"))) / "templates" / "project"
 
 
+MANAGED_TEMPLATE_PREFIXES = (
+    Path("schemas/packets"),
+)
+
+
+def _should_refresh_existing(relative: Path) -> bool:
+    return any(relative.parts[: len(prefix.parts)] == prefix.parts for prefix in MANAGED_TEMPLATE_PREFIXES)
+
+
+def _merge_project_config(template_config: dict[str, object], existing_config: dict[str, object], project_root: Path) -> dict[str, object]:
+    merged = dict(template_config)
+    merged.update(existing_config)
+    merged["project_name"] = project_root.name
+    merged["project_root"] = str(project_root)
+    return merged
+
+
 def init_project(project_root: Path, force: bool = False) -> Path:
     destination = tower_dir(project_root)
     source_root = _template_root()
@@ -23,15 +40,16 @@ def init_project(project_root: Path, force: bool = False) -> Path:
         if source.is_dir():
             target.mkdir(parents=True, exist_ok=True)
             continue
-        if target.exists() and not force:
+        if target.exists() and not force and not _should_refresh_existing(relative):
             continue
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, target)
 
     project_state = destination / "state" / "project.json"
-    config = json.loads(project_state.read_text())
-    config["project_name"] = project_root.name
-    config["project_root"] = str(project_root)
+    template_project_state = source_root / "state" / "project.json"
+    template_config = json.loads(template_project_state.read_text())
+    existing_config = json.loads(project_state.read_text()) if project_state.exists() else {}
+    config = _merge_project_config(template_config, existing_config, project_root)
     project_state.write_text(json.dumps(config, indent=2) + "\n")
 
     agent_registry = destination / "state" / "agent-registry.json"

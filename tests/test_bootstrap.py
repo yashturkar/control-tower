@@ -30,6 +30,30 @@ class BootstrapTests(unittest.TestCase):
             self.assertTrue((tower / "memory" / "l0.md").exists())
             self.assertTrue((tower / "state" / "agent-registry.json").exists())
 
+    def test_init_project_refreshes_managed_packet_schemas_for_existing_repo(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            result_schema_path = tower_dir(root) / "schemas" / "packets" / "result.schema.json"
+            stale_schema = {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                    "packet_type": {"const": "result"},
+                    "metadata": {"type": "object"},
+                },
+            }
+            result_schema_path.write_text(json.dumps(stale_schema, indent=2) + "\n")
+
+            init_project(root, force=False)
+
+            refreshed_schema = json.loads(result_schema_path.read_text())
+            self.assertFalse(refreshed_schema["additionalProperties"])
+            self.assertEqual("string", refreshed_schema["properties"]["packet_type"]["type"])
+            self.assertEqual({}, refreshed_schema["properties"]["metadata"]["properties"])
+
     def test_build_tower_prompt_contains_memory_and_delegate_path(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
