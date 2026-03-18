@@ -213,3 +213,67 @@ def new_scribe_memory_sync_packet(project_id: str, session_id: str, trace_id: st
         "allow_partial": True,
         "metadata": {"generated_by": "tower sync-memory"},
     }
+
+
+def new_scribe_docs_followup_packet(
+    project_id: str,
+    session_id: str,
+    trace_id: str,
+    from_agent: str,
+    result_ref: str,
+    changed_files: list[str],
+    doc_refs: list[str],
+) -> dict[str, Any]:
+    packet_id = str(uuid.uuid4())
+    return {
+        "schema_version": "1.0.0",
+        "packet_type": "task",
+        "packet_id": packet_id,
+        "trace_id": trace_id,
+        "parent_packet_id": None,
+        "created_at": utc_now(),
+        "from_agent": "tower",
+        "to_agent": "scribe",
+        "task_type": "documentation",
+        "priority": "normal",
+        "project_id": project_id,
+        "session_id": session_id,
+        "title": f"Update repo docs after {from_agent.title()} work",
+        "objective": "Inspect the latest agent result and update the impacted durable repo docs under the configured docs harness.",
+        "instructions": [
+            "Review the referenced ResultPacket and the changed files before editing docs.",
+            "Update existing relevant docs under the configured repo docs roots when possible.",
+            "Create a new repo doc only if no suitable existing page covers the change.",
+            "Refresh docs indices if you add a new page.",
+            "Report doc drift or unresolved ambiguity explicitly instead of inventing facts.",
+        ],
+        "constraints": [
+            "Treat repo docs under `docs/` as the durable docs harness.",
+            "Treat `.control-tower/docs/state` and `.control-tower/memory` as operational memory, not durable product docs.",
+            "Do not modify product source code unless the task packet explicitly requires a small doc-adjacent fix.",
+        ],
+        "inputs": {
+            "files": changed_files,
+            "artifacts": [],
+            "references": [result_ref],
+        },
+        "expected_outputs": [
+            "Updated repo docs if needed",
+            "A ResultPacket summarizing doc updates, drift, and follow-up gaps",
+        ],
+        "definition_of_done": [
+            "Durable repo docs reflect the changed behavior or workflow",
+            "Relevant indices are refreshed if new docs were added",
+            "Open doc drift or ambiguity is called out explicitly",
+        ],
+        "memory_context_refs": [result_ref],
+        "doc_context_refs": doc_refs,
+        "time_budget": {"soft_seconds": 300, "hard_seconds": 900},
+        "requires_review": False,
+        "allow_partial": True,
+        "metadata": {
+            "generated_by": "tower delegate follow-up",
+            "seed_result_packet": result_ref,
+            "seed_result_agent": from_agent,
+        },
+    }

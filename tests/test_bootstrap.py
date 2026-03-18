@@ -261,6 +261,7 @@ class BootstrapTests(unittest.TestCase):
                 "",
                 "",
                 "",
+                "",
             ]
             responses = iter(prompts)
 
@@ -278,7 +279,7 @@ class BootstrapTests(unittest.TestCase):
             init_project(root)
 
             captured = StringIO()
-            with patch("builtins.input", side_effect=[""]), patch("sys.stdout", new=captured):
+            with patch("builtins.input", side_effect=["", ""]), patch("sys.stdout", new=captured):
                 configure_project_interactively(root)
 
             registry = load_agent_registry(root)
@@ -289,7 +290,7 @@ class BootstrapTests(unittest.TestCase):
             output = captured.getvalue()
             self.assertIn("!!! QUICK SETUP NOTICE !!!", output)
             self.assertIn("dangerous bypass mode by default", output)
-            self.assertIn(".---(   )---.", output)
+            self.assertIn("@@@----@", output)
 
     def test_custom_config_can_set_sandboxed_builder(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -357,6 +358,22 @@ class BootstrapTests(unittest.TestCase):
             self.assertGreaterEqual(sync_mock.call_count, 2)
             self.assertEqual(((root,), {"role": "tower"}), sync_mock.call_args_list[-1])
 
+    def test_resume_without_prompt_does_not_rebuild_bootstrap_prompt(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            with patch("control_tower.cli.find_project_root", return_value=root), patch(
+                "control_tower.cli.run_interactive", return_value=0
+            ) as run_mock, patch("control_tower.cli.sync_and_capture_latest"), patch(
+                "control_tower.cli.build_tower_prompt"
+            ) as prompt_mock:
+                tower_main(["resume"])
+
+            prompt_mock.assert_not_called()
+            self.assertIsNone(run_mock.call_args.args[1])
+
     def test_update_refreshes_runtime_and_reinstalls_from_local_repo(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             project_root = Path(tmp) / "project"
@@ -385,6 +402,48 @@ class BootstrapTests(unittest.TestCase):
             init_mock.assert_called_with(project_root, force=False)
             branch_mock.assert_called_once_with(project_root)
             sync_mock.assert_called_once_with(project_root)
+
+    def test_version_reports_package_and_source(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            source_root = Path(tmp) / "control-tower-src"
+            source_root.mkdir()
+            (source_root / ".git").mkdir()
+            with patch("control_tower.cli._source_repo_root", return_value=source_root), patch(
+                "control_tower.cli._managed_install_repo_root", return_value=source_root
+            ), patch("control_tower.cli._git_output", side_effect=["abc1234", "main"]):
+                from io import StringIO
+                import sys
+
+                captured = StringIO()
+                with patch.object(sys, "stdout", captured):
+                    exit_code = tower_main(["--version"])
+
+            self.assertEqual(0, exit_code)
+            output = captured.getvalue()
+            self.assertIn("tower 0.1.0", output)
+            self.assertIn(f"source: {source_root.resolve()}", output)
+            self.assertIn("commit: abc1234", output)
+            self.assertIn("branch: main", output)
+            self.assertIn("managed install active: True", output)
+
+    def test_short_version_flag_reports_package_and_source(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            source_root = Path(tmp) / "control-tower-src"
+            source_root.mkdir()
+            (source_root / ".git").mkdir()
+
+            with patch("control_tower.cli._source_repo_root", return_value=source_root), patch(
+                "control_tower.cli._managed_install_repo_root", return_value=source_root
+            ), patch("control_tower.cli._git_output", side_effect=["abc1234", "main"]):
+                from io import StringIO
+                import sys
+
+                captured = StringIO()
+                with patch.object(sys, "stdout", captured):
+                    exit_code = tower_main(["-v"])
+
+            self.assertEqual(0, exit_code)
+            self.assertIn("tower 0.1.0", captured.getvalue())
 
     def test_runtime_cli_create_packet_writes_task_packet(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
