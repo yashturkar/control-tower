@@ -23,13 +23,41 @@ def configure_project_interactively(project_root: Path) -> None:
     print("")
     print("Control Tower init")
     print(f"Project: {project_root.name}")
-    print("Configure the agents Tower can use in this repository.")
+    print("Choose a quick setup or open the detailed per-agent configurator.")
     print("Press Enter to accept the current default shown in brackets.")
     print("")
 
-    project_name = _prompt_text("Project name", project_config.get("project_name", project_root.name))
-    project_config["project_name"] = project_name
+    setup_mode = _prompt_choice("Setup mode", ["quick", "custom"], "quick")
+    print("")
 
+    project_config["project_name"] = project_config.get("project_name", project_root.name) or project_root.name
+
+    if setup_mode == "custom":
+        configured_agents = _configure_agents_custom(registry)
+    else:
+        configured_agents = registry["agents"]
+
+    project_config["enabled_agents"] = [key for key, config in configured_agents.items() if config["enabled"]]
+    write_json(project_root / ".control-tower" / "state" / "project.json", project_config)
+    save_agent_registry(project_root, {"agents": configured_agents})
+
+    print("Saved agent configuration:")
+    for key, config in configured_agents.items():
+        status = "enabled" if config["enabled"] else "disabled"
+        line = f"- {config['name']} [{status}]"
+        if config["enabled"]:
+            line += f" sandbox={config['sandbox']}"
+            if config["model"]:
+                line += f" model={config['model']}"
+        print(line)
+    print("")
+    print("To adjust this later, edit:")
+    print(f"- {project_root / '.control-tower' / 'state' / 'agent-registry.json'}")
+    print(f"- {project_root / '.control-tower' / 'state' / 'project.json'}")
+    print("")
+
+
+def _configure_agents_custom(registry: dict[str, dict[str, object]]) -> dict[str, dict[str, object]]:
     configured_agents: dict[str, dict[str, object]] = {}
     for definition in AGENT_DEFINITIONS:
         current = registry["agents"].get(definition.key, {})
@@ -53,21 +81,7 @@ def configure_project_interactively(project_root: Path) -> None:
             "search": search,
         }
         print("")
-
-    project_config["enabled_agents"] = [key for key, config in configured_agents.items() if config["enabled"]]
-    write_json(project_root / ".control-tower" / "state" / "project.json", project_config)
-    save_agent_registry(project_root, {"agents": configured_agents})
-
-    print("Saved agent configuration:")
-    for key, config in configured_agents.items():
-        status = "enabled" if config["enabled"] else "disabled"
-        line = f"- {config['name']} [{status}]"
-        if config["enabled"]:
-            line += f" sandbox={config['sandbox']}"
-            if config["model"]:
-                line += f" model={config['model']}"
-        print(line)
-    print("")
+    return configured_agents
 
 
 def _prompt_text(label: str, default: str, allow_blank: bool = False) -> str:

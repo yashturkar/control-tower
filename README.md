@@ -18,7 +18,7 @@ It installs a `tower` command for humans and a `tower-run` command for Tower’s
 ## What this bootstrap does
 
 - Creates a portable `.control-tower/` directory inside any repo you run `tower` in.
-- Opens an init-time CLI setup flow so you can enable, disable, and tune the available subagents for a repo.
+- Opens an init-time CLI setup flow with a fast default path and an optional detailed per-agent configurator.
 - Starts Codex with a Tower-specific bootstrap prompt that includes project memory and agent contracts.
 - Persists project memory in three tiers:
   - `L0`: fast snapshot
@@ -56,7 +56,7 @@ tower init
 tower start
 ```
 
-`tower init` opens a small CLI configuration flow where you can choose which subagents are enabled and set per-agent defaults like sandbox and an optional model override.
+`tower init` defaults to a quick setup that keeps the standard agent lineup. If you choose `custom`, it opens the detailed per-agent configurator for enablement, sandbox, and model overrides. You can always edit `.control-tower/state/agent-registry.json` and `.control-tower/state/project.json` later.
 
 Tower now runs without sandboxing or approval gates by default:
 

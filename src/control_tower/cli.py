@@ -75,17 +75,18 @@ def main(argv: list[str] | None = None) -> int:
         codex_options = resolve_codex_options(config, args)
         prompt = " ".join(args.prompt).strip() or None
         assembled = build_tower_prompt(project_root, prompt)
-        exit_code = run_interactive(
-            project_root,
-            assembled,
-            model=codex_options["model"],
-            sandbox=codex_options["sandbox"],
-            approval=codex_options["approval"],
-            search=codex_options["search"],
-            dangerous=codex_options["dangerous"],
-        )
-        sync_and_capture_latest(project_root, role="tower")
-        return exit_code
+        try:
+            return run_interactive(
+                project_root,
+                assembled,
+                model=codex_options["model"],
+                sandbox=codex_options["sandbox"],
+                approval=codex_options["approval"],
+                search=codex_options["search"],
+                dangerous=codex_options["dangerous"],
+            )
+        finally:
+            sync_and_capture_latest(project_root, role="tower")
 
     if args.command == "resume":
         init_project(project_root, force=False)
@@ -97,19 +98,20 @@ def main(argv: list[str] | None = None) -> int:
         session_id = runtime.get("last_tower_session_id") or find_latest_session_id_for_project(project_root)
         prompt = " ".join(args.prompt).strip() or "Resume Tower control for this repository, reconcile memory, and continue the current workstream."
         assembled = build_tower_prompt(project_root, prompt)
-        exit_code = run_interactive(
-            project_root,
-            assembled,
-            resume=True,
-            session_id=session_id,
-            model=codex_options["model"],
-            sandbox=codex_options["sandbox"],
-            approval=codex_options["approval"],
-            search=codex_options["search"],
-            dangerous=codex_options["dangerous"],
-        )
-        sync_and_capture_latest(project_root, role="tower")
-        return exit_code
+        try:
+            return run_interactive(
+                project_root,
+                assembled,
+                resume=True,
+                session_id=session_id,
+                model=codex_options["model"],
+                sandbox=codex_options["sandbox"],
+                approval=codex_options["approval"],
+                search=codex_options["search"],
+                dangerous=codex_options["dangerous"],
+            )
+        finally:
+            sync_and_capture_latest(project_root, role="tower")
 
     raise RuntimeError(f"Unhandled command: {args.command}")
 

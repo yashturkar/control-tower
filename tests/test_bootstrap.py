@@ -11,6 +11,7 @@ from control_tower.config_ui import configure_project_interactively
 from control_tower.layout import tower_dir
 from control_tower.memory import import_project_sessions
 from control_tower.packets import validate_task_packet
+from control_tower.cli import main as tower_main
 from control_tower.project import load_agent_registry
 from control_tower.prompts import build_tower_prompt
 from control_tower.runtime_cli import cmd_delegate
@@ -128,8 +129,22 @@ class BootstrapTests(unittest.TestCase):
             (root / ".git").mkdir()
             init_project(root)
 
-            prompts = [""] * 18
-            prompts[4] = "n"
+            prompts = [
+                "custom",
+                "",
+                "",
+                "",
+                "n",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+            ]
             responses = iter(prompts)
 
             with patch("builtins.input", side_effect=lambda _: next(responses)):
@@ -138,6 +153,49 @@ class BootstrapTests(unittest.TestCase):
             registry = load_agent_registry(root)
             self.assertFalse(registry["agents"]["inspector"]["enabled"])
             self.assertTrue(registry["agents"]["builder"]["enabled"])
+
+    def test_interactive_config_quick_mode_keeps_defaults(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            with patch("builtins.input", side_effect=[""]):
+                configure_project_interactively(root)
+
+            registry = load_agent_registry(root)
+            self.assertTrue(registry["agents"]["builder"]["enabled"])
+            self.assertTrue(registry["agents"]["inspector"]["enabled"])
+
+    def test_start_syncs_tower_session_even_on_interrupt(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            with patch("control_tower.cli.find_project_root", return_value=root), patch(
+                "control_tower.cli.run_interactive", side_effect=KeyboardInterrupt()
+            ), patch("control_tower.cli.sync_and_capture_latest") as sync_mock:
+                with self.assertRaises(KeyboardInterrupt):
+                    tower_main(["start"])
+
+            self.assertGreaterEqual(sync_mock.call_count, 2)
+            self.assertEqual(((root,), {"role": "tower"}), sync_mock.call_args_list[-1])
+
+    def test_resume_syncs_tower_session_even_on_interrupt(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            with patch("control_tower.cli.find_project_root", return_value=root), patch(
+                "control_tower.cli.run_interactive", side_effect=KeyboardInterrupt()
+            ), patch("control_tower.cli.sync_and_capture_latest") as sync_mock:
+                with self.assertRaises(KeyboardInterrupt):
+                    tower_main(["resume"])
+
+            self.assertGreaterEqual(sync_mock.call_count, 2)
+            self.assertEqual(((root,), {"role": "tower"}), sync_mock.call_args_list[-1])
 
     def test_runtime_cli_create_packet_writes_task_packet(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
