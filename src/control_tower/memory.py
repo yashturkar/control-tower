@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
@@ -29,6 +30,17 @@ class ImportedSession:
     agent_messages: list[str]
     source: str | None
     originator: str | None
+
+
+_META_GOAL_AGENT_NAMES = ("tower", "scout", "builder", "inspector", "git-master", "scribe")
+_META_GOAL_ROLE_PHRASES = (
+    "the main orchestrator for this repository",
+    "the research and discovery specialist",
+    "the implementation specialist",
+    "the review and verification specialist",
+    "the git and pr specialist",
+    "the documentation and memory specialist",
+)
 
 
 def _iter_session_files() -> list[Path]:
@@ -177,6 +189,7 @@ def _refresh_memory(project_root: Path) -> None:
 
 def _collect_recent_user_goals(project_root: Path, sessions: list[dict[str, Any]]) -> list[str]:
     goals: list[str] = []
+    seen: set[str] = set()
     base = tower_dir(project_root)
     for session in reversed(sessions):
         transcript = base / "memory" / "l2" / "transcripts" / f"{session['session_id']}.md"
@@ -184,12 +197,43 @@ def _collect_recent_user_goals(project_root: Path, sessions: list[dict[str, Any]
             continue
         sections = transcript.read_text().split("## User\n\n")
         for block in sections[1:]:
-            snippet = block.split("\n## ", 1)[0].strip().replace("\n", " ")
-            if snippet:
-                goals.append(snippet[:220])
+            snippet = _extract_user_goal_snippet(block)
+            if not snippet or _is_bootstrap_or_meta_goal(snippet):
+                continue
+            dedupe_key = _goal_dedupe_key(snippet)
+            if dedupe_key in seen:
+                continue
+            seen.add(dedupe_key)
+            goals.append(snippet[:220])
             if len(goals) >= 5:
                 return goals
     return goals
+
+
+def _extract_user_goal_snippet(block: str) -> str | None:
+    snippet = block.split("\n## ", 1)[0].strip().replace("\n", " ")
+    return snippet or None
+
+
+def _is_bootstrap_or_meta_goal(snippet: str) -> bool:
+    normalized = _normalize_goal_text(snippet)
+    if not normalized:
+        return False
+    if any(normalized.startswith(f"# {agent}") for agent in _META_GOAL_AGENT_NAMES):
+        return True
+    if any(f"you are {agent}" in normalized for agent in _META_GOAL_AGENT_NAMES):
+        return True
+    if any(phrase in normalized for phrase in _META_GOAL_ROLE_PHRASES):
+        return True
+    return False
+
+
+def _goal_dedupe_key(snippet: str) -> str:
+    return _normalize_goal_text(snippet)
+
+
+def _normalize_goal_text(value: str) -> str:
+    return re.sub(r"\s+", " ", value.strip()).casefold()
 
 
 def _build_l0(

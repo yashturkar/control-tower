@@ -20,6 +20,63 @@ from control_tower.sessions import find_latest_session_id_for_project
 
 
 class BootstrapTests(unittest.TestCase):
+    def _write_codex_session(
+        self,
+        session_dir: Path,
+        project_root: Path,
+        session_id: str,
+        timestamp: str,
+        messages: list[str],
+    ) -> None:
+        events = [
+            {
+                "timestamp": timestamp,
+                "type": "session_meta",
+                "payload": {
+                    "id": session_id,
+                    "timestamp": timestamp,
+                    "cwd": str(project_root),
+                    "originator": "Codex CLI",
+                    "source": "cli",
+                },
+            }
+        ]
+        for message in messages:
+            events.append(
+                {
+                    "timestamp": timestamp,
+                    "type": "event_msg",
+                    "payload": {
+                        "type": "user_message",
+                        "message": message,
+                    },
+                }
+            )
+
+        (session_dir / f"{session_id}.jsonl").write_text("\n".join(json.dumps(event) for event in events) + "\n")
+
+    def _import_sessions_with_messages(
+        self,
+        project_root: Path,
+        sessions: list[tuple[str, str, list[str]]],
+    ) -> list:
+        codex_home = project_root / ".codex-home-fixture"
+        session_dir = codex_home / "sessions" / "2026" / "03" / "17"
+        session_dir.mkdir(parents=True, exist_ok=True)
+
+        for session_id, timestamp, messages in sessions:
+            self._write_codex_session(session_dir, project_root, session_id, timestamp, messages)
+
+        old = os.environ.get("CONTROL_TOWER_CODEX_HOME")
+        try:
+            os.environ["CONTROL_TOWER_CODEX_HOME"] = str(codex_home)
+            return import_project_sessions(project_root)
+        finally:
+            if old is None:
+                os.environ.pop("CONTROL_TOWER_CODEX_HOME", None)
+            else:
+                os.environ["CONTROL_TOWER_CODEX_HOME"] = old
+
     def test_init_project_creates_control_tower_tree(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -73,56 +130,114 @@ class BootstrapTests(unittest.TestCase):
     def test_import_project_sessions_creates_l2_copy(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            codex_home = Path(tmp) / "codex-home"
-            session_dir = codex_home / "sessions" / "2026" / "03" / "17"
-            session_dir.mkdir(parents=True)
             (root / ".git").mkdir()
             init_project(root)
-
-            session_path = session_dir / "session.jsonl"
-            events = [
-                {
-                    "timestamp": "2026-03-18T00:00:00Z",
-                    "type": "session_meta",
-                    "payload": {
-                        "id": "session-1",
-                        "timestamp": "2026-03-18T00:00:00Z",
-                        "cwd": str(root),
-                        "originator": "Codex CLI",
-                        "source": "cli",
-                    },
-                },
-                {
-                    "timestamp": "2026-03-18T00:00:01Z",
-                    "type": "event_msg",
-                    "payload": {
-                        "type": "user_message",
-                        "message": "Implement the bootstrap",
-                    },
-                },
-            ]
-            session_path.write_text("\n".join(json.dumps(event) for event in events) + "\n")
-
-            old = None
-            try:
-                import os
-
-                old = os.environ.get("CONTROL_TOWER_CODEX_HOME")
-                os.environ["CONTROL_TOWER_CODEX_HOME"] = str(codex_home)
-                new_sessions = import_project_sessions(root)
-            finally:
-                import os
-
-                if old is None:
-                    os.environ.pop("CONTROL_TOWER_CODEX_HOME", None)
-                else:
-                    os.environ["CONTROL_TOWER_CODEX_HOME"] = old
+            new_sessions = self._import_sessions_with_messages(
+                root,
+                [("session-1", "2026-03-18T00:00:00Z", ["Implement the bootstrap"])],
+            )
 
             self.assertEqual(1, len(new_sessions))
             copied = tower_dir(root) / "memory" / "l2" / "sessions" / "session-1.jsonl"
             self.assertTrue(copied.exists())
             l0 = (tower_dir(root) / "memory" / "l0.md").read_text()
             self.assertIn("Most recent user goal", l0)
+
+    def test_import_project_sessions_filters_bootstrap_role_prompts_from_recent_user_goals(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            self._import_sessions_with_messages(
+                root,
+                [
+                    (
+                        "session-1",
+                        "2026-03-18T00:00:00Z",
+                        [
+                            "# Scout  You are Scout, the research and discovery specialist.",
+                            "You are Tower for the project `flight-deck`. # Tower You are Tower, the main orchestrator for this repository.",
+                            "Investigate why memory sync is duplicating recent user goals.",
+                        ],
+                    )
+                ],
+            )
+
+            l0 = (tower_dir(root) / "memory" / "l0.md").read_text()
+            l1 = (tower_dir(root) / "memory" / "l1.md").read_text()
+
+            self.assertIn("Investigate why memory sync is duplicating recent user goals.", l0)
+            self.assertIn("- Investigate why memory sync is duplicating recent user goals.", l1)
+            self.assertNotIn("You are Scout", l1)
+            self.assertNotIn("You are Tower", l1)
+
+    def test_import_project_sessions_dedupes_repeated_recent_user_goals(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            self._import_sessions_with_messages(
+                root,
+                [
+                    ("session-1", "2026-03-18T00:00:00Z", ["Document the packet lifecycle."]),
+                    ("session-2", "2026-03-18T01:00:00Z", ["Audit memory goal extraction."]),
+                    ("session-3", "2026-03-18T02:00:00Z", ["Audit memory goal extraction."]),
+                ],
+            )
+
+            l1 = (tower_dir(root) / "memory" / "l1.md").read_text()
+
+            self.assertEqual(1, l1.count("- Audit memory goal extraction."))
+            self.assertLess(
+                l1.index("- Audit memory goal extraction."),
+                l1.index("- Document the packet lifecycle."),
+            )
+
+    def test_import_project_sessions_uses_existing_fallback_when_all_recent_messages_are_filtered(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            self._import_sessions_with_messages(
+                root,
+                [
+                    (
+                        "session-1",
+                        "2026-03-18T00:00:00Z",
+                        [
+                            "# Tower",
+                            "You are Scout, the research and discovery specialist.",
+                        ],
+                    )
+                ],
+            )
+
+            l0 = (tower_dir(root) / "memory" / "l0.md").read_text()
+            l1 = (tower_dir(root) / "memory" / "l1.md").read_text()
+
+            self.assertIn("Most recent user goal: No captured user goal yet.", l0)
+            self.assertIn("- No imported user goals yet", l1)
+
+    def test_import_project_sessions_keeps_non_meta_mentions_of_tower_or_scout(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            message = "Use Scout to research memory drift and have Tower summarize the next step."
+            self._import_sessions_with_messages(
+                root,
+                [("session-1", "2026-03-18T00:00:00Z", [message])],
+            )
+
+            l0 = (tower_dir(root) / "memory" / "l0.md").read_text()
+            l1 = (tower_dir(root) / "memory" / "l1.md").read_text()
+
+            self.assertIn(message, l0)
+            self.assertIn(f"- {message}", l1)
 
     def test_interactive_config_can_disable_agent(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
