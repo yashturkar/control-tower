@@ -200,8 +200,20 @@ def _configure_agents_custom(registry: dict[str, dict[str, object]]) -> dict[str
 
 
 def _print_banner() -> None:
-    for line in INIT_BANNER:
-        print(line)
+    lines = list(INIT_BANNER)
+    while lines and not lines[0].strip():
+        lines.pop(0)
+    while lines and not lines[-1].strip():
+        lines.pop()
+
+    non_empty = [line for line in lines if line.strip()]
+    if non_empty:
+        left_margin = min(len(line) - len(line.lstrip(" ")) for line in non_empty)
+    else:
+        left_margin = 0
+
+    for line in lines:
+        print(line[left_margin:].rstrip())
     print("")
 
 
