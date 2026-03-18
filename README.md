@@ -86,6 +86,12 @@ Resume the last Tower session for the current repo:
 tower resume
 ```
 
+Update the installed Tower CLI and refresh the current repo's `.control-tower/` runtime:
+
+```bash
+tower update
+```
+
 Inspect project state:
 
 ```bash

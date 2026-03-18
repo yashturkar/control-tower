@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import argparse
+import os
+import subprocess
 import sys
+from pathlib import Path
 
 from .config_ui import configure_project_interactively, should_prompt_for_init_ui
 from .bootstrap import init_project
@@ -29,6 +32,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     resume_parser.add_argument("prompt", nargs="*", help="Optional resume prompt")
 
     subparsers.add_parser("status", help="Show Control Tower project status")
+    subparsers.add_parser("update", help="Update the installed Tower CLI and refresh this repo's .control-tower runtime")
 
     return parser.parse_args(argv)
 
@@ -66,6 +70,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "status":
         return cmd_status(project_root)
+
+    if args.command == "update":
+        return cmd_update(project_root)
 
     if args.command == "start":
         init_project(project_root, force=False)
@@ -146,6 +153,17 @@ def cmd_status(project_root: Path) -> int:
     return 0
 
 
+def cmd_update(project_root: Path) -> int:
+    source_repo_root = _source_repo_root()
+    updated_source_root = _update_installed_control_tower(source_repo_root)
+    init_project(project_root, force=False)
+    update_git_branch(project_root)
+    sync_and_capture_latest(project_root)
+    print(f"Updated Tower installation from {updated_source_root}")
+    print(f"Refreshed Control Tower runtime in {tower_dir(project_root)}")
+    return 0
+
+
 def resolve_codex_options(config: dict[str, object], args: argparse.Namespace) -> dict[str, object]:
     defaults = config.get("codex_defaults", {}) if isinstance(config, dict) else {}
     return {
@@ -155,6 +173,37 @@ def resolve_codex_options(config: dict[str, object], args: argparse.Namespace) -
         "search": args.search if args.search is not None else bool(defaults.get("search", False)),
         "dangerous": args.dangerous if args.dangerous is not None else bool(defaults.get("dangerously_bypass", True)),
     }
+
+
+def _source_repo_root() -> Path:
+    return Path(__file__).resolve().parents[2]
+
+
+def _managed_install_repo_root() -> Path:
+    install_base = Path(
+        os.environ.get("CONTROL_TOWER_INSTALL_ROOT")
+        or os.environ.get("XDG_DATA_HOME")
+        or (Path.home() / ".local" / "share")
+    )
+    if install_base.name != "control-tower":
+        install_base = install_base / "control-tower"
+    return install_base / "repo"
+
+
+def _update_installed_control_tower(source_repo_root: Path) -> Path:
+    source_repo_root = source_repo_root.resolve()
+    managed_repo_root = _managed_install_repo_root().resolve()
+
+    if source_repo_root == managed_repo_root:
+        bootstrap_script = source_repo_root / "scripts" / "bootstrap_remote_install.sh"
+        subprocess.run([str(bootstrap_script)], cwd=source_repo_root, check=True)
+        return managed_repo_root
+
+    install_script = source_repo_root / "scripts" / "install_tower.sh"
+    if (source_repo_root / ".git").exists():
+        subprocess.run(["git", "pull", "--ff-only"], cwd=source_repo_root, check=True)
+    subprocess.run([str(install_script)], cwd=source_repo_root, check=True)
+    return source_repo_root
 
 
 if __name__ == "__main__":

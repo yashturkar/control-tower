@@ -8,11 +8,11 @@ from pathlib import Path
 from unittest.mock import patch
 
 from control_tower.bootstrap import init_project
+from control_tower.cli import main as tower_main
 from control_tower.config_ui import configure_project_interactively
 from control_tower.layout import tower_dir
 from control_tower.memory import import_project_sessions
 from control_tower.packets import validate_task_packet
-from control_tower.cli import main as tower_main
 from control_tower.project import load_agent_registry
 from control_tower.prompts import build_tower_prompt
 from control_tower.runtime_cli import cmd_delegate
@@ -241,6 +241,35 @@ class BootstrapTests(unittest.TestCase):
 
             self.assertGreaterEqual(sync_mock.call_count, 2)
             self.assertEqual(((root,), {"role": "tower"}), sync_mock.call_args_list[-1])
+
+    def test_update_refreshes_runtime_and_reinstalls_from_local_repo(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            project_root = Path(tmp) / "project"
+            source_root = Path(tmp) / "control-tower-src"
+            project_root.mkdir()
+            source_root.mkdir()
+            (project_root / ".git").mkdir()
+            (source_root / ".git").mkdir()
+            scripts_dir = source_root / "scripts"
+            scripts_dir.mkdir()
+            (scripts_dir / "install_tower.sh").write_text("#!/usr/bin/env bash\n")
+
+            with patch("control_tower.cli.find_project_root", return_value=project_root), patch(
+                "control_tower.cli._source_repo_root", return_value=source_root
+            ), patch("control_tower.cli.subprocess.run") as run_mock, patch(
+                "control_tower.cli.init_project"
+            ) as init_mock, patch("control_tower.cli.update_git_branch") as branch_mock, patch(
+                "control_tower.cli.sync_and_capture_latest"
+            ) as sync_mock:
+                exit_code = tower_main(["update"])
+
+            self.assertEqual(0, exit_code)
+            resolved_source_root = source_root.resolve()
+            run_mock.assert_any_call(["git", "pull", "--ff-only"], cwd=resolved_source_root, check=True)
+            run_mock.assert_any_call([str(resolved_source_root / "scripts" / "install_tower.sh")], cwd=resolved_source_root, check=True)
+            init_mock.assert_called_with(project_root, force=False)
+            branch_mock.assert_called_once_with(project_root)
+            sync_mock.assert_called_once_with(project_root)
 
     def test_runtime_cli_create_packet_writes_task_packet(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
