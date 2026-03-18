@@ -36,7 +36,7 @@ def _codex_env() -> dict[str, str]:
 
 def run_interactive(
     project_root: Path,
-    prompt: str,
+    prompt: str | None,
     resume: bool = False,
     session_id: str | None = None,
     model: str | None = None,
@@ -52,7 +52,8 @@ def run_interactive(
             args.append(session_id)
         else:
             args.append("--last")
-    args.append(prompt)
+    if prompt:
+        args.append(prompt)
     result = subprocess.run(args, cwd=project_root, env=_codex_env())
     return result.returncode
 

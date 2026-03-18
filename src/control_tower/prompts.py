@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from .docs_harness import docs_harness_context_refs
 from .layout import tower_dir
 from .project import load_agent_registry, load_project_config, read_text
 
@@ -26,6 +27,24 @@ def build_tower_prompt(project_root: Path, user_prompt: str | None = None) -> st
         f"- {registry['agents'][agent_key]['name']} ({agent_key})"
         for agent_key in enabled_agents
     ] or ["- No subagents enabled"]
+    docs_harness = config.get("docs_harness", {}) if isinstance(config, dict) else {}
+    docs_section: list[str] = []
+    if docs_harness.get("enabled"):
+        docs_section = [
+            "## Repo Docs Harness",
+            "",
+            f"- Enabled: {docs_harness.get('enabled')}",
+            f"- Mode: {docs_harness.get('mode', 'unknown')}",
+            f"- Doc roots: {', '.join(docs_harness.get('doc_roots', [])) or 'none'}",
+            f"- Root map files: {', '.join(docs_harness.get('root_map_files', [])) or 'none'}",
+            f"- Index files: {', '.join(docs_harness.get('index_files', [])) or 'none'}",
+            f"- Context refs: {', '.join(docs_harness_context_refs(project_root, docs_harness))}",
+            "",
+            "Repo `docs/` is the durable knowledge store when this harness is enabled.",
+            "`.control-tower/docs/state` and `.control-tower/memory` are operational project-state memory.",
+            "After most successful Builder, Inspector, and Git-master steps, create and usually delegate a Scribe follow-up packet for repo docs unless the prior result makes that clearly unnecessary.",
+            "",
+        ]
 
     sections = [
         f"You are {config.get('primary_agent', 'Tower')} for the project `{config.get('project_name', project_root.name)}`.",
@@ -49,6 +68,7 @@ def build_tower_prompt(project_root: Path, user_prompt: str | None = None) -> st
         "### L1",
         l1 or "No L1 working memory yet.",
         "",
+        *docs_section,
         "## Operating Rules",
         "",
         "- Tower does not directly implement product code.",
