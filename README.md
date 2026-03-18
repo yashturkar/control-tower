@@ -1,4 +1,4 @@
-# Control Tower
+# <img src="assets/tower.png" alt="Control Tower icon" width="44" valign="middle" /> Control Tower
 
 Control Tower is a bootstrap for a Codex-driven multi-agent orchestration workflow.
 
@@ -31,6 +31,18 @@ Clone this repo, then run:
 ```
 
 That installs `tower` and `tower-run` into `~/.local/bin/`.
+
+If you want a one-line remote install instead of cloning first:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/yashturkar/control-tower/main/scripts/bootstrap_remote_install.sh | bash
+```
+
+That command:
+
+- clones or updates Control Tower under `~/.local/share/control-tower/repo`
+- installs `tower` and `tower-run`
+- leaves the local clone available for future updates
 
 Inside any Git repo:
 
