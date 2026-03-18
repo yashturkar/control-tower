@@ -9,12 +9,13 @@ from pathlib import Path
 from unittest.mock import patch
 
 from control_tower.bootstrap import init_project
-from control_tower.cli import main as tower_main
+from control_tower.cli import cmd_status, main as tower_main
 from control_tower.config_ui import configure_project_interactively
+from control_tower.docs_harness import MANAGED_SECTION_START
 from control_tower.layout import tower_dir
 from control_tower.memory import import_project_sessions
 from control_tower.packets import validate_task_packet
-from control_tower.project import load_agent_registry
+from control_tower.project import load_agent_registry, load_project_config
 from control_tower.prompts import build_tower_prompt
 from control_tower.runtime_cli import cmd_delegate
 from control_tower.sessions import find_latest_session_id_for_project, sync_and_capture_latest
@@ -114,6 +115,56 @@ class BootstrapTests(unittest.TestCase):
             self.assertEqual("string", refreshed_schema["properties"]["packet_type"]["type"])
             self.assertEqual({}, refreshed_schema["properties"]["metadata"]["properties"])
 
+    def test_init_project_adopts_existing_docs_harness(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            (root / "docs" / "design-docs").mkdir(parents=True)
+            (root / "docs" / "product-specs").mkdir(parents=True)
+            (root / "docs" / "index.md").write_text("# Docs\n")
+            (root / "docs" / "design-docs" / "index.md").write_text("# Design\n")
+            (root / "docs" / "product-specs" / "index.md").write_text("# Product\n")
+            (root / "AGENTS.md").write_text("# Agent Map\n")
+            init_project(root)
+
+            config = load_project_config(root)
+            docs_harness = config["docs_harness"]
+            self.assertTrue(docs_harness["enabled"])
+            self.assertEqual("adopted", docs_harness["mode"])
+            self.assertEqual(["docs"], docs_harness["doc_roots"])
+            self.assertEqual(["AGENTS.md"], docs_harness["root_map_files"])
+            self.assertEqual(
+                ["docs/index.md", "docs/design-docs/index.md", "docs/product-specs/index.md"],
+                docs_harness["index_files"],
+            )
+
+    def test_init_defaults_scaffolds_minimal_docs_harness(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "sample-project"
+            root.mkdir()
+            subprocess.run(["git", "init"], cwd=root, check=True, capture_output=True)
+            env = os.environ.copy()
+            env["PYTHONPATH"] = str(Path(__file__).resolve().parents[1] / "src")
+
+            subprocess.run(
+                ["python3", "-m", "control_tower.cli", "init", "--defaults"],
+                cwd=root,
+                env=env,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            config = load_project_config(root)
+            docs_harness = config["docs_harness"]
+            self.assertTrue(docs_harness["enabled"])
+            self.assertEqual("scaffolded", docs_harness["mode"])
+            self.assertTrue((root / "docs" / "index.md").exists())
+            self.assertTrue((root / "docs" / "design-docs" / "index.md").exists())
+            self.assertTrue((root / "docs" / "product-specs" / "index.md").exists())
+            self.assertTrue((root / "docs" / "runbooks" / "README.md").exists())
+            self.assertIn(MANAGED_SECTION_START, (root / "AGENTS.md").read_text())
+
     def test_build_tower_prompt_contains_memory_and_delegate_path(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -127,6 +178,32 @@ class BootstrapTests(unittest.TestCase):
             self.assertIn("## Configured Agents", prompt)
             self.assertIn("Builder (builder)", prompt)
             self.assertIn("Review current work", prompt)
+
+    def test_build_tower_prompt_includes_docs_harness_when_enabled(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            (root / "docs" / "design-docs").mkdir(parents=True)
+            (root / "docs" / "product-specs").mkdir(parents=True)
+            (root / "docs" / "index.md").write_text("# Docs\n")
+            (root / "docs" / "design-docs" / "index.md").write_text("# Design\n")
+            (root / "docs" / "product-specs" / "index.md").write_text("# Product\n")
+            (root / "AGENTS.md").write_text("# Agents\n")
+            init_project(root)
+
+            prompt = build_tower_prompt(root, "Document current work")
+            self.assertIn("## Repo Docs Harness", prompt)
+            self.assertIn("Repo `docs/` is the durable knowledge store", prompt)
+            self.assertIn("After most successful Builder, Inspector, and Git-master steps", prompt)
+
+    def test_build_tower_prompt_omits_docs_harness_when_disabled(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            prompt = build_tower_prompt(root, "Document current work")
+            self.assertNotIn("## Repo Docs Harness", prompt)
 
     def test_import_project_sessions_creates_l2_copy(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -383,6 +460,7 @@ class BootstrapTests(unittest.TestCase):
             self.assertTrue(registry["agents"]["inspector"]["enabled"])
             self.assertTrue(registry["agents"]["builder"]["dangerously_bypass"])
             self.assertFalse(registry["agents"]["scout"]["dangerously_bypass"])
+            self.assertTrue((root / "docs" / "index.md").exists())
             output = captured.getvalue()
             self.assertIn("!!! QUICK SETUP NOTICE !!!", output)
             self.assertIn("dangerous bypass mode by default", output)
@@ -414,6 +492,7 @@ class BootstrapTests(unittest.TestCase):
                 "",
                 "",
                 "",
+                "",
             ]
             responses = iter(prompts)
 
@@ -423,6 +502,22 @@ class BootstrapTests(unittest.TestCase):
             registry = load_agent_registry(root)
             self.assertFalse(registry["agents"]["builder"]["dangerously_bypass"])
             self.assertEqual("danger-full-access", registry["agents"]["builder"]["sandbox"])
+
+    def test_interactive_config_scaffolds_docs_harness_and_is_idempotent(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            with patch("builtins.input", side_effect=["", ""]):
+                configure_project_interactively(root)
+            with patch("builtins.input", side_effect=["", ""]):
+                configure_project_interactively(root)
+
+            agents_text = (root / "AGENTS.md").read_text()
+            self.assertEqual(1, agents_text.count(MANAGED_SECTION_START))
+            self.assertTrue((root / "docs" / "index.md").exists())
+            self.assertEqual("scaffolded", load_project_config(root)["docs_harness"]["mode"])
 
     def test_start_syncs_tower_session_even_on_interrupt(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -832,6 +927,12 @@ class BootstrapTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / ".git").mkdir()
+            (root / "docs" / "design-docs").mkdir(parents=True)
+            (root / "docs" / "product-specs").mkdir(parents=True)
+            (root / "docs" / "index.md").write_text("# Docs\n")
+            (root / "docs" / "design-docs" / "index.md").write_text("# Design\n")
+            (root / "docs" / "product-specs" / "index.md").write_text("# Product\n")
+            (root / "AGENTS.md").write_text("# Agents\n")
             init_project(root)
 
             packet_path = tower_dir(root) / "packets" / "outbox" / "builder-task.json"
@@ -898,6 +999,166 @@ class BootstrapTests(unittest.TestCase):
             with patch("control_tower.runtime_cli.run_exec", side_effect=fake_run_exec):
                 exit_code = cmd_delegate(root, "builder", packet_path, output_path, None, "workspace-write")
             self.assertEqual(0, exit_code)
+            follow_ups = list((tower_dir(root) / "packets" / "outbox").glob("scribe-docs-followup-builder-*.json"))
+            self.assertEqual(1, len(follow_ups))
+            follow_up = json.loads(follow_ups[0].read_text())
+            self.assertEqual("documentation", follow_up["task_type"])
+            self.assertIn("AGENTS.md", follow_up["doc_context_refs"])
+            self.assertIn("docs/index.md", follow_up["doc_context_refs"])
+            self.assertEqual([str(output_path.relative_to(root))], follow_up["memory_context_refs"])
+            self.assertEqual([".control-tower/docs/state/current-status.md"], follow_up["doc_context_refs"][-1:])
+
+    def test_cmd_delegate_does_not_emit_docs_followup_for_scout(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            (root / "docs" / "design-docs").mkdir(parents=True)
+            (root / "docs" / "product-specs").mkdir(parents=True)
+            (root / "docs" / "index.md").write_text("# Docs\n")
+            (root / "docs" / "design-docs" / "index.md").write_text("# Design\n")
+            (root / "docs" / "product-specs" / "index.md").write_text("# Product\n")
+            init_project(root)
+
+            packet_path = tower_dir(root) / "packets" / "outbox" / "scout-task.json"
+            packet = {
+                "schema_version": "1.0.0",
+                "packet_type": "task",
+                "packet_id": "packet-1",
+                "trace_id": "trace-1",
+                "parent_packet_id": None,
+                "created_at": "2026-03-18T00:00:00Z",
+                "from_agent": "tower",
+                "to_agent": "scout",
+                "task_type": "research",
+                "priority": "normal",
+                "project_id": "sample-project",
+                "session_id": "session-1",
+                "title": "Research feature",
+                "objective": "Inspect options",
+                "instructions": [],
+                "constraints": [],
+                "inputs": {"files": [], "artifacts": [], "references": []},
+                "expected_outputs": [],
+                "definition_of_done": [],
+                "memory_context_refs": [],
+                "doc_context_refs": [],
+                "time_budget": {"soft_seconds": 10, "hard_seconds": 20},
+                "requires_review": False,
+                "allow_partial": False,
+                "metadata": {},
+            }
+            packet_path.write_text(json.dumps(packet) + "\n")
+            output_path = tower_dir(root) / "packets" / "inbox" / "scout-result.json"
+            result_packet = {
+                "schema_version": "1.0.0",
+                "packet_type": "result",
+                "packet_id": "result-1",
+                "trace_id": "trace-1",
+                "parent_packet_id": "packet-1",
+                "created_at": "2026-03-18T00:00:00Z",
+                "from_agent": "scout",
+                "to_agent": "tower",
+                "status": "success",
+                "summary": "ok",
+                "work_completed": [],
+                "artifacts_changed": ["docs/index.md"],
+                "artifacts_created": [],
+                "artifacts_deleted": [],
+                "findings": [],
+                "follow_up_recommendations": [],
+                "review_requested": False,
+                "doc_update_needed": True,
+                "memory_worthy": [],
+                "metrics": {"tokens_used": 0, "files_touched": 0, "tests_added": 0, "tests_passed": 0},
+                "raw_output_ref": None,
+                "metadata": {},
+            }
+
+            def fake_run_exec(*args, **kwargs):
+                output_path.write_text(json.dumps(result_packet) + "\n")
+                return 0
+
+            with patch("control_tower.runtime_cli.run_exec", side_effect=fake_run_exec):
+                exit_code = cmd_delegate(root, "scout", packet_path, output_path, None, "workspace-write")
+            self.assertEqual(0, exit_code)
+            follow_ups = list((tower_dir(root) / "packets" / "outbox").glob("scribe-docs-followup-scout-*.json"))
+            self.assertEqual([], follow_ups)
+
+    def test_cmd_delegate_does_not_emit_docs_followup_for_blocked_result(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            (root / "docs" / "design-docs").mkdir(parents=True)
+            (root / "docs" / "product-specs").mkdir(parents=True)
+            (root / "docs" / "index.md").write_text("# Docs\n")
+            (root / "docs" / "design-docs" / "index.md").write_text("# Design\n")
+            (root / "docs" / "product-specs" / "index.md").write_text("# Product\n")
+            init_project(root)
+
+            packet_path = tower_dir(root) / "packets" / "outbox" / "builder-task.json"
+            packet = {
+                "schema_version": "1.0.0",
+                "packet_type": "task",
+                "packet_id": "packet-1",
+                "trace_id": "trace-1",
+                "parent_packet_id": None,
+                "created_at": "2026-03-18T00:00:00Z",
+                "from_agent": "tower",
+                "to_agent": "builder",
+                "task_type": "implementation",
+                "priority": "normal",
+                "project_id": "sample-project",
+                "session_id": "session-1",
+                "title": "Implement feature",
+                "objective": "Add feature",
+                "instructions": [],
+                "constraints": [],
+                "inputs": {"files": [], "artifacts": [], "references": []},
+                "expected_outputs": [],
+                "definition_of_done": [],
+                "memory_context_refs": [],
+                "doc_context_refs": [],
+                "time_budget": {"soft_seconds": 10, "hard_seconds": 20},
+                "requires_review": False,
+                "allow_partial": False,
+                "metadata": {},
+            }
+            packet_path.write_text(json.dumps(packet) + "\n")
+            output_path = tower_dir(root) / "packets" / "inbox" / "builder-result.json"
+            result_packet = {
+                "schema_version": "1.0.0",
+                "packet_type": "result",
+                "packet_id": "result-1",
+                "trace_id": "trace-1",
+                "parent_packet_id": "packet-1",
+                "created_at": "2026-03-18T00:00:00Z",
+                "from_agent": "builder",
+                "to_agent": "tower",
+                "status": "blocked",
+                "summary": "blocked",
+                "work_completed": [],
+                "artifacts_changed": ["src/app.py"],
+                "artifacts_created": [],
+                "artifacts_deleted": [],
+                "findings": [],
+                "follow_up_recommendations": [],
+                "review_requested": False,
+                "doc_update_needed": True,
+                "memory_worthy": [],
+                "metrics": {"tokens_used": 0, "files_touched": 0, "tests_added": 0, "tests_passed": 0},
+                "raw_output_ref": None,
+                "metadata": {},
+            }
+
+            def fake_run_exec(*args, **kwargs):
+                output_path.write_text(json.dumps(result_packet) + "\n")
+                return 0
+
+            with patch("control_tower.runtime_cli.run_exec", side_effect=fake_run_exec):
+                exit_code = cmd_delegate(root, "builder", packet_path, output_path, None, "workspace-write")
+            self.assertEqual(0, exit_code)
+            follow_ups = list((tower_dir(root) / "packets" / "outbox").glob("scribe-docs-followup-builder-*.json"))
+            self.assertEqual([], follow_ups)
 
     def test_runtime_delegate_help_does_not_expose_search_flag(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -1007,6 +1268,29 @@ class BootstrapTests(unittest.TestCase):
                 [".control-tower/packets/inbox/builder-result.json"],
                 packet["memory_context_refs"],
             )
+
+    def test_status_reports_docs_harness_configuration(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            (root / "docs" / "design-docs").mkdir(parents=True)
+            (root / "docs" / "product-specs").mkdir(parents=True)
+            (root / "docs" / "index.md").write_text("# Docs\n")
+            (root / "docs" / "design-docs" / "index.md").write_text("# Design\n")
+            (root / "docs" / "product-specs" / "index.md").write_text("# Product\n")
+            (root / "AGENTS.md").write_text("# Agents\n")
+            init_project(root)
+
+            captured = StringIO()
+            with patch("sys.stdout", new=captured):
+                exit_code = cmd_status(root)
+
+            self.assertEqual(0, exit_code)
+            output = captured.getvalue()
+            self.assertIn("Docs harness: enabled", output)
+            self.assertIn("Docs mode: adopted", output)
+            self.assertIn("Docs roots: docs", output)
+            self.assertIn("Auto Scribe docs: after-most-work", output)
 
     def test_find_latest_session_id_for_project(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
