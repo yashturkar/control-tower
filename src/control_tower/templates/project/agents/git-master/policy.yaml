@@ -1,0 +1,9 @@
+agent: Git-master
+role: git-operations
+allowed_paths:
+  - .git/
+  - .control-tower/
+  - docs/
+prohibited_actions:
+  - force push without approval
+  - destructive history rewrite

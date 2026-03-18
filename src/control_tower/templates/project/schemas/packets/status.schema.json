@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "packet_type",
+    "packet_id",
+    "trace_id",
+    "parent_packet_id",
+    "created_at",
+    "from_agent",
+    "to_agent",
+    "status",
+    "percent_complete",
+    "message",
+    "next_expected_action"
+  ],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "packet_type": {"const": "status"},
+    "packet_id": {"type": "string"},
+    "trace_id": {"type": "string"},
+    "parent_packet_id": {"type": "string"},
+    "created_at": {"type": "string"},
+    "from_agent": {"type": "string"},
+    "to_agent": {"type": "string"},
+    "status": {"enum": ["queued", "running", "waiting", "needs_input", "complete"]},
+    "percent_complete": {"type": "integer"},
+    "message": {"type": "string"},
+    "next_expected_action": {"type": "string"}
+  }
+}

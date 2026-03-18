@@ -1,0 +1,49 @@
+{
+  "agents": {
+    "builder": {
+      "name": "Builder",
+      "role": "implementation",
+      "description": "Writes product code, tests, and refactors within scope.",
+      "enabled": true,
+      "model": null,
+      "sandbox": "workspace-write",
+      "search": false
+    },
+    "inspector": {
+      "name": "Inspector",
+      "role": "review",
+      "description": "Reviews work for correctness, regressions, and quality gaps.",
+      "enabled": true,
+      "model": null,
+      "sandbox": "workspace-write",
+      "search": false
+    },
+    "scout": {
+      "name": "Scout",
+      "role": "research",
+      "description": "Researches options, risks, and technical approaches.",
+      "enabled": true,
+      "model": null,
+      "sandbox": "workspace-write",
+      "search": true
+    },
+    "git-master": {
+      "name": "Git-master",
+      "role": "git-operations",
+      "description": "Handles branch, commit, diff, and PR-oriented repo operations.",
+      "enabled": true,
+      "model": null,
+      "sandbox": "workspace-write",
+      "search": false
+    },
+    "scribe": {
+      "name": "Scribe",
+      "role": "documentation-memory",
+      "description": "Maintains docs, task state, and durable memory.",
+      "enabled": true,
+      "model": null,
+      "sandbox": "workspace-write",
+      "search": false
+    }
+  }
+}

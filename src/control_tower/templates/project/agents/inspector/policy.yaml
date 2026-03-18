@@ -1,0 +1,10 @@
+agent: Inspector
+role: review
+allowed_paths:
+  - src/
+  - tests/
+  - docs/
+  - .control-tower/
+prohibited_actions:
+  - unrelated feature work
+  - speculative issues without evidence

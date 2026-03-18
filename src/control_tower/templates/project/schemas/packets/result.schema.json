@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "packet_type",
+    "packet_id",
+    "trace_id",
+    "parent_packet_id",
+    "created_at",
+    "from_agent",
+    "to_agent",
+    "status",
+    "summary",
+    "work_completed",
+    "artifacts_changed",
+    "artifacts_created",
+    "artifacts_deleted",
+    "findings",
+    "follow_up_recommendations",
+    "review_requested",
+    "doc_update_needed",
+    "memory_worthy",
+    "metrics",
+    "raw_output_ref",
+    "metadata"
+  ],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "packet_type": {"const": "result"},
+    "packet_id": {"type": "string"},
+    "trace_id": {"type": "string"},
+    "parent_packet_id": {"type": "string"},
+    "created_at": {"type": "string"},
+    "from_agent": {"type": "string"},
+    "to_agent": {"type": "string"},
+    "status": {"enum": ["success", "partial", "blocked", "failed"]},
+    "summary": {"type": "string"},
+    "work_completed": {"type": "array", "items": {"type": "string"}},
+    "artifacts_changed": {"type": "array", "items": {"type": "string"}},
+    "artifacts_created": {"type": "array", "items": {"type": "string"}},
+    "artifacts_deleted": {"type": "array", "items": {"type": "string"}},
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "message"],
+        "properties": {
+          "severity": {"enum": ["info", "warning", "high", "critical"]},
+          "message": {"type": "string"}
+        }
+      }
+    },
+    "follow_up_recommendations": {"type": "array", "items": {"type": "string"}},
+    "review_requested": {"type": "boolean"},
+    "doc_update_needed": {"type": "boolean"},
+    "memory_worthy": {"type": "array", "items": {"type": "string"}},
+    "metrics": {
+      "type": "object",
+      "required": ["tokens_used", "files_touched", "tests_added", "tests_passed"],
+      "properties": {
+        "tokens_used": {"type": "integer"},
+        "files_touched": {"type": "integer"},
+        "tests_added": {"type": "integer"},
+        "tests_passed": {"type": "integer"}
+      }
+    },
+    "raw_output_ref": {"type": ["string", "null"]},
+    "metadata": {"type": "object"}
+  }
+}

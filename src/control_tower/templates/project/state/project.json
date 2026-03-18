@@ -1,0 +1,25 @@
+{
+  "system_name": "Control Tower",
+  "primary_agent": "Tower",
+  "project_name": "unknown",
+  "project_root": "unknown",
+  "enabled_agents": [
+    "builder",
+    "inspector",
+    "scout",
+    "git-master",
+    "scribe"
+  ],
+  "default_agents": [
+    "Builder",
+    "Inspector",
+    "Scout",
+    "Git-master",
+    "Scribe"
+  ],
+  "codex_defaults": {
+    "sandbox": "workspace-write",
+    "approval": "on-request",
+    "search": false
+  }
+}
