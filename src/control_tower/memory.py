@@ -41,6 +41,20 @@ _META_GOAL_ROLE_PHRASES = (
     "the git and pr specialist",
     "the documentation and memory specialist",
 )
+_META_GOAL_SECTION_MARKERS = (
+    "bootstrap files",
+    "configured agents",
+    "current request",
+    "l0",
+    "l1",
+    "l1 working memory",
+    "memory",
+    "memory policy",
+    "operating rules",
+    "recent user goals",
+)
+_TRANSCRIPT_SECTION_SPLIT_RE = re.compile(r"\n## (?:User|Agent)\n\n", re.MULTILINE)
+_MARKDOWN_LIST_PREFIX_RE = re.compile(r"^(?:[-*+]\s+|\d+\.\s+)")
 
 
 def _iter_session_files() -> list[Path]:
@@ -211,7 +225,40 @@ def _collect_recent_user_goals(project_root: Path, sessions: list[dict[str, Any]
 
 
 def _extract_user_goal_snippet(block: str) -> str | None:
-    snippet = block.split("\n## ", 1)[0].strip().replace("\n", " ")
+    message = _extract_user_message_block(block)
+    if not message or _is_structured_meta_message(message):
+        return None
+
+    paragraph: list[str] = []
+    for raw_line in message.splitlines():
+        stripped = raw_line.strip()
+        if not stripped:
+            if paragraph:
+                break
+            continue
+        if stripped.startswith("```") or stripped.startswith(">"):
+            break
+        if _is_meta_heading_line(stripped):
+            if paragraph:
+                break
+            continue
+
+        cleaned = _strip_markdown_list_prefix(stripped)
+        if _is_meta_heading_line(cleaned):
+            if paragraph:
+                break
+            continue
+
+        if cleaned.startswith("#"):
+            if paragraph:
+                break
+            return None
+
+        paragraph.append(cleaned)
+        if stripped != cleaned:
+            break
+
+    snippet = " ".join(paragraph).strip()
     return snippet or None
 
 
@@ -219,8 +266,58 @@ def _is_bootstrap_or_meta_goal(snippet: str) -> bool:
     normalized = _normalize_goal_text(snippet)
     if not normalized:
         return False
+    if snippet.lstrip().startswith("#"):
+        return True
     if any(normalized.startswith(f"# {agent}") for agent in _META_GOAL_AGENT_NAMES):
         return True
+    if _contains_meta_role_text(normalized):
+        return True
+    return False
+
+
+def _extract_user_message_block(block: str) -> str:
+    return _TRANSCRIPT_SECTION_SPLIT_RE.split(block, maxsplit=1)[0].strip()
+
+
+def _is_structured_meta_message(message: str) -> bool:
+    lines = [line.strip() for line in message.splitlines() if line.strip()]
+    if not lines:
+        return False
+    first_line = lines[0]
+    if first_line.startswith(">") or first_line.startswith("```"):
+        return True
+
+    meta_heading_hits = sum(1 for line in lines if _is_meta_heading_line(line))
+    if meta_heading_hits >= 2:
+        return True
+
+    normalized = _normalize_goal_text(message)
+    if meta_heading_hits and _contains_meta_role_text(normalized):
+        return True
+    return False
+
+
+def _is_meta_heading_line(line: str) -> bool:
+    stripped = line.strip()
+    if not stripped:
+        return False
+    heading_text = _extract_markdown_heading_text(_strip_markdown_list_prefix(stripped))
+    if heading_text is None:
+        return False
+    return _normalize_goal_text(heading_text) in _META_GOAL_SECTION_MARKERS
+
+
+def _extract_markdown_heading_text(line: str) -> str | None:
+    if not line.startswith("#"):
+        return None
+    return line.lstrip("#").strip() or None
+
+
+def _strip_markdown_list_prefix(line: str) -> str:
+    return _MARKDOWN_LIST_PREFIX_RE.sub("", line, count=1).strip()
+
+
+def _contains_meta_role_text(normalized: str) -> bool:
     if any(f"you are {agent}" in normalized for agent in _META_GOAL_AGENT_NAMES):
         return True
     if any(phrase in normalized for phrase in _META_GOAL_ROLE_PHRASES):

@@ -173,6 +173,101 @@ class BootstrapTests(unittest.TestCase):
             self.assertNotIn("You are Scout", l1)
             self.assertNotIn("You are Tower", l1)
 
+    def test_import_project_sessions_salvages_plain_text_after_recent_goals_heading(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            message = (
+                "## Recent User Goals\n\n"
+                "- Start with AGENTS.md, implement the plan at ~/.claude/plans/wondrous-rolling-crane.md "
+                "and commit to a new branch, then create a relative PR to "
+                "https://github.com/yashturkar/flight-deck/pull/6"
+            )
+            self._import_sessions_with_messages(
+                root,
+                [("session-1", "2026-03-18T00:00:00Z", [message])],
+            )
+
+            expected = (
+                "Start with AGENTS.md, implement the plan at ~/.claude/plans/wondrous-rolling-crane.md "
+                "and commit to a new branch, then create a relative PR to "
+                "https://github.com/yashturkar/flight-deck/pull/6"
+            )
+            l0 = (tower_dir(root) / "memory" / "l0.md").read_text()
+            l1 = (tower_dir(root) / "memory" / "l1.md").read_text()
+
+            self.assertIn(f"Most recent user goal: {expected}", l0)
+            self.assertIn(f"- {expected}", l1)
+            self.assertNotIn("Most recent user goal: ## Recent User Goals", l0)
+            self.assertNotIn("- ## Recent User Goals", l1)
+
+    def test_import_project_sessions_filters_full_bootstrap_prompt_from_recent_user_goals(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            bootstrap_prompt = build_tower_prompt(root, "Resume control of the project.")
+            self._import_sessions_with_messages(
+                root,
+                [("session-1", "2026-03-18T00:00:00Z", [bootstrap_prompt])],
+            )
+
+            l0 = (tower_dir(root) / "memory" / "l0.md").read_text()
+            l1 = (tower_dir(root) / "memory" / "l1.md").read_text()
+
+            self.assertIn("Most recent user goal: No captured user goal yet.", l0)
+            self.assertIn("- No imported user goals yet", l1)
+            self.assertNotIn("Bootstrap Files", l1)
+
+    def test_import_project_sessions_filters_quoted_bootstrap_prompt_from_recent_user_goals(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            bootstrap_prompt = build_tower_prompt(root, "Resume control of the project.")
+            quoted_prompt = "\n".join(f"> {line}" if line else ">" for line in bootstrap_prompt.splitlines())
+            self._import_sessions_with_messages(
+                root,
+                [("session-1", "2026-03-18T00:00:00Z", [quoted_prompt])],
+            )
+
+            l0 = (tower_dir(root) / "memory" / "l0.md").read_text()
+            l1 = (tower_dir(root) / "memory" / "l1.md").read_text()
+
+            self.assertIn("Most recent user goal: No captured user goal yet.", l0)
+            self.assertIn("- No imported user goals yet", l1)
+            self.assertNotIn("Resume control of the project.", l1)
+
+    def test_import_project_sessions_filters_copied_l1_memory_from_recent_user_goals(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            copied_memory = (
+                "# L1 Working Memory\n\n"
+                "## Recent User Goals\n\n"
+                "- Start with AGENTS.md.\n\n"
+                "## Memory Policy\n\n"
+                "- L2 is the source of truth."
+            )
+            self._import_sessions_with_messages(
+                root,
+                [("session-1", "2026-03-18T00:00:00Z", [copied_memory])],
+            )
+
+            l0 = (tower_dir(root) / "memory" / "l0.md").read_text()
+            l1 = (tower_dir(root) / "memory" / "l1.md").read_text()
+
+            self.assertIn("Most recent user goal: No captured user goal yet.", l0)
+            self.assertIn("- No imported user goals yet", l1)
+            self.assertNotIn("- # L1 Working Memory", l1)
+            self.assertNotIn("Start with AGENTS.md.", l1)
+
     def test_import_project_sessions_dedupes_repeated_recent_user_goals(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
