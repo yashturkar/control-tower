@@ -24,6 +24,7 @@ It installs a `tower` command for humans and a `tower-run` command for Tower’s
   - `L0`: fast snapshot
   - `L1`: working summary
   - `L2`: imported Codex session logs
+- Adds a decision graph under `.control-tower/state/decision-graph/` so memory summaries stay linked to decisions, tasks, sessions, packets, and commits.
 - Imports Codex session JSONL files from `~/.codex/sessions` into project memory.
 - Gives Tower a concrete delegation path via `tower-run delegate <agent> --packet <file>`.
 
@@ -200,15 +201,23 @@ tower-run create-packet git-master \
 
 ## Memory sync model
 
-`tower-run sync-memory` scans the local Codex session store and imports sessions whose `cwd` matches the current project root. Imported sessions are copied into `.control-tower/memory/l2/sessions/`, a transcript index is maintained in `.control-tower/state/session-index.json`, and deterministic `L0` and `L1` summaries are refreshed.
+`tower-run sync-memory` scans the local Codex session store and imports sessions whose `cwd` matches the current project root. Imported sessions are copied into `.control-tower/memory/l2/sessions/`, a transcript index is maintained in `.control-tower/state/session-index.json`, a decision graph is refreshed under `.control-tower/state/decision-graph/`, and graph-backed `L0` / `L1` summaries are regenerated.
 
 For higher-quality persistent memory, use `tower-run sync-memory --emit-scribe-packet`. That creates a Scribe task packet so Tower can delegate long-form curation of:
 
 - session summaries
 - open questions
 - task ledgers
+- decision registers
 - architecture notes
 - ADR/doc drift
+
+Additional graph-oriented commands:
+
+- `tower-run log-decision --title ... --topic ... --summary ...`
+- `tower-run graph-status`
+- `tower-run explain --commit <sha>`
+- `tower-run explain --decision <decision-id>`
 
 ## Requirements
 

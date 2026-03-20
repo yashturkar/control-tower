@@ -10,8 +10,9 @@ from pathlib import Path
 from .bootstrap import init_project
 from .codex_cli import run_exec
 from .docs_harness import docs_harness_context_refs
+from .graph import append_graph_events, create_decision_event, explain_commit, explain_decision, graph_status, sync_decision_graph
 from .layout import find_project_root, tower_dir
-from .memory import import_project_sessions, mark_runtime_sync
+from .memory import import_project_sessions, mark_runtime_sync, refresh_memory_views
 from .packets import (
     create_task_packet,
     load_packet,
@@ -41,6 +42,24 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
     sync_parser = subparsers.add_parser("sync-memory", help="Import Codex sessions into Beacon memory")
     sync_parser.add_argument("--emit-scribe-packet", action="store_true", help="Emit a Scribe task packet for curated memory/docs updates")
+
+    log_decision_parser = subparsers.add_parser("log-decision", help="Create an explicit decision record in the decision graph")
+    log_decision_parser.add_argument("--title", required=True, help="Decision title")
+    log_decision_parser.add_argument("--topic", required=True, help="Stable decision topic slug or label")
+    log_decision_parser.add_argument("--summary", required=True, help="One-line summary of the decision")
+    log_decision_parser.add_argument("--rationale", action="append", default=[], help="Rationale line, repeatable")
+    log_decision_parser.add_argument("--status", default="accepted", choices=["proposed", "accepted", "rejected", "superseded", "deprecated"])
+    log_decision_parser.add_argument("--importance", default="major", choices=["minor", "normal", "major", "critical"])
+    log_decision_parser.add_argument("--source-ref", action="append", default=[], help="Source reference path, repeatable")
+    log_decision_parser.add_argument("--related-ref", action="append", default=[], help="Related artifact ref, repeatable")
+    log_decision_parser.add_argument("--created-by", default="tower", help="Actor creating the decision")
+
+    subparsers.add_parser("graph-status", help="Report current decision graph status")
+
+    explain_parser = subparsers.add_parser("explain", help="Explain graph provenance for a commit or decision")
+    explain_target = explain_parser.add_mutually_exclusive_group(required=True)
+    explain_target.add_argument("--commit", help="Commit SHA to explain")
+    explain_target.add_argument("--decision", help="Decision id to explain")
 
     create_parser = subparsers.add_parser("create-packet", help="Create a TaskPacket for a subagent")
     create_parser.add_argument("agent", choices=["builder", "inspector", "scout", "git-master", "scribe"])
@@ -92,6 +111,15 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "sync-memory":
         return cmd_sync_memory(project_root, emit_scribe_packet=args.emit_scribe_packet)
+
+    if args.command == "log-decision":
+        return cmd_log_decision(project_root, args)
+
+    if args.command == "graph-status":
+        return cmd_graph_status(project_root)
+
+    if args.command == "explain":
+        return cmd_explain(project_root, args)
 
     if args.command == "create-packet":
         return cmd_create_packet(project_root, args)
@@ -189,7 +217,9 @@ def cmd_sync_memory(project_root: Path, emit_scribe_packet: bool) -> int:
     if new_sessions:
         runtime_updates["last_imported_session_id"] = new_sessions[-1].session_id
     mark_runtime_sync(project_root, **runtime_updates)
+    graph_state = sync_decision_graph(project_root)
     print(f"Imported {len(new_sessions)} session(s) into {tower_dir(project_root) / 'memory' / 'l2' / 'sessions'}")
+    print(f"Graph nodes: {len(graph_state.get('nodes', {}))}")
 
     if emit_scribe_packet:
         runtime = load_runtime_state(project_root)
@@ -198,11 +228,94 @@ def cmd_sync_memory(project_root: Path, emit_scribe_packet: bool) -> int:
         trace_id = str(uuid.uuid4())
         refs = [str(session.session_copy_path.relative_to(project_root)) for session in new_sessions]
         if not refs:
-            refs = [".control-tower/memory/l1.md", ".control-tower/memory/l0.md"]
+            refs = [
+                ".control-tower/memory/l1.md",
+                ".control-tower/memory/l0.md",
+                ".control-tower/state/decision-graph/indexes.json",
+                ".control-tower/docs/state/decisions.md",
+            ]
         packet = new_scribe_memory_sync_packet(project_id, session_id, trace_id, refs)
         packet_path = tower_dir(project_root) / "packets" / "outbox" / f"scribe-memory-sync-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.json"
         write_json(packet_path, packet)
         print(f"Created Scribe packet: {packet_path}")
+    return 0
+
+
+def cmd_log_decision(project_root: Path, args: argparse.Namespace) -> int:
+    source_refs = _dedupe_strings(args.source_ref)
+    related_refs = _dedupe_strings(args.related_ref + source_refs)
+    events = create_decision_event(
+        topic=args.topic,
+        title=args.title,
+        summary=args.summary,
+        rationale=args.rationale or ["No rationale provided."],
+        status=args.status,
+        importance=args.importance,
+        source_refs=source_refs,
+        created_by=args.created_by,
+        inferred=False,
+        related_refs=related_refs,
+    )
+    append_graph_events(project_root, events)
+    sync_decision_graph(project_root)
+    refresh_memory_views(project_root)
+    print(events[0]["payload"]["id"])
+    return 0
+
+
+def cmd_graph_status(project_root: Path) -> int:
+    sync_decision_graph(project_root)
+    status = graph_status(project_root)
+    print(f"Active decisions: {status['active_decisions']}")
+    print(f"Inferred decisions: {status['inferred_decisions']}")
+    print(f"Unexplained commits: {status['unexplained_commits']}")
+    print(f"Open questions: {status['open_questions']}")
+    print(f"Known risks: {status['known_risks']}")
+    print(f"Nodes: {status['nodes']}")
+    print(f"Edges: {status['edges']}")
+    print(f"Last graph sync: {status['last_graph_sync']}")
+    return 0
+
+
+def cmd_explain(project_root: Path, args: argparse.Namespace) -> int:
+    sync_decision_graph(project_root)
+    if args.commit:
+        explanation = explain_commit(project_root, args.commit)
+        commit = explanation.get("commit")
+        if not commit:
+            raise SystemExit(f"Commit `{args.commit}` was not found in the decision graph.")
+        print(f"Commit: {commit.get('sha')} {commit.get('subject')}")
+        linked_decisions = explanation.get("linked_decisions", [])
+        if linked_decisions:
+            print("Linked decisions:")
+            for decision in linked_decisions:
+                print(f"- {decision.get('id')}: {decision.get('title')}")
+        else:
+            print("Linked decisions: none")
+        linked_sessions = explanation.get("linked_sessions", [])
+        if linked_sessions:
+            print("Linked sessions:")
+            for session in linked_sessions:
+                print(f"- {session.get('session_id')}")
+        else:
+            print("Linked sessions: none")
+        return 0
+
+    explanation = explain_decision(project_root, args.decision)
+    decision = explanation.get("decision")
+    if not decision:
+        raise SystemExit(f"Decision `{args.decision}` was not found in the decision graph.")
+    print(f"Decision: {decision.get('id')} {decision.get('title')}")
+    print(f"Status: {decision.get('status')}")
+    print(f"Summary: {decision.get('summary')}")
+    related_nodes = explanation.get("related_nodes", [])
+    if related_nodes:
+        print("Related nodes:")
+        for node in related_nodes:
+            label = node.get("title") or node.get("subject") or node.get("id")
+            print(f"- {node.get('type')}: {label}")
+    else:
+        print("Related nodes: none")
     return 0
 
 
