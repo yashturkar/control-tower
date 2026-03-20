@@ -216,6 +216,7 @@ Additional graph-oriented commands:
 
 - `tower-run log-decision --title ... --topic ... --summary ...`
 - `tower-run graph-status`
+- `tower-run graph-view --query <text> --type <node-type> --include-edges`
 - `tower-run explain --commit <sha>`
 - `tower-run explain --decision <decision-id>`
 
@@ -236,10 +237,13 @@ tower-run log-decision \
 # 2) Inspect high-level graph health
 tower-run graph-status
 
-# 3) Explain provenance for a commit (supports short SHA too)
+# 3) Discover node IDs (list/search nodes, optionally include edges)
+tower-run graph-view --query memory --type decision --include-edges
+
+# 4) Explain provenance for a commit (supports short SHA too)
 tower-run explain --commit 3ae65c6
 
-# 4) Explain provenance for a specific decision id
+# 5) Explain provenance for a specific decision id
 tower-run explain --decision dec_20260320T165537_memory-architecture
 ```
 
