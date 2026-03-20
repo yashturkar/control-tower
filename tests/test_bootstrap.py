@@ -19,6 +19,7 @@ from control_tower.packets import validate_task_packet
 from control_tower.project import load_agent_registry, load_graph_indexes, load_graph_nodes, load_project_config
 from control_tower.prompts import build_tower_prompt
 from control_tower.runtime_cli import cmd_delegate, cmd_graph_export, cmd_graph_status, cmd_graph_view, cmd_log_decision
+from control_tower.runtime_cli import cmd_graph_search, parse_args
 from control_tower.sessions import find_latest_session_id_for_project, sync_and_capture_latest
 
 
@@ -481,6 +482,74 @@ class BootstrapTests(unittest.TestCase):
                 exit_code = cmd_graph_status(root)
             self.assertEqual(0, exit_code)
             self.assertIn("Active decisions:", output.getvalue())
+
+    def test_parse_args_accepts_graph_search_flags(self) -> None:
+        args = parse_args(
+            [
+                "graph-search",
+                "--query",
+                "memory",
+                "--type",
+                "decision",
+                "--include-edges",
+                "--limit",
+                "3",
+            ]
+        )
+        self.assertEqual("graph-search", args.command)
+        self.assertEqual("memory", args.query)
+        self.assertEqual("decision", args.type)
+        self.assertTrue(args.include_edges)
+        self.assertEqual(3, args.limit)
+
+    def test_parse_args_rejects_non_positive_graph_search_limit(self) -> None:
+        with self.assertRaises(SystemExit):
+            parse_args(["graph-search", "--limit", "0"])
+
+    def test_graph_search_lists_nodes_and_edges_with_filters(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            args = type(
+                "Args",
+                (),
+                {
+                    "title": "Use graph-backed memory",
+                    "topic": "memory-architecture",
+                    "summary": "Decision graph sits between L2 and L1/L0.",
+                    "rationale": ["Preserves provenance."],
+                    "status": "accepted",
+                    "importance": "major",
+                    "source_ref": [".control-tower/memory/l1.md"],
+                    "related_ref": [".control-tower/memory/l1.md"],
+                    "created_by": "tower",
+                },
+            )()
+            cmd_log_decision(root, args)
+
+            output = StringIO()
+            with patch("sys.stdout", output):
+                exit_code = cmd_graph_search(
+                    root,
+                    type(
+                        "Args",
+                        (),
+                        {
+                            "query": "memory",
+                            "type": "decision",
+                            "include_edges": True,
+                            "limit": 10,
+                        },
+                    )(),
+                )
+            self.assertEqual(0, exit_code)
+            rendered = output.getvalue()
+            self.assertIn("Nodes (", rendered)
+            self.assertIn("Edges (", rendered)
+            self.assertIn("[decision]", rendered)
+            self.assertIn("dec_", rendered)
 
     def test_graph_export_supports_json_dot_and_svg(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

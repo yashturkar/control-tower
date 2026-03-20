@@ -221,8 +221,61 @@ Additional graph-oriented commands:
 - `tower-run graph-export --format json --output graph.json`
 - `tower-run graph-export --format dot --output graph.dot`
 - `tower-run graph-export --format svg --output graph.svg`
+- `tower-run graph-search [--query <text>] [--type <node-type>] [--include-edges] [--limit <N>]`
 - `tower-run explain --commit <sha>`
 - `tower-run explain --decision <decision-id>`
+
+## Decision graph quick usage
+
+Use these commands when you want explicit, queryable provenance instead of only narrative memory notes.
+
+```bash
+# 1) Record an explicit decision and attach evidence refs
+tower-run log-decision \
+  --title "Adopt graph-backed memory" \
+  --topic memory-architecture \
+  --summary "Keep L0/L1 grounded in decision graph nodes and edges." \
+  --rationale "Makes commit-to-decision explanation deterministic." \
+  --source-ref docs/architecture/memory.md \
+  --related-ref src/control_tower/graph.py
+
+# 2) Inspect high-level graph health
+tower-run graph-status
+
+# 3) Discover node IDs (list/search nodes, optionally include edges)
+tower-run graph-search --query memory --type decision --include-edges
+
+# 4) Explain provenance for a commit (supports short SHA too)
+tower-run explain --commit 3ae65c6
+
+# 5) Explain provenance for a specific decision id
+tower-run explain --decision dec_20260320T165537_memory-architecture
+```
+
+### Toy graph example (all current node/edge types)
+
+```mermaid
+flowchart LR
+    E[event.observed] -->|references| D[decision: Adopt graph-backed memory]
+    D -->|references| A[artifact: src/control_tower/graph.py]
+    T[task: Sync memory summaries] -->|references| D
+    P[packet: scribe-docs-followup] -->|references| A
+    P -->|discussed_in| S[session: 2026-03-20T16:55Z]
+    C[commit: 3ae65c6] -->|caused_by| S
+```
+
+- **Node types**
+  - `decision`: explicit or inferred architecture/process decisions.
+  - `artifact`: files or paths used as evidence/provenance anchors.
+  - `session`: imported Codex sessions for timeline grounding.
+  - `task`: items from the task ledger.
+  - `packet`: task/result packets in `.control-tower/packets`.
+  - `commit`: git commits observed in repo history.
+  - `event`: raw observed event records materialized into graph state.
+- **Edge types**
+  - `references`: generic provenance link (for example packet → artifact, decision → artifact).
+  - `discussed_in`: packet was discussed in a specific session.
+  - `caused_by`: commit is linked to its nearest session in time.
 
 ## Requirements
 
