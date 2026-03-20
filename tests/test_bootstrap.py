@@ -558,6 +558,7 @@ class BootstrapTests(unittest.TestCase):
                 self.assertEqual(0, cmd_graph_view(root, type("Args", (), {"web": True, "tui": False, "focus": decision_id, "radius": 1})()))
             html_path = Path(web_output.getvalue().strip())
             self.assertTrue(html_path.exists())
+            self.assertEqual(".html", html_path.suffix)
             self.assertIn("Decision Graph", html_path.read_text())
             self.assertTrue(opened and opened[0].startswith("file://"))
 

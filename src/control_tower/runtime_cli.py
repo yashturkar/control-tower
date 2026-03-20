@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import atexit
 import json
 import tempfile
 import webbrowser
@@ -351,7 +350,6 @@ def cmd_graph_view(project_root: Path, args: argparse.Namespace) -> int:
                 )
             )
             output_path = Path(output_file.name)
-        atexit.register(lambda path=output_path: path.unlink(missing_ok=True))
         webbrowser.open(output_path.as_uri())
         print(str(output_path))
         return 0
