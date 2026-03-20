@@ -29,6 +29,17 @@ chmod +x "${RUNTIME_TARGET}"
 echo "Installed tower to ${TARGET}"
 echo "Installed tower-run to ${RUNTIME_TARGET}"
 
+# Build the terminal UI
+UI_DIR="${REPO_ROOT}/ui"
+if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
+  echo "Building terminal UI..."
+  (cd "${UI_DIR}" && npm install --no-audit --no-fund && npm run build)
+  echo "Terminal UI built"
+else
+  echo "Warning: node/npm not found — terminal UI will not be available"
+  echo "Install Node.js 18+ and run: cd ${UI_DIR} && npm install && npm run build"
+fi
+
 case ":${PATH}:" in
   *":${INSTALL_DIR}:"*)
     ;;

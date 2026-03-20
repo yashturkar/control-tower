@@ -92,6 +92,7 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_update(project_root)
 
     if args.command == "start":
+        _ensure_ui_built()
         config = load_project_config(project_root)
         codex_options = resolve_codex_options(config, args)
         prompt = " ".join(args.prompt).strip() or None
@@ -101,6 +102,7 @@ def main(argv: list[str] | None = None) -> int:
             sync_and_capture_latest(project_root, role="tower")
 
     if args.command == "resume":
+        _ensure_ui_built()
         config = load_project_config(project_root)
         codex_options = resolve_codex_options(config, args)
         resume_prompt = " ".join(args.prompt).strip() or None
@@ -178,6 +180,7 @@ def cmd_version() -> int:
 def cmd_update(project_root: Path) -> int:
     source_repo_root = _source_repo_root()
     updated_source_root = _update_installed_control_tower(source_repo_root)
+    _rebuild_ui(updated_source_root)
     init_project(project_root, force=False)
     update_git_branch(project_root)
     sync_and_capture_latest(project_root)
@@ -217,6 +220,43 @@ def _run_tower_ui(
 
 def _ui_dist_path() -> Path:
     return _source_repo_root() / "ui" / "dist" / "index.js"
+
+
+def _rebuild_ui(source_root: Path) -> None:
+    """Rebuild the terminal UI from source. Requires node/npm."""
+    ui_dir = source_root / "ui"
+    if not ui_dir.exists():
+        return
+    try:
+        subprocess.run(
+            ["npm", "install", "--no-audit", "--no-fund"],
+            cwd=ui_dir, check=True, capture_output=True,
+        )
+        subprocess.run(
+            ["npm", "run", "build"],
+            cwd=ui_dir, check=True, capture_output=True,
+        )
+        print("Rebuilt terminal UI")
+    except FileNotFoundError:
+        print("Warning: npm not found — skipping UI build")
+    except subprocess.CalledProcessError as exc:
+        print(f"Warning: UI build failed: {exc}")
+
+
+def _ensure_ui_built() -> None:
+    """Check that the UI has been built; prompt user if not."""
+    entry = _ui_dist_path()
+    if not entry.exists():
+        source_root = _source_repo_root()
+        print("Terminal UI not built. Building now...")
+        _rebuild_ui(source_root)
+        if not entry.exists():
+            print(
+                f"Error: UI build failed. Run manually:\n"
+                f"  cd {source_root / 'ui'} && npm install && npm run build",
+                file=sys.stderr,
+            )
+            raise SystemExit(1)
 
 
 def resolve_codex_options(config: dict[str, object], args: argparse.Namespace) -> dict[str, object]:
