@@ -68,7 +68,7 @@ function AgentRow({ agent }: { agent: AgentStatus }) {
 
 export function AgentPanel({ agents }: AgentPanelProps) {
   return (
-    <Box flexDirection="column" borderStyle="single" borderColor="gray" paddingX={1}>
+    <Box flexDirection="column" borderStyle="single" borderColor="gray" paddingX={1} width="100%">
       <Text bold dimColor>
         Agents
       </Text>

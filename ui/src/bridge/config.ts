@@ -1,4 +1,4 @@
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import type {
   AgentRegistry,
@@ -52,4 +52,20 @@ export function memoryDirPath(projectRoot: string): string {
 
 export function hasTowerDir(projectRoot: string): boolean {
   return existsSync(towerDir(projectRoot));
+}
+
+/**
+ * Persist the Tower thread/session ID into runtime.json so `tower resume` can find it.
+ */
+export function saveSessionId(projectRoot: string, sessionId: string): void {
+  const runtimePath = join(towerDir(projectRoot), "state", "runtime.json");
+  try {
+    const runtime = readJson<RuntimeState>(runtimePath);
+    runtime.last_tower_session_id = sessionId;
+    writeFileSync(runtimePath, JSON.stringify(runtime, null, 2) + "\n", "utf-8");
+  } catch {
+    // If runtime.json doesn't exist or is unreadable, create it
+    const data: RuntimeState = { last_tower_session_id: sessionId };
+    writeFileSync(runtimePath, JSON.stringify(data, null, 2) + "\n", "utf-8");
+  }
 }

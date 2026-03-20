@@ -1,5 +1,5 @@
 import React from "react";
-import { Box } from "ink";
+import { Box, useStdout } from "ink";
 import type {
   TowerEvent,
   AgentStatus,
@@ -36,19 +36,24 @@ export function Layout({
   memoryStatus,
   latestResult,
 }: LayoutProps) {
+  const { stdout } = useStdout();
+  const termHeight = stdout?.rows ?? 40;
+
   return (
-    <Box flexDirection="column">
+    <Box flexDirection="column" height={termHeight} width="100%">
       <StatusBar
         projectName={projectName}
         branch={branch}
         agents={agents}
         memoryStatus={memoryStatus}
       />
-      <TowerPanel
-        events={towerEvents}
-        isRunning={isTowerRunning}
-        isComplete={isTowerComplete}
-      />
+      <Box flexGrow={1} flexDirection="column" overflow="hidden" width="100%">
+        <TowerPanel
+          events={towerEvents}
+          isRunning={isTowerRunning}
+          isComplete={isTowerComplete}
+        />
+      </Box>
       <AgentPanel agents={agents} />
       <PacketFlow events={packetEvents} />
       <ResultSummary result={latestResult} />

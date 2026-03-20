@@ -30,7 +30,7 @@ export function ResultSummary({ result }: ResultSummaryProps) {
   const findingsCount = result.findings.length;
 
   return (
-    <Box flexDirection="column" borderStyle="round" borderColor="green" paddingX={1}>
+    <Box flexDirection="column" borderStyle="round" borderColor="green" paddingX={1} width="100%">
       <Box>
         <Text bold>Result: </Text>
         <Text color={statusColor(result.status)} bold>

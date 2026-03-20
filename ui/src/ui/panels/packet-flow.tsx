@@ -28,7 +28,7 @@ export function PacketFlow({ events, maxItems = 6 }: PacketFlowProps) {
   const visible = events.slice(-maxItems);
 
   return (
-    <Box flexDirection="column" borderStyle="single" borderColor="gray" paddingX={1}>
+    <Box flexDirection="column" borderStyle="single" borderColor="gray" paddingX={1} width="100%">
       <Text bold dimColor>
         Packets
       </Text>
