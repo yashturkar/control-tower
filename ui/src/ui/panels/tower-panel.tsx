@@ -7,6 +7,7 @@ interface TowerPanelProps {
   isRunning: boolean;
   isComplete: boolean;
   maxLines?: number;
+  height?: number;
 }
 
 /** Friendly label for shell tool calls instead of raw commands. */
@@ -90,13 +91,13 @@ export function TowerPanel({
   isRunning,
   isComplete,
   maxLines = 20,
+  height,
 }: TowerPanelProps) {
   const displayLines = useMemo(() => collapseEvents(events), [events]);
-  // Truncate each line to avoid wrapping that would add extra rows
   const visible = displayLines.slice(-maxLines);
 
   return (
-    <Box flexDirection="column" borderStyle="single" borderColor="cyan" paddingX={1} width="100%">
+    <Box flexDirection="column" height={height} borderStyle="single" borderColor="cyan" paddingX={1} width="100%">
       <Box justifyContent="space-between" width="100%">
         <Text bold color="cyan">
           Tower

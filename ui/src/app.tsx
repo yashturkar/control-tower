@@ -31,7 +31,7 @@ export function App({ options }: AppProps) {
   }, [isReady, options.model, options.sandbox, options.approval, options.dangerous]);
 
   // Tower session
-  const { events: towerEvents, isRunning, isComplete, error: sessionError } =
+  const { events: towerEvents, isRunning, isComplete, error: sessionError, sendMessage } =
     useTowerSession(codex, options, assembledPrompt, isReady);
 
   // Packet watcher
@@ -58,8 +58,9 @@ export function App({ options }: AppProps) {
     return null;
   }, [packetEvents]);
 
-  // Read project info for status bar
+  // Read project info for status bar (re-read after boot creates the config files)
   const { projectName, branch } = useMemo(() => {
+    if (!isReady) return { projectName: "...", branch: "..." };
     try {
       const config = readProjectConfig(options.projectRoot);
       const runtime = readRuntimeState(options.projectRoot);
@@ -70,7 +71,7 @@ export function App({ options }: AppProps) {
     } catch {
       return { projectName: "unknown", branch: "unknown" };
     }
-  }, [options.projectRoot]);
+  }, [options.projectRoot, isReady]);
 
   // Show boot screen until ready
   if (!isReady) {
@@ -88,6 +89,7 @@ export function App({ options }: AppProps) {
       packetEvents={packetEvents}
       memoryStatus={memoryStatus}
       latestResult={latestResult}
+      onSendMessage={sendMessage}
     />
   );
 }

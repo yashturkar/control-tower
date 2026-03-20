@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import type { Codex } from "@openai/codex-sdk";
 import type { TowerEvent, CodexOptions } from "../../types.js";
 import type { CodexClientConfig } from "../../codex/client.js";
 import {
-  startTowerSession,
+  TowerSession,
+  createTowerSession,
   resumeTowerSession,
 } from "../../codex/tower-thread.js";
 import { syncMemory } from "../../bridge/python.js";
@@ -14,6 +15,7 @@ export interface TowerSessionState {
   isRunning: boolean;
   isComplete: boolean;
   error: string | null;
+  sendMessage: (text: string) => void;
 }
 
 export function useTowerSession(
@@ -27,12 +29,45 @@ export function useTowerSession(
   const [isComplete, setIsComplete] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const startedRef = useRef(false);
+  const sessionRef = useRef<TowerSession | null>(null);
+
+  const appendEvent = useCallback((event: TowerEvent) => {
+    setEvents((prev) => [...prev, event]);
+  }, []);
+
+  /** Run a single turn on the session. */
+  const runTurn = useCallback(async (session: TowerSession, prompt: string) => {
+    setIsRunning(true);
+    setIsComplete(false);
+    try {
+      await session.runTurn(prompt, appendEvent);
+      setIsComplete(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsRunning(false);
+    }
+  }, [appendEvent]);
+
+  /** Send a follow-up message to Tower. */
+  const sendMessage = useCallback((text: string) => {
+    const session = sessionRef.current;
+    if (!session || isRunning) return;
+
+    // Add user message to the event stream
+    appendEvent({
+      type: "message",
+      text,
+      role: "user",
+      timestamp: Date.now(),
+    });
+
+    runTurn(session, text);
+  }, [isRunning, appendEvent, runTurn]);
 
   useEffect(() => {
     if (!isReady || !codex || !assembledPrompt || startedRef.current) return;
     startedRef.current = true;
-
-    let cancelled = false;
 
     const clientConfig: CodexClientConfig = {
       model: options.model,
@@ -41,16 +76,14 @@ export function useTowerSession(
       dangerous: options.dangerous,
     };
 
-    /** Persist thread ID to runtime.json as soon as the SDK provides it. */
     function onThreadId(threadId: string) {
       try {
         saveSessionId(options.projectRoot, threadId);
       } catch {
-        // Non-fatal — resume will fall back to session file scan
+        // Non-fatal
       }
     }
 
-    /** Best-effort memory sync (used on both clean exit and SIGINT). */
     function cleanup() {
       try {
         syncMemory(options.projectRoot);
@@ -59,69 +92,48 @@ export function useTowerSession(
       }
     }
 
-    async function run() {
-      setIsRunning(true);
+    const sigintHandler = () => {
+      cleanup();
+      process.exit(0);
+    };
+    process.on("SIGINT", sigintHandler);
 
-      // Run cleanup on SIGINT so Ctrl+C still persists state
-      const sigintHandler = () => {
-        cleanup();
-        process.exit(0);
-      };
-      process.on("SIGINT", sigintHandler);
+    let session: TowerSession;
 
-      try {
-        let stream: AsyncGenerator<TowerEvent>;
-
-        if (options.resume) {
-          const runtime = readRuntimeState(options.projectRoot);
-          const threadId =
-            options.sessionId ?? runtime.last_tower_session_id;
-          if (!threadId) {
-            throw new Error(
-              "No session ID found to resume. Run `tower start` first to create a session.",
-            );
-          }
-          stream = resumeTowerSession(codex!, {
-            threadId,
-            prompt: options.userPrompt,
-            workingDirectory: options.projectRoot,
-            clientConfig,
-          }, onThreadId);
-        } else {
-          stream = startTowerSession(codex!, {
-            workingDirectory: options.projectRoot,
-            prompt: assembledPrompt!,
-            clientConfig,
-          }, onThreadId);
-        }
-
-        for await (const event of stream) {
-          if (cancelled) break;
-          setEvents((prev) => [...prev, event]);
-        }
-
-        if (!cancelled) {
-          setIsComplete(true);
-          cleanup();
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : String(err));
-        }
-      } finally {
-        process.removeListener("SIGINT", sigintHandler);
-        if (!cancelled) {
-          setIsRunning(false);
-        }
+    if (options.resume) {
+      const runtime = readRuntimeState(options.projectRoot);
+      const threadId = options.sessionId ?? runtime.last_tower_session_id;
+      if (!threadId) {
+        setError("No session ID found to resume. Run `tower start` first.");
+        return;
       }
+      session = resumeTowerSession(codex, {
+        threadId,
+        prompt: options.userPrompt,
+        workingDirectory: options.projectRoot,
+        clientConfig,
+      }, onThreadId);
+    } else {
+      session = createTowerSession(codex, {
+        workingDirectory: options.projectRoot,
+        prompt: assembledPrompt,
+        clientConfig,
+      }, onThreadId);
     }
 
-    run();
+    sessionRef.current = session;
+
+    const initialPrompt = options.resume
+      ? (options.userPrompt ?? "Resume control of the project and report the next best action.")
+      : assembledPrompt;
+
+    runTurn(session, initialPrompt);
 
     return () => {
-      cancelled = true;
+      process.removeListener("SIGINT", sigintHandler);
+      cleanup();
     };
-  }, [isReady, codex, assembledPrompt, options]);
+  }, [isReady, codex, assembledPrompt, options, runTurn]);
 
-  return { events, isRunning, isComplete, error };
+  return { events, isRunning, isComplete, error, sendMessage };
 }

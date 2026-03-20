@@ -1,4 +1,4 @@
-import type { Codex, ThreadEvent } from "@openai/codex-sdk";
+import type { Codex, Thread, ThreadEvent } from "@openai/codex-sdk";
 import { buildThreadOptions, type CodexClientConfig } from "./client.js";
 import { parseStreamEvent } from "./event-parser.js";
 import type { TowerEvent } from "../types.js";
@@ -19,60 +19,70 @@ export interface TowerResumeOptions {
 /** Callback invoked when the SDK emits a thread.started event with the thread ID. */
 export type OnThreadId = (threadId: string) => void;
 
-/**
- * Start a new Tower session and return an async iterable of parsed events.
- */
-export async function* startTowerSession(
-  codex: Codex,
-  options: TowerSessionOptions,
-  onThreadId?: OnThreadId,
-): AsyncGenerator<TowerEvent> {
-  const threadOpts = buildThreadOptions(
-    options.workingDirectory,
-    options.clientConfig,
-  );
-  const thread = codex.startThread(threadOpts);
-  const streamedTurn = await thread.runStreamed(options.prompt);
+/** Callback invoked for each parsed TowerEvent. */
+export type OnTowerEvent = (event: TowerEvent) => void;
 
-  for await (const event of streamedTurn.events) {
-    // Capture thread ID when the SDK emits it
-    if (event.type === "thread.started" && onThreadId) {
-      onThreadId(event.thread_id);
-    }
-    const parsed = parseStreamEvent(event);
-    if (parsed) {
-      yield parsed;
+/**
+ * Manages a Tower thread that supports multiple turns.
+ * The thread stays alive between turns so the user can send follow-up messages.
+ */
+export class TowerSession {
+  private thread: Thread;
+  private onThreadId?: OnThreadId;
+
+  constructor(thread: Thread, onThreadId?: OnThreadId) {
+    this.thread = thread;
+    this.onThreadId = onThreadId;
+  }
+
+  /**
+   * Run a single turn and emit parsed events via the callback.
+   * Returns when the turn completes.
+   */
+  async runTurn(prompt: string, onEvent: OnTowerEvent): Promise<void> {
+    const streamedTurn = await this.thread.runStreamed(prompt);
+
+    for await (const event of streamedTurn.events) {
+      if (event.type === "thread.started" && this.onThreadId) {
+        this.onThreadId(event.thread_id);
+        this.onThreadId = undefined; // Only capture once
+      }
+      const parsed = parseStreamEvent(event);
+      if (parsed) {
+        onEvent(parsed);
+      }
     }
   }
 }
 
 /**
- * Resume an existing Tower session and return an async iterable of parsed events.
+ * Create a new Tower session (new thread).
  */
-export async function* resumeTowerSession(
+export function createTowerSession(
+  codex: Codex,
+  options: TowerSessionOptions,
+  onThreadId?: OnThreadId,
+): TowerSession {
+  const threadOpts = buildThreadOptions(
+    options.workingDirectory,
+    options.clientConfig,
+  );
+  const thread = codex.startThread(threadOpts);
+  return new TowerSession(thread, onThreadId);
+}
+
+/**
+ * Resume an existing Tower session.
+ */
+export function resumeTowerSession(
   codex: Codex,
   options: TowerResumeOptions,
   onThreadId?: OnThreadId,
-): AsyncGenerator<TowerEvent> {
+): TowerSession {
   const threadOpts = buildThreadOptions(
     options.workingDirectory,
     options.clientConfig,
   );
   const thread = codex.resumeThread(options.threadId, threadOpts);
-
-  const prompt =
-    options.prompt ??
-    "Resume control of the project and report the next best action.";
-
-  const streamedTurn = await thread.runStreamed(prompt);
-
-  for await (const event of streamedTurn.events) {
-    if (event.type === "thread.started" && onThreadId) {
-      onThreadId(event.thread_id);
-    }
-    const parsed = parseStreamEvent(event);
-    if (parsed) {
-      yield parsed;
-    }
-  }
+  return new TowerSession(thread, onThreadId);
 }

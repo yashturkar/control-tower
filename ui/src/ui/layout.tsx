@@ -9,6 +9,7 @@ import type {
 } from "../types.js";
 import { StatusBar } from "./panels/status-bar.js";
 import { TowerPanel } from "./panels/tower-panel.js";
+import { InputBar } from "./panels/input-bar.js";
 import { AgentPanel } from "./panels/agent-panel.js";
 import { PacketFlow } from "./panels/packet-flow.js";
 import { ResultSummary } from "./panels/result-summary.js";
@@ -23,6 +24,7 @@ interface LayoutProps {
   packetEvents: PacketEvent[];
   memoryStatus: MemoryStatus;
   latestResult: ResultPacket | null;
+  onSendMessage: (text: string) => void;
 }
 
 /** Hook that tracks terminal height, updating on resize. */
@@ -50,6 +52,7 @@ export function Layout({
   packetEvents,
   memoryStatus,
   latestResult,
+  onSendMessage,
 }: LayoutProps) {
   const termHeight = useTerminalHeight();
 
@@ -67,9 +70,12 @@ export function Layout({
     (packetLines + 3) +        // PacketFlow
     resultLines;               // ResultSummary
 
-  // TowerPanel border/header takes 4 rows (top border, header, bottom border, + 1 safety)
-  const towerChrome = 4;
-  const towerMaxLines = Math.max(3, termHeight - fixedRows - towerChrome);
+  // TowerPanel border/header takes 3 rows (top border, header, bottom border)
+  const towerChrome = 3;
+  // InputBar takes 1 row
+  const inputRow = 1;
+  const towerMaxLines = Math.max(3, termHeight - fixedRows - towerChrome - inputRow);
+  const towerHeight = towerMaxLines + towerChrome;
 
   return (
     <Box flexDirection="column" height={termHeight} width="100%">
@@ -84,6 +90,11 @@ export function Layout({
         isRunning={isTowerRunning}
         isComplete={isTowerComplete}
         maxLines={towerMaxLines}
+        height={towerHeight}
+      />
+      <InputBar
+        isRunning={isTowerRunning}
+        onSubmit={onSendMessage}
       />
       <AgentPanel agents={agents} />
       <PacketFlow events={packetEvents} />
