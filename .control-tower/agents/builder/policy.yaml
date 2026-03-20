@@ -1,0 +1,10 @@
+agent: Builder
+role: implementation
+allowed_paths:
+  - src/
+  - tests/
+  - .control-tower/
+prohibited_actions:
+  - force push
+  - unrelated refactors
+  - architecture changes without escalation
