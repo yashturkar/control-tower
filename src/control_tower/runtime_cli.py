@@ -23,6 +23,7 @@ from .packets import (
     validate_task_packet,
 )
 from .project import load_agent_registry, load_project_config, load_runtime_state, write_json
+from .project import load_graph_edges, load_graph_nodes
 from .prompts import build_subagent_prompt
 from .sessions import sync_and_capture_latest, update_git_branch
 
@@ -34,6 +35,13 @@ DEFAULT_TASK_TYPES = {
     "git-master": "git-operations",
     "scribe": "documentation",
 }
+
+
+def _positive_int(value: str) -> int:
+    parsed = int(value)
+    if parsed <= 0:
+        raise argparse.ArgumentTypeError("must be a positive integer")
+    return parsed
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -55,6 +63,11 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     log_decision_parser.add_argument("--created-by", default="tower", help="Actor creating the decision")
 
     subparsers.add_parser("graph-status", help="Report current decision graph status")
+    graph_search_parser = subparsers.add_parser("graph-search", help="List or search decision graph nodes and edges")
+    graph_search_parser.add_argument("--query", help="Case-insensitive text filter across graph records")
+    graph_search_parser.add_argument("--type", help="Filter nodes by type (for example: decision, commit, session)")
+    graph_search_parser.add_argument("--include-edges", action="store_true", help="Include edge listings in output")
+    graph_search_parser.add_argument("--limit", type=_positive_int, default=50, help="Maximum number of results to print per section")
 
     explain_parser = subparsers.add_parser("explain", help="Explain graph provenance for a commit or decision")
     explain_target = explain_parser.add_mutually_exclusive_group(required=True)
@@ -117,6 +130,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "graph-status":
         return cmd_graph_status(project_root)
+
+    if args.command == "graph-search":
+        return cmd_graph_search(project_root, args)
 
     if args.command == "explain":
         return cmd_explain(project_root, args)
@@ -275,6 +291,44 @@ def cmd_graph_status(project_root: Path) -> int:
     print(f"Edges: {status['edges']}")
     print(f"Last graph sync: {status['last_graph_sync']}")
     return 0
+
+
+def cmd_graph_search(project_root: Path, args: argparse.Namespace) -> int:
+    sync_decision_graph(project_root)
+    all_nodes = list(load_graph_nodes(project_root).get("nodes", {}).values())
+    all_edges = list(load_graph_edges(project_root).get("edges", []))
+    limit = args.limit
+    query = (args.query or "").strip().lower()
+    node_type = (args.type or "").strip().lower()
+
+    nodes = all_nodes
+    if node_type:
+        nodes = [node for node in nodes if str(node.get("type", "")).lower() == node_type]
+    if query:
+        nodes = [node for node in nodes if query in json.dumps(node, sort_keys=True).lower()]
+
+    print(f"Nodes ({len(nodes)}):")
+    for node in nodes[:limit]:
+        label = _node_display_label(node)
+        print(f"- {node.get('id')} [{node.get('type')}] {label}")
+    if len(nodes) > limit:
+        print(f"... {len(nodes) - limit} more node(s)")
+
+    if args.include_edges:
+        edges = all_edges
+        if query:
+            edges = [edge for edge in edges if query in json.dumps(edge, sort_keys=True).lower()]
+        print(f"Edges ({len(edges)}):")
+        for edge in edges[:limit]:
+            print(f"- {edge.get('id')} [{edge.get('type')}] {edge.get('from')} -> {edge.get('to')}")
+        if len(edges) > limit:
+            print(f"... {len(edges) - limit} more edge(s)")
+    return 0
+
+
+def _node_display_label(node: dict[str, object]) -> str:
+    label = node.get("title") or node.get("subject") or node.get("summary") or node.get("ref") or node.get("id")
+    return str(label) if label is not None else ""
 
 
 def cmd_explain(project_root: Path, args: argparse.Namespace) -> int:
