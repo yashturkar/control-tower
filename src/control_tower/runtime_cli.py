@@ -67,7 +67,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     graph_view_parser.add_argument("--query", help="Case-insensitive text filter across graph records")
     graph_view_parser.add_argument("--type", help="Filter nodes by type (for example: decision, commit, session)")
     graph_view_parser.add_argument("--include-edges", action="store_true", help="Include edge listings in output")
-    graph_view_parser.add_argument("--limit", type=_positive_int, default=50, help="Maximum number of rows to print per section")
+    graph_view_parser.add_argument("--limit", type=_positive_int, default=50, help="Maximum number of results to print per section")
 
     explain_parser = subparsers.add_parser("explain", help="Explain graph provenance for a commit or decision")
     explain_target = explain_parser.add_mutually_exclusive_group(required=True)
