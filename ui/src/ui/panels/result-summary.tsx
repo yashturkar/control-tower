@@ -39,7 +39,7 @@ export function ResultSummary({ result }: ResultSummaryProps) {
         <Text> from </Text>
         <Text bold>{result.from_agent}</Text>
       </Box>
-      <Text wrap="wrap">{result.summary}</Text>
+      <Text wrap="truncate">{result.summary}</Text>
       {allArtifacts.length > 0 && (
         <Box>
           <Text dimColor>

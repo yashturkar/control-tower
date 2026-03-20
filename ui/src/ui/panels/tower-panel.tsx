@@ -92,10 +92,11 @@ export function TowerPanel({
   maxLines = 20,
 }: TowerPanelProps) {
   const displayLines = useMemo(() => collapseEvents(events), [events]);
+  // Truncate each line to avoid wrapping that would add extra rows
   const visible = displayLines.slice(-maxLines);
 
   return (
-    <Box flexDirection="column" flexGrow={1} borderStyle="single" borderColor="cyan" paddingX={1} overflow="hidden" width="100%">
+    <Box flexDirection="column" borderStyle="single" borderColor="cyan" paddingX={1} width="100%">
       <Box justifyContent="space-between" width="100%">
         <Text bold color="cyan">
           Tower
@@ -114,7 +115,7 @@ export function TowerPanel({
           <Text color={line.color} bold>
             {line.prefix}{" "}
           </Text>
-          <Text wrap="wrap">{line.text}</Text>
+          <Text wrap="truncate">{line.text}</Text>
         </Box>
       ))}
     </Box>
