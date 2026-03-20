@@ -526,12 +526,12 @@ class BootstrapTests(unittest.TestCase):
             init_project(root)
 
             with patch("control_tower.cli.find_project_root", return_value=root), patch(
-                "control_tower.cli.run_interactive", side_effect=KeyboardInterrupt()
+                "control_tower.cli._run_tower_ui", side_effect=KeyboardInterrupt()
             ), patch("control_tower.cli.sync_and_capture_latest") as sync_mock:
                 with self.assertRaises(KeyboardInterrupt):
                     tower_main(["start"])
 
-            self.assertGreaterEqual(sync_mock.call_count, 2)
+            self.assertGreaterEqual(sync_mock.call_count, 1)
             self.assertEqual(((root,), {"role": "tower"}), sync_mock.call_args_list[-1])
 
     def test_resume_syncs_tower_session_even_on_interrupt(self) -> None:
@@ -541,12 +541,12 @@ class BootstrapTests(unittest.TestCase):
             init_project(root)
 
             with patch("control_tower.cli.find_project_root", return_value=root), patch(
-                "control_tower.cli.run_interactive", side_effect=KeyboardInterrupt()
+                "control_tower.cli._run_tower_ui", side_effect=KeyboardInterrupt()
             ), patch("control_tower.cli.sync_and_capture_latest") as sync_mock:
                 with self.assertRaises(KeyboardInterrupt):
                     tower_main(["resume"])
 
-            self.assertGreaterEqual(sync_mock.call_count, 2)
+            self.assertGreaterEqual(sync_mock.call_count, 1)
             self.assertEqual(((root,), {"role": "tower"}), sync_mock.call_args_list[-1])
 
     def test_resume_without_prompt_does_not_rebuild_bootstrap_prompt(self) -> None:
@@ -556,14 +556,12 @@ class BootstrapTests(unittest.TestCase):
             init_project(root)
 
             with patch("control_tower.cli.find_project_root", return_value=root), patch(
-                "control_tower.cli.run_interactive", return_value=0
-            ) as run_mock, patch("control_tower.cli.sync_and_capture_latest"), patch(
-                "control_tower.cli.build_tower_prompt"
-            ) as prompt_mock:
+                "control_tower.cli._run_tower_ui", return_value=0
+            ) as run_mock, patch("control_tower.cli.sync_and_capture_latest"):
                 tower_main(["resume"])
 
-            prompt_mock.assert_not_called()
-            self.assertIsNone(run_mock.call_args.args[1])
+            # resume passes prompt=None (no bootstrap prompt rebuild)
+            self.assertIsNone(run_mock.call_args.kwargs.get("prompt"))
 
     def test_update_refreshes_runtime_and_reinstalls_from_local_repo(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

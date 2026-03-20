@@ -10,12 +10,10 @@ from pathlib import Path
 from . import __version__
 from .config_ui import configure_project_interactively, should_prompt_for_init_ui
 from .bootstrap import init_project
-from .codex_cli import run_interactive
 from .docs_harness import ensure_docs_harness
 from .layout import find_project_root, tower_dir
 from .memory import mark_runtime_sync
 from .project import load_agent_registry, load_project_config, load_runtime_state
-from .prompts import build_tower_prompt
 from .sessions import find_latest_session_id_for_project, sync_and_capture_latest, update_git_branch
 
 
@@ -94,48 +92,26 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_update(project_root)
 
     if args.command == "start":
-        init_project(project_root, force=False)
-        update_git_branch(project_root)
-        sync_and_capture_latest(project_root)
         config = load_project_config(project_root)
         codex_options = resolve_codex_options(config, args)
         prompt = " ".join(args.prompt).strip() or None
-        assembled = build_tower_prompt(project_root, prompt)
         try:
-            return run_interactive(
-                project_root,
-                assembled,
-                model=codex_options["model"],
-                sandbox=codex_options["sandbox"],
-                approval=codex_options["approval"],
-                search=codex_options["search"],
-                dangerous=codex_options["dangerous"],
-            )
+            return _run_tower_ui(project_root, codex_options, prompt=prompt)
         finally:
             sync_and_capture_latest(project_root, role="tower")
 
     if args.command == "resume":
-        init_project(project_root, force=False)
-        update_git_branch(project_root)
-        sync_and_capture_latest(project_root)
         config = load_project_config(project_root)
         codex_options = resolve_codex_options(config, args)
+        resume_prompt = " ".join(args.prompt).strip() or None
         runtime = load_runtime_state(project_root)
         session_id = runtime.get("last_tower_session_id") or find_latest_session_id_for_project(project_root)
         if session_id:
             mark_runtime_sync(project_root, last_tower_session_id=session_id)
-        resume_prompt = " ".join(args.prompt).strip() or None
         try:
-            return run_interactive(
-                project_root,
-                resume_prompt,
-                resume=True,
-                session_id=session_id,
-                model=codex_options["model"],
-                sandbox=codex_options["sandbox"],
-                approval=codex_options["approval"],
-                search=codex_options["search"],
-                dangerous=codex_options["dangerous"],
+            return _run_tower_ui(
+                project_root, codex_options,
+                prompt=resume_prompt, resume=True, session_id=session_id,
             )
         finally:
             sync_and_capture_latest(project_root, role="tower")
@@ -208,6 +184,39 @@ def cmd_update(project_root: Path) -> int:
     print(f"Updated Tower installation from {updated_source_root}")
     print(f"Refreshed Control Tower runtime in {tower_dir(project_root)}")
     return 0
+
+
+def _run_tower_ui(
+    project_root: Path,
+    codex_options: dict[str, object],
+    prompt: str | None = None,
+    resume: bool = False,
+    session_id: str | None = None,
+) -> int:
+    ui_entry = _ui_dist_path()
+    node_args = ["node", str(ui_entry), "--project-root", str(project_root)]
+    if codex_options.get("model"):
+        node_args.extend(["--model", str(codex_options["model"])])
+    if codex_options.get("sandbox"):
+        node_args.extend(["--sandbox", str(codex_options["sandbox"])])
+    if codex_options.get("approval"):
+        node_args.extend(["--approval", str(codex_options["approval"])])
+    if codex_options.get("dangerous"):
+        node_args.append("--dangerous")
+    if codex_options.get("search"):
+        node_args.append("--search")
+    if resume:
+        node_args.append("--resume")
+    if session_id:
+        node_args.extend(["--session-id", session_id])
+    if prompt:
+        node_args.append(prompt)
+    result = subprocess.run(node_args, cwd=project_root)
+    return result.returncode
+
+
+def _ui_dist_path() -> Path:
+    return _source_repo_root() / "ui" / "dist" / "index.js"
 
 
 def resolve_codex_options(config: dict[str, object], args: argparse.Namespace) -> dict[str, object]:

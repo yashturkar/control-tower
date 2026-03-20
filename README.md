@@ -2,7 +2,7 @@
 
 Control Tower is a bootstrap for a Codex-driven multi-agent orchestration workflow.
 
-It installs a `tower` command for humans and a `tower-run` command for Tower’s internal runtime operations. Together they wrap OpenAI Codex CLI, initialize a project-local `.control-tower/` runtime, load Tower with persistent project memory, and provide delegated subagent entrypoints for:
+It installs a `tower` command for humans and a `tower-run` command for Tower’s internal runtime operations. Together they use the [Codex SDK](https://developers.openai.com/codex/sdk) to run an interactive Tower session with a real-time terminal dashboard, initialize a project-local `.control-tower/` runtime, load Tower with persistent project memory, and provide delegated subagent entrypoints for:
 
 - `Builder`
   Implementation specialist for product code, tests, and refactors.
@@ -19,7 +19,12 @@ It installs a `tower` command for humans and a `tower-run` command for Tower’s
 
 - Creates a portable `.control-tower/` directory inside any repo you run `tower` in.
 - Opens an init-time CLI setup flow with a fast default path and an optional detailed per-agent configurator.
-- Starts Codex with a Tower-specific bootstrap prompt that includes project memory and agent contracts.
+- Launches a **real-time terminal dashboard** (built with Ink and the Codex TypeScript SDK) that shows:
+  - A boot sequence with progress steps before Tower is ready.
+  - A live-streamed Tower conversation panel.
+  - An agent status dashboard showing which subagents are idle, running, or completed.
+  - A packet flow tracker monitoring `.control-tower/packets/` for delegation activity.
+  - A persistent memory indicator that highlights when project memory is being read or stored.
 - Persists project memory in three tiers:
   - `L0`: fast snapshot
   - `L1`: working summary
@@ -35,7 +40,7 @@ Clone this repo, then run:
 ./setup.sh
 ```
 
-That installs `tower` and `tower-run` into `~/.local/bin/`.
+That installs `tower` and `tower-run` into `~/.local/bin/` and builds the terminal UI.
 
 If you want a one-line remote install instead of cloning first:
 
@@ -47,6 +52,7 @@ That command:
 
 - clones or updates Control Tower under `~/.local/share/control-tower/repo`
 - installs `tower` and `tower-run`
+- builds the UI (`cd ui && npm install && npm run build`)
 - leaves the local clone available for future updates
 
 Inside any Git repo:
@@ -55,6 +61,8 @@ Inside any Git repo:
 tower init
 tower start
 ```
+
+When you run `tower start`, you'll see a boot screen with progress steps (initializing project, syncing memory, assembling prompt, starting thread). Once ready, the main dashboard appears with the Tower conversation stream, agent status panel, packet flow, and memory indicator.
 
 `tower init` defaults to a quick setup that keeps the standard agent lineup and enables dangerous bypass for every subagent except `Scout`, which stays sandboxed. If you choose `custom`, it opens the detailed per-agent configurator for enablement, bypass/sandbox, and model overrides. You can always edit `.control-tower/state/agent-registry.json` and `.control-tower/state/project.json` later.
 
@@ -133,7 +141,8 @@ The files are intended to be committed with the target repo so Tower can carry c
 ```mermaid
 flowchart TD
     U["User"] --> TS["tower start"]
-    TS --> TB["Tower bootstrap prompt<br/>L0 + L1 + configured agents"]
+    TS --> UI["Terminal Dashboard<br/>(Ink + Codex SDK)"]
+    UI --> TB["Tower bootstrap prompt<br/>L0 + L1 + configured agents"]
     TB --> D{"Tower needs specialist work?"}
     D -- "No" --> TU["Tower replies to user"]
     D -- "Implementation" --> B["tower-run delegate builder"]
@@ -213,13 +222,29 @@ For higher-quality persistent memory, use `tower-run sync-memory --emit-scribe-p
 ## Requirements
 
 - `python3` 3.9+
+- `node` 18+ and `npm`
 - `codex` installed and authenticated
 - a writable `~/.local/bin` on your `PATH`
+
+## Architecture
+
+The project has two layers:
+
+- **Python (`src/control_tower/`)** — handles project bootstrapping, packet creation/validation, memory management, prompt assembly, and session tracking. Zero external dependencies.
+- **TypeScript (`ui/`)** — the terminal dashboard built with [Ink](https://github.com/vadimdemedes/ink) (React for CLIs) and the [Codex SDK](https://developers.openai.com/codex/sdk). Uses `runStreamed()` for real-time Tower conversation visibility and `chokidar` for filesystem-based subagent monitoring.
+
+When `tower start` runs, the Python CLI spawns the Node.js UI process. The UI calls back into Python for domain operations (`tower init`, `tower-run sync-memory`, prompt assembly) via `child_process`, and reads `.control-tower/state/` JSON files directly. Subagent delegation is unchanged — Tower’s Codex session still calls `tower-run delegate`, which invokes `codex exec`.
+
+To rebuild the UI after changes:
+
+```bash
+cd ui && npm run build
+```
 
 ## Notes
 
 - `tower` is the intended user interface.
 - `tower-run` is the intended internal interface for Tower’s own orchestration primitives.
-- `tower resume` prefers the last tracked Tower session for the current repo. If none is recorded, it falls back to `codex resume --last`.
-- The bootstrap uses only the Python standard library.
+- `tower resume` prefers the last tracked Tower session for the current repo. If none is recorded, it falls back to the last known session ID.
+- The Python layer uses only the standard library. The UI layer requires Node.js 18+.
 - The repo includes JSON schemas and prompt/policy templates, but the runtime is intentionally lightweight so it can be used as a starting point and extended.
