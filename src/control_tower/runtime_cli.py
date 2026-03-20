@@ -37,6 +37,13 @@ DEFAULT_TASK_TYPES = {
 }
 
 
+def _positive_int(value: str) -> int:
+    parsed = int(value)
+    if parsed <= 0:
+        raise argparse.ArgumentTypeError("must be a positive integer")
+    return parsed
+
+
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(prog="tower-run")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -60,7 +67,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     graph_view_parser.add_argument("--query", help="Case-insensitive text filter across graph records")
     graph_view_parser.add_argument("--type", help="Filter nodes by type (for example: decision, commit, session)")
     graph_view_parser.add_argument("--include-edges", action="store_true", help="Include edge listings in output")
-    graph_view_parser.add_argument("--limit", type=int, default=50, help="Maximum number of rows to print per section")
+    graph_view_parser.add_argument("--limit", type=_positive_int, default=50, help="Maximum number of rows to print per section")
 
     explain_parser = subparsers.add_parser("explain", help="Explain graph provenance for a commit or decision")
     explain_target = explain_parser.add_mutually_exclusive_group(required=True)
@@ -290,7 +297,7 @@ def cmd_graph_view(project_root: Path, args: argparse.Namespace) -> int:
     sync_decision_graph(project_root)
     all_nodes = list(load_graph_nodes(project_root).get("nodes", {}).values())
     all_edges = list(load_graph_edges(project_root).get("edges", []))
-    limit = max(1, int(args.limit))
+    limit = args.limit
     query = (args.query or "").strip().lower()
     node_type = (args.type or "").strip().lower()
 
@@ -302,7 +309,7 @@ def cmd_graph_view(project_root: Path, args: argparse.Namespace) -> int:
 
     print(f"Nodes ({len(nodes)}):")
     for node in nodes[:limit]:
-        label = node.get("title") or node.get("subject") or node.get("summary") or node.get("ref") or node.get("id")
+        label = _node_display_label(node)
         print(f"- {node.get('id')} [{node.get('type')}] {label}")
     if len(nodes) > limit:
         print(f"... {len(nodes) - limit} more node(s)")
@@ -317,6 +324,11 @@ def cmd_graph_view(project_root: Path, args: argparse.Namespace) -> int:
         if len(edges) > limit:
             print(f"... {len(edges) - limit} more edge(s)")
     return 0
+
+
+def _node_display_label(node: dict[str, object]) -> str:
+    label = node.get("title") or node.get("subject") or node.get("summary") or node.get("ref") or node.get("id")
+    return str(label) if label is not None else ""
 
 
 def cmd_explain(project_root: Path, args: argparse.Namespace) -> int:

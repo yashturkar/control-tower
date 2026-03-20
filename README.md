@@ -216,7 +216,7 @@ Additional graph-oriented commands:
 
 - `tower-run log-decision --title ... --topic ... --summary ...`
 - `tower-run graph-status`
-- `tower-run graph-view --query <text> --type <node-type> --include-edges`
+- `tower-run graph-view [--query <text>] [--type <node-type>] [--include-edges] [--limit <N>]`
 - `tower-run explain --commit <sha>`
 - `tower-run explain --decision <decision-id>`
 

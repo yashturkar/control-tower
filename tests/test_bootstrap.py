@@ -501,6 +501,10 @@ class BootstrapTests(unittest.TestCase):
         self.assertTrue(args.include_edges)
         self.assertEqual(3, args.limit)
 
+    def test_parse_args_rejects_non_positive_graph_view_limit(self) -> None:
+        with self.assertRaises(SystemExit):
+            parse_args(["graph-view", "--limit", "0"])
+
     def test_graph_view_lists_nodes_and_edges_with_filters(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
