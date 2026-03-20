@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { Box, Text, useInput } from "ink";
+import Spinner from "ink-spinner";
 
 interface InputBarProps {
   isRunning: boolean;
@@ -33,19 +34,24 @@ export function InputBar({ isRunning, onSubmit }: InputBarProps) {
     ),
   );
 
-  if (isRunning) {
-    return (
-      <Box width="100%">
-        <Text dimColor>  Tower is thinking...</Text>
-      </Box>
-    );
-  }
-
   return (
-    <Box width="100%">
-      <Text color="green" bold>{"> "}</Text>
-      <Text>{value}</Text>
-      <Text color="gray">█</Text>
+    <Box
+      width="100%"
+      borderStyle="round"
+      borderColor={isRunning ? "gray" : "green"}
+      paddingX={1}
+    >
+      {isRunning ? (
+        <Text dimColor>
+          <Spinner type="dots" />{" "}Tower is thinking...
+        </Text>
+      ) : (
+        <>
+          <Text color="green" bold>{"> "}</Text>
+          <Text>{value}</Text>
+          <Text color="green">█</Text>
+        </>
+      )}
     </Box>
   );
 }

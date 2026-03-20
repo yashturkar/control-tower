@@ -75,8 +75,8 @@ export function Layout({
 
   // TowerPanel border/header takes 3 rows (top border, header, bottom border)
   const towerChrome = 3;
-  // InputBar takes 1 row
-  const inputRow = 1;
+  // InputBar takes 3 rows (border-top, content, border-bottom)
+  const inputRow = 3;
   const towerMaxLines = Math.max(3, termHeight - fixedRows - towerChrome - inputRow);
   const towerHeight = towerMaxLines + towerChrome;
 
