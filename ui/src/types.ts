@@ -154,6 +154,14 @@ export interface BootStep {
   error?: string;
 }
 
+// ── Token usage ─────────────────────────────────────────────────────────────
+
+export interface TokenUsage {
+  inputTokens: number;
+  outputTokens: number;
+  cachedInputTokens: number;
+}
+
 // ── Codex options ────────────────────────────────────────────────────────────
 
 export interface CodexOptions {

@@ -1,4 +1,4 @@
-import type { Codex, Thread, ThreadEvent } from "@openai/codex-sdk";
+import type { Codex, Thread, ThreadEvent, Usage } from "@openai/codex-sdk";
 import { buildThreadOptions, type CodexClientConfig } from "./client.js";
 import { parseStreamEvent } from "./event-parser.js";
 import type { TowerEvent } from "../types.js";
@@ -37,21 +37,27 @@ export class TowerSession {
 
   /**
    * Run a single turn and emit parsed events via the callback.
-   * Returns when the turn completes.
+   * Returns usage stats when the turn completes.
    */
-  async runTurn(prompt: string, onEvent: OnTowerEvent): Promise<void> {
+  async runTurn(prompt: string, onEvent: OnTowerEvent): Promise<Usage | null> {
     const streamedTurn = await this.thread.runStreamed(prompt);
+    let turnUsage: Usage | null = null;
 
     for await (const event of streamedTurn.events) {
       if (event.type === "thread.started" && this.onThreadId) {
         this.onThreadId(event.thread_id);
         this.onThreadId = undefined; // Only capture once
       }
+      if (event.type === "turn.completed") {
+        turnUsage = event.usage;
+      }
       const parsed = parseStreamEvent(event);
       if (parsed) {
         onEvent(parsed);
       }
     }
+
+    return turnUsage;
   }
 }
 

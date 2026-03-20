@@ -7,12 +7,9 @@ import type { TowerEvent } from "../types.js";
 export function parseStreamEvent(event: ThreadEvent): TowerEvent | null {
   const now = Date.now();
 
+  // Only emit on item.completed to avoid duplicate re-renders from
+  // started/updated/completed firing for the same item.
   if (event.type === "item.completed") {
-    return parseItem(event.item, now);
-  }
-
-  if (event.type === "item.started" || event.type === "item.updated") {
-    // For started/updated we still parse to show real-time progress
     return parseItem(event.item, now);
   }
 

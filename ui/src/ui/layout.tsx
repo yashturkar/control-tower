@@ -6,6 +6,7 @@ import type {
   PacketEvent,
   MemoryStatus,
   ResultPacket,
+  TokenUsage,
 } from "../types.js";
 import { StatusBar } from "./panels/status-bar.js";
 import { TowerPanel } from "./panels/tower-panel.js";
@@ -25,6 +26,7 @@ interface LayoutProps {
   memoryStatus: MemoryStatus;
   latestResult: ResultPacket | null;
   onSendMessage: (text: string) => void;
+  usage: TokenUsage;
 }
 
 /** Hook that tracks terminal height, updating on resize. */
@@ -53,6 +55,7 @@ export function Layout({
   memoryStatus,
   latestResult,
   onSendMessage,
+  usage,
 }: LayoutProps) {
   const termHeight = useTerminalHeight();
 
@@ -84,6 +87,7 @@ export function Layout({
         branch={branch}
         agents={agents}
         memoryStatus={memoryStatus}
+        usage={usage}
       />
       <TowerPanel
         events={towerEvents}

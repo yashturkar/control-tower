@@ -31,7 +31,7 @@ export function App({ options }: AppProps) {
   }, [isReady, options.model, options.sandbox, options.approval, options.dangerous]);
 
   // Tower session
-  const { events: towerEvents, isRunning, isComplete, error: sessionError, sendMessage } =
+  const { events: towerEvents, isRunning, isComplete, error: sessionError, sendMessage, usage } =
     useTowerSession(codex, options, assembledPrompt, isReady);
 
   // Packet watcher
@@ -90,6 +90,7 @@ export function App({ options }: AppProps) {
       memoryStatus={memoryStatus}
       latestResult={latestResult}
       onSendMessage={sendMessage}
+      usage={usage}
     />
   );
 }
