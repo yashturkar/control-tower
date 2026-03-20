@@ -1,9 +1,0 @@
-agent: Scout
-role: research
-allowed_paths:
-  - docs/
-  - .control-tower/
-  - src/
-prohibited_actions:
-  - broad source edits
-  - undocumented assumptions
