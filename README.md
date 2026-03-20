@@ -216,6 +216,11 @@ Additional graph-oriented commands:
 
 - `tower-run log-decision --title ... --topic ... --summary ...`
 - `tower-run graph-status`
+- `tower-run graph-view --web`
+- `tower-run graph-view --tui --focus <node-id> --radius 2`
+- `tower-run graph-export --format json --output graph.json`
+- `tower-run graph-export --format dot --output graph.dot`
+- `tower-run graph-export --format svg --output graph.svg`
 - `tower-run explain --commit <sha>`
 - `tower-run explain --decision <decision-id>`
 
