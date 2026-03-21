@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 import subprocess
 import uuid
 from datetime import datetime, timezone
@@ -276,6 +277,177 @@ def explain_decision(project_root: Path, decision_id: str) -> dict[str, Any]:
         if node:
             related_nodes.append(node)
     return {"decision": decision, "edges": related, "related_nodes": related_nodes}
+
+
+def graph_snapshot(project_root: Path) -> dict[str, Any]:
+    nodes = load_graph_nodes(project_root).get("nodes", {})
+    edges = load_graph_edges(project_root).get("edges", [])
+    return {"nodes": nodes, "edges": edges}
+
+
+def export_graph_json(project_root: Path) -> dict[str, Any]:
+    snapshot = graph_snapshot(project_root)
+    return {
+        "nodes": list(snapshot["nodes"].values()),
+        "edges": snapshot["edges"],
+    }
+
+
+def export_graph_dot(project_root: Path) -> str:
+    snapshot = graph_snapshot(project_root)
+    nodes = snapshot["nodes"]
+    lines = ["digraph decision_graph {"]
+    lines.append("  rankdir=LR;")
+    for node_id, node in sorted(nodes.items()):
+        label = str(node.get("title") or node.get("subject") or node.get("id") or node_id).replace('"', '\\"')
+        node_type = str(node.get("type") or "node").replace('"', '\\"')
+        lines.append(f'  "{node_id}" [label="{label}\\n({node_type})"];')
+    for edge in snapshot["edges"]:
+        from_id = edge.get("from")
+        to_id = edge.get("to")
+        if not from_id or not to_id:
+            continue
+        edge_type = str(edge.get("type") or "edge").replace('"', '\\"')
+        lines.append(f'  "{from_id}" -> "{to_id}" [label="{edge_type}"];')
+    lines.append("}")
+    return "\n".join(lines) + "\n"
+
+
+def export_graph_svg(project_root: Path) -> str:
+    snapshot = graph_snapshot(project_root)
+    nodes = sorted(snapshot["nodes"].values(), key=lambda node: str(node.get("id", "")))
+    edges = snapshot["edges"]
+    width = 1200
+    height = 900
+    cx = width / 2
+    cy = height / 2
+    radius = min(width, height) * 0.36
+    if not nodes:
+        return (
+            f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">'
+            '<rect width="100%" height="100%" fill="#0b1020" />'
+            '<text x="50%" y="50%" fill="#d1d5db" text-anchor="middle" font-family="sans-serif" font-size="24">'
+            "No graph nodes found"
+            "</text></svg>"
+        )
+    positions: dict[str, tuple[float, float]] = {}
+    for index, node in enumerate(nodes):
+        angle = (2 * math.pi * index) / len(nodes)
+        positions[str(node.get("id"))] = (cx + radius * math.cos(angle), cy + radius * math.sin(angle))
+
+    def _esc(value: str) -> str:
+        return (
+            value.replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace('"', "&quot;")
+            .replace("'", "&apos;")
+        )
+
+    parts = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
+        '<rect width="100%" height="100%" fill="#0b1020" />',
+    ]
+    for edge in edges:
+        from_id = str(edge.get("from") or "")
+        to_id = str(edge.get("to") or "")
+        if from_id not in positions or to_id not in positions:
+            continue
+        x1, y1 = positions[from_id]
+        x2, y2 = positions[to_id]
+        parts.append(f'<line x1="{x1:.2f}" y1="{y1:.2f}" x2="{x2:.2f}" y2="{y2:.2f}" stroke="#374151" stroke-width="1.5" />')
+    for node in nodes:
+        node_id = str(node.get("id"))
+        x, y = positions[node_id]
+        label = _esc(str(node.get("title") or node.get("subject") or node_id))
+        node_type = _esc(str(node.get("type") or "node"))
+        parts.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="8" fill="#60a5fa" />')
+        parts.append(
+            f'<text x="{x + 12:.2f}" y="{y + 4:.2f}" fill="#e5e7eb" font-family="sans-serif" font-size="11">{label} [{node_type}]</text>'
+        )
+    parts.append("</svg>")
+    return "\n".join(parts) + "\n"
+
+
+def neighborhood_view(project_root: Path, center_id: str, radius: int) -> dict[str, Any]:
+    if radius < 0:
+        raise ValueError("Neighborhood radius must be >= 0.")
+    snapshot = graph_snapshot(project_root)
+    nodes: dict[str, dict[str, Any]] = snapshot["nodes"]
+    edges: list[dict[str, Any]] = snapshot["edges"]
+    if center_id not in nodes:
+        return {"center": None, "nodes": [], "edges": []}
+    visited = {center_id}
+    frontier = {center_id}
+    kept_edges: list[dict[str, Any]] = []
+    for _ in range(max(0, radius)):
+        next_frontier: set[str] = set()
+        for edge in edges:
+            from_id = edge.get("from")
+            to_id = edge.get("to")
+            if not from_id or not to_id:
+                continue
+            if from_id in frontier and to_id in nodes:
+                next_frontier.add(to_id)
+                kept_edges.append(edge)
+            elif to_id in frontier and from_id in nodes:
+                next_frontier.add(from_id)
+                kept_edges.append(edge)
+        next_frontier -= visited
+        visited |= next_frontier
+        frontier = next_frontier
+        if not frontier:
+            break
+    neighborhood_nodes = [nodes[node_id] for node_id in sorted(visited)]
+    edge_ids: set[str] = set()
+    neighborhood_edges: list[dict[str, Any]] = []
+    for edge in kept_edges:
+        edge_id = str(edge.get("id") or "")
+        if edge_id and edge_id in edge_ids:
+            continue
+        if edge_id:
+            edge_ids.add(edge_id)
+        neighborhood_edges.append(edge)
+    return {"center": nodes[center_id], "nodes": neighborhood_nodes, "edges": neighborhood_edges}
+
+
+def filter_graph_payload(
+    payload: dict[str, Any],
+    *,
+    query: str | None = None,
+    node_types: list[str] | None = None,
+) -> dict[str, Any]:
+    nodes = payload.get("nodes", [])
+    edges = payload.get("edges", [])
+    normalized_types = {value.strip().lower() for value in (node_types or []) if value.strip()}
+    query_value = (query or "").strip().lower()
+
+    def _match(node: dict[str, Any]) -> bool:
+        if normalized_types and str(node.get("type", "")).lower() not in normalized_types:
+            return False
+        if not query_value:
+            return True
+        haystack = " ".join(
+            [
+                str(node.get("id", "")),
+                str(node.get("type", "")),
+                str(node.get("title", "")),
+                str(node.get("subject", "")),
+                str(node.get("sha", "")),
+                str(node.get("session_id", "")),
+                str(node.get("task_id", "")),
+            ]
+        ).lower()
+        return query_value in haystack
+
+    kept_nodes = [node for node in nodes if _match(node)]
+    kept_ids = {str(node.get("id")) for node in kept_nodes}
+    kept_edges = [edge for edge in edges if edge.get("from") in kept_ids and edge.get("to") in kept_ids]
+    center = payload.get("center")
+    if isinstance(center, dict):
+        center_id = str(center.get("id", ""))
+        center = center if center_id in kept_ids else None
+    return {"center": center, "nodes": kept_nodes, "edges": kept_edges}
 
 
 def write_decision_register(project_root: Path, indexes: dict[str, Any], nodes: dict[str, dict[str, Any]]) -> None:

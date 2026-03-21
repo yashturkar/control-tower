@@ -18,7 +18,8 @@ from control_tower.memory import import_project_sessions
 from control_tower.packets import validate_task_packet
 from control_tower.project import load_agent_registry, load_graph_indexes, load_graph_nodes, load_project_config
 from control_tower.prompts import build_tower_prompt
-from control_tower.runtime_cli import cmd_delegate, cmd_graph_status, cmd_graph_search, cmd_log_decision, parse_args
+from control_tower.runtime_cli import cmd_delegate, cmd_graph_export, cmd_graph_status, cmd_graph_view, cmd_log_decision
+from control_tower.runtime_cli import cmd_graph_search, parse_args
 from control_tower.sessions import find_latest_session_id_for_project, sync_and_capture_latest
 
 
@@ -549,6 +550,86 @@ class BootstrapTests(unittest.TestCase):
             self.assertIn("Edges (", rendered)
             self.assertIn("[decision]", rendered)
             self.assertIn("dec_", rendered)
+
+    def test_graph_export_supports_json_dot_and_svg(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            args = type(
+                "Args",
+                (),
+                {
+                    "title": "Use graph-backed memory",
+                    "topic": "memory-architecture",
+                    "summary": "Decision graph sits between L2 and L1/L0.",
+                    "rationale": ["Preserves provenance."],
+                    "status": "accepted",
+                    "importance": "major",
+                    "source_ref": [".control-tower/memory/l1.md"],
+                    "related_ref": [".control-tower/memory/l1.md"],
+                    "created_by": "tower",
+                },
+            )()
+            cmd_log_decision(root, args)
+
+            json_out = root / "graph.json"
+            dot_out = root / "graph.dot"
+            svg_out = root / "graph.svg"
+
+            self.assertEqual(0, cmd_graph_export(root, type("Args", (), {"format": "json", "output": str(json_out)})()))
+            self.assertEqual(0, cmd_graph_export(root, type("Args", (), {"format": "dot", "output": str(dot_out)})()))
+            self.assertEqual(0, cmd_graph_export(root, type("Args", (), {"format": "svg", "output": str(svg_out)})()))
+
+            json_payload = json.loads(json_out.read_text())
+            self.assertIn("nodes", json_payload)
+            self.assertIn("edges", json_payload)
+            self.assertIn("digraph decision_graph", dot_out.read_text())
+            self.assertIn("<svg", svg_out.read_text())
+
+    def test_graph_view_tui_and_web_modes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            args = type(
+                "Args",
+                (),
+                {
+                    "title": "Use graph-backed memory",
+                    "topic": "memory-architecture",
+                    "summary": "Decision graph sits between L2 and L1/L0.",
+                    "rationale": ["Preserves provenance."],
+                    "status": "accepted",
+                    "importance": "major",
+                    "source_ref": [".control-tower/memory/l1.md"],
+                    "related_ref": [".control-tower/memory/l1.md"],
+                    "created_by": "tower",
+                },
+            )()
+            cmd_log_decision(root, args)
+            decision_id = load_graph_indexes(root)["active_decisions"][0]
+
+            tui_output = StringIO()
+            with patch("sys.stdout", tui_output):
+                self.assertEqual(0, cmd_graph_view(root, type("Args", (), {"web": False, "tui": True, "focus": decision_id, "radius": 1})()))
+            self.assertIn("Decision graph (TUI)", tui_output.getvalue())
+            self.assertIn(f"Focus: {decision_id}", tui_output.getvalue())
+
+            web_output = StringIO()
+            opened: list[str] = []
+            with patch("sys.stdout", web_output), patch(
+                "control_tower.runtime_cli.webbrowser.open",
+                side_effect=lambda uri: opened.append(uri) or True,
+            ):
+                self.assertEqual(0, cmd_graph_view(root, type("Args", (), {"web": True, "tui": False, "focus": decision_id, "radius": 1})()))
+            html_path = Path(web_output.getvalue().strip())
+            self.assertTrue(html_path.exists())
+            self.assertEqual(".html", html_path.suffix)
+            self.assertIn("Decision Graph", html_path.read_text())
+            self.assertTrue(opened and opened[0].startswith("file://"))
 
     def test_explain_commit_supports_short_sha_and_links_session_context(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
