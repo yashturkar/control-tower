@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import json
 import shutil
+from datetime import datetime, timezone
 from importlib import resources
 from pathlib import Path
 
 from .agents import default_agent_registry
 from .docs_harness import detect_docs_harness
 from .layout import tower_dir
+from .project import load_runtime_state, save_runtime_state
 
 
 def _template_root() -> Path:
@@ -31,6 +33,10 @@ def _merge_project_config(template_config: dict[str, object], existing_config: d
     merged["project_root"] = str(project_root)
     merged["docs_harness"] = detect_docs_harness(project_root, existing_config.get("docs_harness", {}))
     return merged
+
+
+def _iso_now() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def init_project(project_root: Path, force: bool = False) -> Path:
@@ -58,4 +64,8 @@ def init_project(project_root: Path, force: bool = False) -> Path:
     agent_registry = destination / "state" / "agent-registry.json"
     if not agent_registry.exists():
         agent_registry.write_text(json.dumps(default_agent_registry(), indent=2) + "\n")
+    runtime = load_runtime_state(project_root)
+    if not runtime.get("session_import_cutoff"):
+        runtime["session_import_cutoff"] = _iso_now()
+        save_runtime_state(project_root, runtime)
     return destination

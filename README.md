@@ -57,7 +57,7 @@ tower init
 tower start
 ```
 
-`tower init` defaults to a quick setup that keeps the standard agent lineup and enables dangerous bypass for every subagent except `Scout`, which stays sandboxed. If you choose `custom`, it opens the detailed per-agent configurator for enablement, bypass/sandbox, and model overrides. You can always edit `.control-tower/state/agent-registry.json` and `.control-tower/state/project.json` later.
+`tower init` defaults to a quick setup that keeps the standard agent lineup and enables dangerous bypass for every subagent except `Scout`, which stays sandboxed. It also records a repo-local session import cutoff so the first Tower sync starts from initialization time forward instead of back-importing older Codex history for the same repo path. If you choose `custom`, it opens the detailed per-agent configurator for enablement, bypass/sandbox, and model overrides. You can always edit `.control-tower/state/agent-registry.json` and `.control-tower/state/project.json` later.
 
 Tower now runs without sandboxing or approval gates by default:
 
@@ -201,7 +201,7 @@ tower-run create-packet git-master \
 
 ## Memory sync model
 
-`tower-run sync-memory` scans the local Codex session store and imports sessions whose `cwd` matches the current project root. Imported sessions are copied into `.control-tower/memory/l2/sessions/`, a transcript index is maintained in `.control-tower/state/session-index.json`, a decision graph is refreshed under `.control-tower/state/decision-graph/`, and graph-backed `L0` / `L1` summaries are regenerated.
+`tower-run sync-memory` scans the local Codex session store and imports sessions whose `cwd` matches the current project root and whose timestamp is at or after the repo's recorded import cutoff. Imported sessions are copied into `.control-tower/memory/l2/sessions/`, a transcript index is maintained in `.control-tower/state/session-index.json`, a decision graph is refreshed under `.control-tower/state/decision-graph/`, and graph-backed `L0` / `L1` summaries are regenerated.
 
 For higher-quality persistent memory, use `tower-run sync-memory --emit-scribe-packet`. That creates a Scribe task packet so Tower can delegate long-form curation of:
 

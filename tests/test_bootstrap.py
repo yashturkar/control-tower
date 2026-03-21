@@ -4,6 +4,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from datetime import datetime, timezone
 from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
@@ -16,7 +17,7 @@ from control_tower.graph import explain_commit, explain_decision
 from control_tower.layout import tower_dir
 from control_tower.memory import import_project_sessions
 from control_tower.packets import validate_task_packet
-from control_tower.project import load_agent_registry, load_graph_indexes, load_graph_nodes, load_project_config
+from control_tower.project import load_agent_registry, load_graph_indexes, load_graph_nodes, load_project_config, load_runtime_state, save_runtime_state
 from control_tower.prompts import build_tower_prompt
 from control_tower.runtime_cli import cmd_delegate, cmd_graph_export, cmd_graph_status, cmd_graph_view, cmd_log_decision
 from control_tower.runtime_cli import cmd_graph_search, parse_args
@@ -63,10 +64,17 @@ class BootstrapTests(unittest.TestCase):
         self,
         project_root: Path,
         sessions: list[tuple[str, str, list[str]]],
+        *,
+        preserve_cutoff: bool = False,
     ) -> list:
         codex_home = project_root / ".codex-home-fixture"
         session_dir = codex_home / "sessions" / "2026" / "03" / "17"
         session_dir.mkdir(parents=True, exist_ok=True)
+
+        runtime = load_runtime_state(project_root)
+        if not preserve_cutoff:
+            runtime["session_import_cutoff"] = "1970-01-01T00:00:00Z"
+            save_runtime_state(project_root, runtime)
 
         for session_id, timestamp, messages in sessions:
             self._write_codex_session(session_dir, project_root, session_id, timestamp, messages)
@@ -95,6 +103,7 @@ class BootstrapTests(unittest.TestCase):
             self.assertTrue((tower / "state" / "agent-registry.json").exists())
             self.assertTrue((tower / "state" / "decision-graph" / "indexes.json").exists())
             self.assertTrue((tower / "docs" / "state" / "decisions.md").exists())
+            self.assertTrue(load_runtime_state(root)["session_import_cutoff"])
 
     def test_init_project_refreshes_managed_packet_schemas_for_existing_repo(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -215,6 +224,9 @@ class BootstrapTests(unittest.TestCase):
             root = Path(tmp)
             (root / ".git").mkdir()
             init_project(root)
+            runtime = load_runtime_state(root)
+            runtime["session_import_cutoff"] = "2026-03-17T00:00:00Z"
+            save_runtime_state(root, runtime)
             new_sessions = self._import_sessions_with_messages(
                 root,
                 [("session-1", "2026-03-18T00:00:00Z", ["Implement the bootstrap"])],
@@ -228,6 +240,65 @@ class BootstrapTests(unittest.TestCase):
             self.assertIn("Most recent user goal", l0)
             self.assertIn("Top active decision", l0)
             self.assertIn("open_questions", indexes)
+
+    def test_import_project_sessions_skips_history_before_cutoff(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+            runtime = load_runtime_state(root)
+            runtime["session_import_cutoff"] = "2026-03-18T00:00:00Z"
+            save_runtime_state(root, runtime)
+
+            new_sessions = self._import_sessions_with_messages(
+                root,
+                [
+                    ("session-old", "2026-03-17T23:59:59Z", ["Old history that should stay out."]),
+                    ("session-new", "2026-03-18T00:00:00Z", ["Start using Tower to build Tower."]),
+                ],
+                preserve_cutoff=True,
+            )
+
+            self.assertEqual(["session-new"], [session.session_id for session in new_sessions])
+            l1 = (tower_dir(root) / "memory" / "l1.md").read_text()
+            self.assertIn("- Start using Tower to build Tower.", l1)
+            self.assertNotIn("Old history that should stay out.", l1)
+
+    def test_init_defaults_does_not_back_import_preexisting_codex_history(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "sample-project"
+            root.mkdir()
+            subprocess.run(["git", "init"], cwd=root, check=True, capture_output=True)
+
+            codex_home = Path(tmp) / "codex-home"
+            session_dir = codex_home / "sessions" / "2026" / "03" / "17"
+            session_dir.mkdir(parents=True, exist_ok=True)
+            self._write_codex_session(
+                session_dir,
+                root,
+                "session-1",
+                "2020-01-01T00:00:00Z",
+                ["Pre-Tower history should not import on first init."],
+            )
+
+            env = os.environ.copy()
+            env["PYTHONPATH"] = str(Path(__file__).resolve().parents[1] / "src")
+            env["CONTROL_TOWER_CODEX_HOME"] = str(codex_home)
+
+            subprocess.run(
+                ["python3", "-m", "control_tower.cli", "init", "--defaults"],
+                cwd=root,
+                env=env,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            l1 = (tower_dir(root) / "memory" / "l1.md").read_text()
+            runtime = load_runtime_state(root)
+            self.assertIn("- No imported user goals yet", l1)
+            self.assertNotEqual("never", runtime["last_sync_time"])
+            self.assertTrue(runtime["session_import_cutoff"])
 
     def test_import_project_sessions_filters_bootstrap_role_prompts_from_recent_user_goals(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -639,10 +710,11 @@ class BootstrapTests(unittest.TestCase):
             subprocess.run(["git", "config", "user.name", "Test User"], cwd=root, check=True, capture_output=True)
             subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=root, check=True, capture_output=True)
             init_project(root)
+            session_timestamp = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
             self._import_sessions_with_messages(
                 root,
-                [("session-1", "2026-03-20T15:00:00Z", ["Implement graph provenance."])],
+                [("session-1", session_timestamp, ["Implement graph provenance."])],
             )
 
             (root / "README.md").write_text("hello\n")

@@ -3,5 +3,6 @@
   "last_sync_time": "never",
   "last_tower_session_id": null,
   "last_imported_session_id": null,
+  "session_import_cutoff": null,
   "last_agent_sessions": {}
 }

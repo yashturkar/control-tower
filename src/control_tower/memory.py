@@ -4,6 +4,7 @@ import json
 import re
 import shutil
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -105,6 +106,8 @@ def _collect_transcript(events: list[dict[str, Any]]) -> tuple[list[str], list[s
 def import_project_sessions(project_root: Path) -> list[ImportedSession]:
     project_root = project_root.resolve()
     base = tower_dir(project_root)
+    runtime = load_runtime_state(project_root)
+    session_import_cutoff = _parse_timestamp(runtime.get("session_import_cutoff"))
     index = load_session_index(project_root)
     imported = index.setdefault("sessions", {})
     new_sessions: list[ImportedSession] = []
@@ -116,8 +119,13 @@ def import_project_sessions(project_root: Path) -> list[ImportedSession]:
             continue
         cwd = meta.get("cwd")
         session_id = meta.get("id")
+        session_timestamp = meta.get("timestamp")
         if not session_id or not cwd:
             continue
+        if session_import_cutoff is not None:
+            observed_at = _parse_timestamp(session_timestamp)
+            if observed_at is not None and observed_at < session_import_cutoff:
+                continue
         try:
             normalized_cwd = str(Path(cwd).expanduser().resolve())
         except Exception:
@@ -150,7 +158,7 @@ def import_project_sessions(project_root: Path) -> list[ImportedSession]:
         new_sessions.append(
             ImportedSession(
                 session_id=session_id,
-                timestamp=meta.get("timestamp", ""),
+                timestamp=session_timestamp or "",
                 source_path=session_path,
                 transcript_path=transcript_path,
                 session_copy_path=session_copy_path,
@@ -167,6 +175,20 @@ def import_project_sessions(project_root: Path) -> list[ImportedSession]:
         append_graph_events(project_root, _session_graph_events(project_root, new_sessions))
     _refresh_memory(project_root)
     return new_sessions
+
+
+def _parse_timestamp(value: Any) -> datetime | None:
+    if not isinstance(value, str):
+        return None
+    normalized = value.strip()
+    if not normalized:
+        return None
+    if normalized.endswith("Z"):
+        normalized = normalized[:-1] + "+00:00"
+    try:
+        return datetime.fromisoformat(normalized)
+    except ValueError:
+        return None
 
 
 def _append_black_box_events(project_root: Path, sessions: list[ImportedSession]) -> None:
