@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from .graph import append_graph_events, sync_decision_graph
 from .layout import sessions_root, tower_dir
 from .project import (
     load_agent_registry,
@@ -163,6 +164,7 @@ def import_project_sessions(project_root: Path) -> list[ImportedSession]:
     save_session_index(project_root, index)
     if new_sessions:
         _append_black_box_events(project_root, new_sessions)
+        append_graph_events(project_root, _session_graph_events(project_root, new_sessions))
     _refresh_memory(project_root)
     return new_sessions
 
@@ -192,9 +194,12 @@ def _refresh_memory(project_root: Path) -> None:
     last_tower_session_id = runtime.get("last_tower_session_id")
     last_session = sessions[-1] if sessions else None
     recent_user_goals = _collect_recent_user_goals(project_root, sessions)
+    graph_state = sync_decision_graph(project_root)
+    graph_nodes = graph_state.get("nodes", {})
+    graph_indexes = graph_state.get("indexes", {})
 
-    l0 = _build_l0(branch, last_session, last_tower_session_id, recent_user_goals)
-    l1 = _build_l1(project_root, config, runtime, sessions, recent_user_goals)
+    l0 = _build_l0(branch, last_session, last_tower_session_id, recent_user_goals, graph_indexes, graph_nodes)
+    l1 = _build_l1(project_root, config, runtime, sessions, recent_user_goals, graph_indexes, graph_nodes)
 
     base = tower_dir(project_root)
     write_text(base / "memory" / "l0.md", l0)
@@ -338,6 +343,8 @@ def _build_l0(
     last_session: dict[str, Any] | None,
     last_tower_session_id: str | None,
     recent_user_goals: list[str],
+    graph_indexes: dict[str, Any],
+    graph_nodes: dict[str, dict[str, Any]],
 ) -> str:
     if not last_session:
         return (
@@ -346,10 +353,16 @@ def _build_l0(
         )
     latest_goal = recent_user_goals[0] if recent_user_goals else "No captured user goal yet."
     tower_ref = last_tower_session_id or last_session.get("session_id")
+    active_decision = _first_graph_title(graph_indexes.get("active_decisions", []), graph_nodes)
+    open_question = _first_graph_title(graph_indexes.get("open_questions", []), graph_nodes)
+    recent_commit = _format_recent_commit(graph_indexes.get("recent_commits", []), graph_indexes, graph_nodes)
     return (
         f"Project is on branch `{branch}` with {last_session.get('session_id')} as the latest imported session. "
         f"Last tracked Tower session: `{tower_ref}`. "
-        f"Most recent user goal: {latest_goal}\n"
+        f"Most recent user goal: {latest_goal} "
+        f"Top active decision: {active_decision}. "
+        f"Top open question: {open_question}. "
+        f"Recent commit status: {recent_commit}\n"
     )
 
 
@@ -359,6 +372,8 @@ def _build_l1(
     runtime: dict[str, Any],
     sessions: list[dict[str, Any]],
     recent_user_goals: list[str],
+    graph_indexes: dict[str, Any],
+    graph_nodes: dict[str, dict[str, Any]],
 ) -> str:
     registry = load_agent_registry(project_root)
     active_agents = [
@@ -393,6 +408,46 @@ def _build_l1(
     lines.extend(
         [
             "",
+            "## Active Decisions",
+            "",
+        ]
+    )
+    _extend_graph_section(lines, graph_indexes.get("active_decisions", []), graph_nodes, empty_message="No accepted decisions yet")
+    lines.extend(
+        [
+            "",
+            "## Current Tasks",
+            "",
+        ]
+    )
+    _extend_graph_section(lines, graph_indexes.get("current_tasks", []), graph_nodes, empty_message="No active tasks in the ledger")
+    lines.extend(
+        [
+            "",
+            "## Open Questions",
+            "",
+        ]
+    )
+    _extend_graph_section(lines, graph_indexes.get("open_questions", []), graph_nodes, empty_message="No open questions recorded")
+    lines.extend(
+        [
+            "",
+            "## Known Risks",
+            "",
+        ]
+    )
+    _extend_graph_section(lines, graph_indexes.get("known_risks", []), graph_nodes, empty_message="No known risks recorded")
+    lines.extend(
+        [
+            "",
+            "## Recent Commits",
+            "",
+        ]
+    )
+    _extend_commit_section(lines, graph_indexes.get("recent_commits", []), graph_indexes, graph_nodes)
+    lines.extend(
+        [
+            "",
             "## Recent User Goals",
             "",
         ]
@@ -405,9 +460,24 @@ def _build_l1(
     lines.extend(
         [
             "",
+            "## Unexplained Changes",
+            "",
+        ]
+    )
+    if graph_indexes.get("unexplained_commits"):
+        for commit_id in graph_indexes["unexplained_commits"]:
+            commit = graph_nodes.get(commit_id, {})
+            lines.append(f"- {commit.get('sha', commit_id)}: {commit.get('subject', 'No subject')} (needs curation)")
+    else:
+        lines.append("- No unexplained commits in the current graph window")
+
+    lines.extend(
+        [
+            "",
             "## Memory Policy",
             "",
             "- L2 is the source of truth for imported Codex sessions.",
+            "- The decision graph is the canonical structured provenance layer between L2 and L1/L0.",
             "- L1 is deterministic and should be curated further by Scribe after major work.",
             "- L0 must stay concise and action-oriented.",
             "",
@@ -420,3 +490,92 @@ def mark_runtime_sync(project_root: Path, **updates: Any) -> None:
     runtime = load_runtime_state(project_root)
     runtime.update(updates)
     save_runtime_state(project_root, runtime)
+
+
+def refresh_memory_views(project_root: Path) -> None:
+    _refresh_memory(project_root)
+
+
+def _session_graph_events(project_root: Path, sessions: list[ImportedSession]) -> list[dict[str, Any]]:
+    events: list[dict[str, Any]] = []
+    for session in sessions:
+        transcript_ref = str(session.transcript_path.relative_to(project_root))
+        session_ref = str(session.session_copy_path.relative_to(project_root))
+        node = {
+            "id": f"session:{session.session_id}",
+            "type": "session",
+            "session_id": session.session_id,
+            "timestamp": session.timestamp,
+            "source": session.source,
+            "originator": session.originator,
+            "transcript_path": transcript_ref,
+            "session_path": session_ref,
+        }
+        events.append(
+            {
+                "event_id": f"session.observed:session:{session.session_id}",
+                "timestamp": session.timestamp,
+                "event_type": "session.observed",
+                "payload": node,
+            }
+        )
+    return events
+
+
+def _first_graph_title(node_ids: list[str], graph_nodes: dict[str, dict[str, Any]]) -> str:
+    if not node_ids:
+        return "None recorded"
+    node = graph_nodes.get(node_ids[0], {})
+    return str(node.get("title") or node.get("subject") or node_ids[0])
+
+
+def _format_recent_commit(commit_ids: list[str], graph_indexes: dict[str, Any], graph_nodes: dict[str, dict[str, Any]]) -> str:
+    if not commit_ids:
+        return "No commits observed"
+    commit_id = commit_ids[0]
+    commit = graph_nodes.get(commit_id, {})
+    sha = commit.get("sha", commit_id)
+    subject = commit.get("subject", "No subject")
+    unexplained = commit_id in set(graph_indexes.get("unexplained_commits", []))
+    suffix = "unexplained" if unexplained else "linked"
+    return f"{sha} ({subject}, {suffix})"
+
+
+def _extend_graph_section(
+    lines: list[str],
+    node_ids: list[str],
+    graph_nodes: dict[str, dict[str, Any]],
+    *,
+    empty_message: str,
+) -> None:
+    if not node_ids:
+        lines.append(f"- {empty_message}")
+        return
+    for node_id in node_ids[:5]:
+        node = graph_nodes.get(node_id, {})
+        title = node.get("title") or node.get("subject") or node_id
+        summary = node.get("summary") or node.get("status")
+        if summary:
+            lines.append(f"- {title}: {summary}")
+        else:
+            lines.append(f"- {title}")
+
+
+def _extend_commit_section(
+    lines: list[str],
+    commit_ids: list[str],
+    graph_indexes: dict[str, Any],
+    graph_nodes: dict[str, dict[str, Any]],
+) -> None:
+    if not commit_ids:
+        lines.append("- No commits observed yet")
+        return
+    unexplained = set(graph_indexes.get("unexplained_commits", []))
+    for commit_id in commit_ids[:5]:
+        commit = graph_nodes.get(commit_id, {})
+        sha = commit.get("sha", commit_id)
+        subject = commit.get("subject", "No subject")
+        if commit_id in unexplained:
+            lines.append(f"- {sha}: {subject} (no linked rationale yet)")
+        else:
+            lines.append(f"- {sha}: {subject}")

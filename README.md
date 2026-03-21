@@ -24,6 +24,7 @@ It installs a `tower` command for humans and a `tower-run` command for Tower’s
   - `L0`: fast snapshot
   - `L1`: working summary
   - `L2`: imported Codex session logs
+- Adds a decision graph under `.control-tower/state/decision-graph/` so memory summaries stay linked to decisions, tasks, sessions, packets, and commits.
 - Imports Codex session JSONL files from `~/.codex/sessions` into project memory.
 - Gives Tower a concrete delegation path via `tower-run delegate <agent> --packet <file>`.
 
@@ -200,15 +201,81 @@ tower-run create-packet git-master \
 
 ## Memory sync model
 
-`tower-run sync-memory` scans the local Codex session store and imports sessions whose `cwd` matches the current project root. Imported sessions are copied into `.control-tower/memory/l2/sessions/`, a transcript index is maintained in `.control-tower/state/session-index.json`, and deterministic `L0` and `L1` summaries are refreshed.
+`tower-run sync-memory` scans the local Codex session store and imports sessions whose `cwd` matches the current project root. Imported sessions are copied into `.control-tower/memory/l2/sessions/`, a transcript index is maintained in `.control-tower/state/session-index.json`, a decision graph is refreshed under `.control-tower/state/decision-graph/`, and graph-backed `L0` / `L1` summaries are regenerated.
 
 For higher-quality persistent memory, use `tower-run sync-memory --emit-scribe-packet`. That creates a Scribe task packet so Tower can delegate long-form curation of:
 
 - session summaries
 - open questions
 - task ledgers
+- decision registers
 - architecture notes
 - ADR/doc drift
+
+Additional graph-oriented commands:
+
+- `tower-run log-decision --title ... --topic ... --summary ...`
+- `tower-run graph-status`
+- `tower-run graph-view --web`
+- `tower-run graph-view --tui --focus <node-id> --radius 2`
+- `tower-run graph-export --format json --output graph.json`
+- `tower-run graph-export --format dot --output graph.dot`
+- `tower-run graph-export --format svg --output graph.svg`
+- `tower-run graph-search [--query <text>] [--type <node-type>] [--include-edges] [--limit <N>]`
+- `tower-run explain --commit <sha>`
+- `tower-run explain --decision <decision-id>`
+
+## Decision graph quick usage
+
+Use these commands when you want explicit, queryable provenance instead of only narrative memory notes.
+
+```bash
+# 1) Record an explicit decision and attach evidence refs
+tower-run log-decision \
+  --title "Adopt graph-backed memory" \
+  --topic memory-architecture \
+  --summary "Keep L0/L1 grounded in decision graph nodes and edges." \
+  --rationale "Makes commit-to-decision explanation deterministic." \
+  --source-ref docs/architecture/memory.md \
+  --related-ref src/control_tower/graph.py
+
+# 2) Inspect high-level graph health
+tower-run graph-status
+
+# 3) Discover node IDs (list/search nodes, optionally include edges)
+tower-run graph-search --query memory --type decision --include-edges
+
+# 4) Explain provenance for a commit (supports short SHA too)
+tower-run explain --commit 3ae65c6
+
+# 5) Explain provenance for a specific decision id
+tower-run explain --decision dec_20260320T165537_memory-architecture
+```
+
+### Toy graph example (all current node/edge types)
+
+```mermaid
+flowchart LR
+    E[event.observed] -->|references| D[decision: Adopt graph-backed memory]
+    D -->|references| A[artifact: src/control_tower/graph.py]
+    T[task: Sync memory summaries] -->|references| D
+    P[packet: scribe-docs-followup] -->|references| A
+    P -->|discussed_in| S[session: 2026-03-20T16:55Z]
+    C[commit: 3ae65c6] -->|caused_by| S
+```
+
+- **Node types**
+  - `decision`: explicit or inferred architecture/process decisions.
+  - `artifact`: files or paths used as evidence/provenance anchors.
+  - `session`: imported Codex sessions for timeline grounding.
+  - `task`: items from the task ledger.
+  - `packet`: task/result packets in `.control-tower/packets`.
+  - `commit`: git commits observed in repo history.
+  - `event`: raw observed event records materialized into graph state.
+- **Edge types**
+  - `references`: generic provenance link (for example packet → artifact, decision → artifact).
+  - `discussed_in`: packet was discussed in a specific session.
+  - `caused_by`: commit is linked to its nearest session in time.
 
 ## Requirements
 

@@ -66,3 +66,43 @@ def load_agent_registry(project_root: Path) -> dict[str, Any]:
 def save_agent_registry(project_root: Path, registry: dict[str, Any]) -> None:
     base = tower_dir(project_root)
     write_json(base / "state" / "agent-registry.json", registry)
+
+
+def load_task_ledger(project_root: Path) -> dict[str, Any]:
+    base = tower_dir(project_root)
+    return read_json(base / "state" / "task-ledger.json", {"tasks": []})
+
+
+def save_task_ledger(project_root: Path, ledger: dict[str, Any]) -> None:
+    base = tower_dir(project_root)
+    write_json(base / "state" / "task-ledger.json", ledger)
+
+
+def load_graph_nodes(project_root: Path) -> dict[str, Any]:
+    base = tower_dir(project_root)
+    return read_json(base / "state" / "decision-graph" / "nodes.json", {"nodes": {}})
+
+
+def save_graph_nodes(project_root: Path, payload: dict[str, Any]) -> None:
+    base = tower_dir(project_root)
+    write_json(base / "state" / "decision-graph" / "nodes.json", payload)
+
+
+def load_graph_edges(project_root: Path) -> dict[str, Any]:
+    base = tower_dir(project_root)
+    return read_json(base / "state" / "decision-graph" / "edges.json", {"edges": []})
+
+
+def save_graph_edges(project_root: Path, payload: dict[str, Any]) -> None:
+    base = tower_dir(project_root)
+    write_json(base / "state" / "decision-graph" / "edges.json", payload)
+
+
+def load_graph_indexes(project_root: Path) -> dict[str, Any]:
+    base = tower_dir(project_root)
+    return read_json(base / "state" / "decision-graph" / "indexes.json", {})
+
+
+def save_graph_indexes(project_root: Path, payload: dict[str, Any]) -> None:
+    base = tower_dir(project_root)
+    write_json(base / "state" / "decision-graph" / "indexes.json", payload)

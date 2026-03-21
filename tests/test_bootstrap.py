@@ -12,12 +12,14 @@ from control_tower.bootstrap import init_project
 from control_tower.cli import cmd_status, main as tower_main
 from control_tower.config_ui import configure_project_interactively
 from control_tower.docs_harness import MANAGED_SECTION_START
+from control_tower.graph import explain_commit, explain_decision
 from control_tower.layout import tower_dir
 from control_tower.memory import import_project_sessions
 from control_tower.packets import validate_task_packet
-from control_tower.project import load_agent_registry, load_project_config
+from control_tower.project import load_agent_registry, load_graph_indexes, load_graph_nodes, load_project_config
 from control_tower.prompts import build_tower_prompt
-from control_tower.runtime_cli import cmd_delegate
+from control_tower.runtime_cli import cmd_delegate, cmd_graph_export, cmd_graph_status, cmd_graph_view, cmd_log_decision
+from control_tower.runtime_cli import cmd_graph_search, parse_args
 from control_tower.sessions import find_latest_session_id_for_project, sync_and_capture_latest
 
 
@@ -88,8 +90,11 @@ class BootstrapTests(unittest.TestCase):
             tower = tower_dir(root)
             self.assertTrue((tower / "agents" / "tower" / "prompt.md").exists())
             self.assertTrue((tower / "schemas" / "packets" / "task.schema.json").exists())
+            self.assertTrue((tower / "schemas" / "decision-graph" / "decision.schema.json").exists())
             self.assertTrue((tower / "memory" / "l0.md").exists())
             self.assertTrue((tower / "state" / "agent-registry.json").exists())
+            self.assertTrue((tower / "state" / "decision-graph" / "indexes.json").exists())
+            self.assertTrue((tower / "docs" / "state" / "decisions.md").exists())
 
     def test_init_project_refreshes_managed_packet_schemas_for_existing_repo(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -219,7 +224,10 @@ class BootstrapTests(unittest.TestCase):
             copied = tower_dir(root) / "memory" / "l2" / "sessions" / "session-1.jsonl"
             self.assertTrue(copied.exists())
             l0 = (tower_dir(root) / "memory" / "l0.md").read_text()
+            indexes = load_graph_indexes(root)
             self.assertIn("Most recent user goal", l0)
+            self.assertIn("Top active decision", l0)
+            self.assertIn("open_questions", indexes)
 
     def test_import_project_sessions_filters_bootstrap_role_prompts_from_recent_user_goals(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -247,6 +255,8 @@ class BootstrapTests(unittest.TestCase):
 
             self.assertIn("Investigate why memory sync is duplicating recent user goals.", l0)
             self.assertIn("- Investigate why memory sync is duplicating recent user goals.", l1)
+            self.assertIn("## Active Decisions", l1)
+            self.assertIn("## Open Questions", l1)
             self.assertNotIn("You are Scout", l1)
             self.assertNotIn("You are Tower", l1)
 
@@ -367,6 +377,284 @@ class BootstrapTests(unittest.TestCase):
                 l1.index("- Audit memory goal extraction."),
                 l1.index("- Document the packet lifecycle."),
             )
+
+    def test_import_project_sessions_materializes_graph_nodes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            self._import_sessions_with_messages(
+                root,
+                [("session-1", "2026-03-18T00:00:00Z", ["Document graph-backed memory."])],
+            )
+
+            nodes = load_graph_nodes(root)["nodes"]
+            indexes = load_graph_indexes(root)
+            self.assertIn("session:session-1", nodes)
+            self.assertIn("question:which-repo-conventions-should-scribe-treat-as-canonical", nodes)
+            self.assertGreaterEqual(len(indexes["known_risks"]), 1)
+
+    def test_sync_memory_tracks_git_commits_in_graph(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "sample-project"
+            root.mkdir()
+            subprocess.run(["git", "init"], cwd=root, check=True, capture_output=True)
+            subprocess.run(["git", "config", "user.name", "Test User"], cwd=root, check=True, capture_output=True)
+            subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=root, check=True, capture_output=True)
+            init_project(root)
+            (root / "README.md").write_text("hello\n")
+            subprocess.run(["git", "add", "README.md"], cwd=root, check=True, capture_output=True)
+            subprocess.run(["git", "commit", "-m", "Add README"], cwd=root, check=True, capture_output=True)
+
+            import_project_sessions(root)
+
+            indexes = load_graph_indexes(root)
+            nodes = load_graph_nodes(root)["nodes"]
+            self.assertTrue(indexes["recent_commits"])
+            commit = nodes[indexes["recent_commits"][0]]
+            self.assertEqual("Add README", commit["subject"])
+
+    def test_log_decision_creates_active_decision_and_register(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            args = type(
+                "Args",
+                (),
+                {
+                    "title": "Use graph-backed memory",
+                    "topic": "memory-architecture",
+                    "summary": "Decision graph sits between L2 and L1/L0.",
+                    "rationale": ["Preserves provenance."],
+                    "status": "accepted",
+                    "importance": "major",
+                    "source_ref": [".control-tower/memory/l1.md"],
+                    "related_ref": [".control-tower/memory/l1.md"],
+                    "created_by": "tower",
+                },
+            )()
+            cmd_log_decision(root, args)
+
+            indexes = load_graph_indexes(root)
+            self.assertEqual(1, len(indexes["active_decisions"]))
+            register = (tower_dir(root) / "docs" / "state" / "decisions.md").read_text()
+            self.assertIn("Use graph-backed memory", register)
+
+    def test_log_decision_refreshes_l1_and_keeps_ref_traversable(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            args = type(
+                "Args",
+                (),
+                {
+                    "title": "Use graph-backed memory",
+                    "topic": "memory-architecture",
+                    "summary": "Decision graph sits between L2 and L1/L0.",
+                    "rationale": ["Preserves provenance."],
+                    "status": "accepted",
+                    "importance": "major",
+                    "source_ref": [".control-tower/memory/l1.md"],
+                    "related_ref": [".control-tower/memory/l1.md"],
+                    "created_by": "tower",
+                },
+            )()
+            cmd_log_decision(root, args)
+
+            l1 = (tower_dir(root) / "memory" / "l1.md").read_text()
+            decision_id = load_graph_indexes(root)["active_decisions"][0]
+            explanation = explain_decision(root, decision_id)
+            self.assertIn("Use graph-backed memory", l1)
+            self.assertTrue(any(node.get("type") == "artifact" for node in explanation["related_nodes"]))
+
+    def test_graph_status_reports_counts(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+            output = StringIO()
+            with patch("sys.stdout", output):
+                exit_code = cmd_graph_status(root)
+            self.assertEqual(0, exit_code)
+            self.assertIn("Active decisions:", output.getvalue())
+
+    def test_parse_args_accepts_graph_search_flags(self) -> None:
+        args = parse_args(
+            [
+                "graph-search",
+                "--query",
+                "memory",
+                "--type",
+                "decision",
+                "--include-edges",
+                "--limit",
+                "3",
+            ]
+        )
+        self.assertEqual("graph-search", args.command)
+        self.assertEqual("memory", args.query)
+        self.assertEqual("decision", args.type)
+        self.assertTrue(args.include_edges)
+        self.assertEqual(3, args.limit)
+
+    def test_parse_args_rejects_non_positive_graph_search_limit(self) -> None:
+        with self.assertRaises(SystemExit):
+            parse_args(["graph-search", "--limit", "0"])
+
+    def test_graph_search_lists_nodes_and_edges_with_filters(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            args = type(
+                "Args",
+                (),
+                {
+                    "title": "Use graph-backed memory",
+                    "topic": "memory-architecture",
+                    "summary": "Decision graph sits between L2 and L1/L0.",
+                    "rationale": ["Preserves provenance."],
+                    "status": "accepted",
+                    "importance": "major",
+                    "source_ref": [".control-tower/memory/l1.md"],
+                    "related_ref": [".control-tower/memory/l1.md"],
+                    "created_by": "tower",
+                },
+            )()
+            cmd_log_decision(root, args)
+
+            output = StringIO()
+            with patch("sys.stdout", output):
+                exit_code = cmd_graph_search(
+                    root,
+                    type(
+                        "Args",
+                        (),
+                        {
+                            "query": "memory",
+                            "type": "decision",
+                            "include_edges": True,
+                            "limit": 10,
+                        },
+                    )(),
+                )
+            self.assertEqual(0, exit_code)
+            rendered = output.getvalue()
+            self.assertIn("Nodes (", rendered)
+            self.assertIn("Edges (", rendered)
+            self.assertIn("[decision]", rendered)
+            self.assertIn("dec_", rendered)
+
+    def test_graph_export_supports_json_dot_and_svg(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            args = type(
+                "Args",
+                (),
+                {
+                    "title": "Use graph-backed memory",
+                    "topic": "memory-architecture",
+                    "summary": "Decision graph sits between L2 and L1/L0.",
+                    "rationale": ["Preserves provenance."],
+                    "status": "accepted",
+                    "importance": "major",
+                    "source_ref": [".control-tower/memory/l1.md"],
+                    "related_ref": [".control-tower/memory/l1.md"],
+                    "created_by": "tower",
+                },
+            )()
+            cmd_log_decision(root, args)
+
+            json_out = root / "graph.json"
+            dot_out = root / "graph.dot"
+            svg_out = root / "graph.svg"
+
+            self.assertEqual(0, cmd_graph_export(root, type("Args", (), {"format": "json", "output": str(json_out)})()))
+            self.assertEqual(0, cmd_graph_export(root, type("Args", (), {"format": "dot", "output": str(dot_out)})()))
+            self.assertEqual(0, cmd_graph_export(root, type("Args", (), {"format": "svg", "output": str(svg_out)})()))
+
+            json_payload = json.loads(json_out.read_text())
+            self.assertIn("nodes", json_payload)
+            self.assertIn("edges", json_payload)
+            self.assertIn("digraph decision_graph", dot_out.read_text())
+            self.assertIn("<svg", svg_out.read_text())
+
+    def test_graph_view_tui_and_web_modes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            args = type(
+                "Args",
+                (),
+                {
+                    "title": "Use graph-backed memory",
+                    "topic": "memory-architecture",
+                    "summary": "Decision graph sits between L2 and L1/L0.",
+                    "rationale": ["Preserves provenance."],
+                    "status": "accepted",
+                    "importance": "major",
+                    "source_ref": [".control-tower/memory/l1.md"],
+                    "related_ref": [".control-tower/memory/l1.md"],
+                    "created_by": "tower",
+                },
+            )()
+            cmd_log_decision(root, args)
+            decision_id = load_graph_indexes(root)["active_decisions"][0]
+
+            tui_output = StringIO()
+            with patch("sys.stdout", tui_output):
+                self.assertEqual(0, cmd_graph_view(root, type("Args", (), {"web": False, "tui": True, "focus": decision_id, "radius": 1})()))
+            self.assertIn("Decision graph (TUI)", tui_output.getvalue())
+            self.assertIn(f"Focus: {decision_id}", tui_output.getvalue())
+
+            web_output = StringIO()
+            opened: list[str] = []
+            with patch("sys.stdout", web_output), patch(
+                "control_tower.runtime_cli.webbrowser.open",
+                side_effect=lambda uri: opened.append(uri) or True,
+            ):
+                self.assertEqual(0, cmd_graph_view(root, type("Args", (), {"web": True, "tui": False, "focus": decision_id, "radius": 1})()))
+            html_path = Path(web_output.getvalue().strip())
+            self.assertTrue(html_path.exists())
+            self.assertEqual(".html", html_path.suffix)
+            self.assertIn("Decision Graph", html_path.read_text())
+            self.assertTrue(opened and opened[0].startswith("file://"))
+
+    def test_explain_commit_supports_short_sha_and_links_session_context(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "sample-project"
+            root.mkdir()
+            subprocess.run(["git", "init"], cwd=root, check=True, capture_output=True)
+            subprocess.run(["git", "config", "user.name", "Test User"], cwd=root, check=True, capture_output=True)
+            subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=root, check=True, capture_output=True)
+            init_project(root)
+
+            self._import_sessions_with_messages(
+                root,
+                [("session-1", "2026-03-20T15:00:00Z", ["Implement graph provenance."])],
+            )
+
+            (root / "README.md").write_text("hello\n")
+            subprocess.run(["git", "add", "README.md"], cwd=root, check=True, capture_output=True)
+            subprocess.run(["git", "commit", "-m", "Add README"], cwd=root, check=True, capture_output=True)
+
+            import_project_sessions(root)
+
+            full_sha = load_graph_indexes(root)["recent_commits"][0].split(":", 1)[1]
+            explanation = explain_commit(root, full_sha[:7])
+            self.assertEqual(full_sha, explanation["commit"]["sha"])
+            self.assertEqual("session-1", explanation["linked_sessions"][0]["session_id"])
 
     def test_import_project_sessions_uses_existing_fallback_when_all_recent_messages_are_filtered(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
