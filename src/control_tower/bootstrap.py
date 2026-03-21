@@ -16,6 +16,7 @@ def _template_root() -> Path:
 
 MANAGED_TEMPLATE_PREFIXES = (
     Path("schemas/packets"),
+    Path("schemas/decision-graph"),
 )
 
 
