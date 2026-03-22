@@ -1,0 +1,334 @@
+{
+  "edges": [
+    {
+      "id": "edge:packet-artifact:1acb16ee-14f4-4633-be2f-2c2e3b8b57d6:control-tower-packets-outbox-scribe-initial-session-state-json",
+      "type": "references",
+      "from": "packet:1acb16ee-14f4-4633-be2f-2c2e3b8b57d6",
+      "to": "artifact:.control-tower/packets/outbox/scribe-initial-session-state.json",
+      "created_at": "2026-03-22T00:27:39Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-initial-session-state.json"
+      ]
+    },
+    {
+      "id": "edge:packet-session:1acb16ee-14f4-4633-be2f-2c2e3b8b57d6:tower-session",
+      "type": "discussed_in",
+      "from": "packet:1acb16ee-14f4-4633-be2f-2c2e3b8b57d6",
+      "to": "session:tower-session",
+      "created_at": "2026-03-22T00:27:39Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-initial-session-state.json"
+      ]
+    },
+    {
+      "id": "edge:packet-artifact:9c2d89ca-b650-4d71-b479-519ca90b4d97:control-tower-packets-outbox-scribe-initial-session-state-result-json",
+      "type": "references",
+      "from": "packet:9c2d89ca-b650-4d71-b479-519ca90b4d97",
+      "to": "artifact:.control-tower/packets/outbox/scribe-initial-session-state.result.json",
+      "created_at": "2026-03-22T00:35:30Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-initial-session-state.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-ref:dec_inferred_9c2d89ca-b650-4d71-b479-519ca90b4d97_0_first-meaningful-tower-session-resumed-project-control-but-could-not-delegate-because-codex-auth-refresh-failed-with-refresh-token-reused:control-tower-packets-outbox-scribe-initial-session-state-result-json",
+      "type": "references",
+      "from": "dec_inferred_9c2d89ca-b650-4d71-b479-519ca90b4d97_0_first-meaningful-tower-session-resumed-project-control-but-could-not-delegate-because-codex-auth-refresh-failed-with-refresh-token-reused",
+      "to": "artifact:.control-tower/packets/outbox/scribe-initial-session-state.result.json",
+      "created_at": "2026-03-22T00:31:59Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-initial-session-state.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-node:dec_inferred_9c2d89ca-b650-4d71-b479-519ca90b4d97_0_first-meaningful-tower-session-resumed-project-control-but-could-not-delegate-because-codex-auth-refresh-failed-with-refresh-token-reused:packet-9c2d89ca-b650-4d71-b479-519ca90b4d97",
+      "type": "references",
+      "from": "dec_inferred_9c2d89ca-b650-4d71-b479-519ca90b4d97_0_first-meaningful-tower-session-resumed-project-control-but-could-not-delegate-because-codex-auth-refresh-failed-with-refresh-token-reused",
+      "to": "packet:9c2d89ca-b650-4d71-b479-519ca90b4d97",
+      "created_at": "2026-03-22T00:31:59Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-initial-session-state.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-ref:dec_inferred_9c2d89ca-b650-4d71-b479-519ca90b4d97_1_operational-next-action-is-to-restore-auth-rerun-the-queued-scribe-packet-then-sync-memory:control-tower-packets-outbox-scribe-initial-session-state-result-json",
+      "type": "references",
+      "from": "dec_inferred_9c2d89ca-b650-4d71-b479-519ca90b4d97_1_operational-next-action-is-to-restore-auth-rerun-the-queued-scribe-packet-then-sync-memory",
+      "to": "artifact:.control-tower/packets/outbox/scribe-initial-session-state.result.json",
+      "created_at": "2026-03-22T00:31:59Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-initial-session-state.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-node:dec_inferred_9c2d89ca-b650-4d71-b479-519ca90b4d97_1_operational-next-action-is-to-restore-auth-rerun-the-queued-scribe-packet-then-sync-memory:packet-9c2d89ca-b650-4d71-b479-519ca90b4d97",
+      "type": "references",
+      "from": "dec_inferred_9c2d89ca-b650-4d71-b479-519ca90b4d97_1_operational-next-action-is-to-restore-auth-rerun-the-queued-scribe-packet-then-sync-memory",
+      "to": "packet:9c2d89ca-b650-4d71-b479-519ca90b4d97",
+      "created_at": "2026-03-22T00:31:59Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-initial-session-state.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-ref:dec_inferred_9c2d89ca-b650-4d71-b479-519ca90b4d97_2_imported-user-goal-auth-is-known-but-still-ambiguous-in-scope:control-tower-packets-outbox-scribe-initial-session-state-result-json",
+      "type": "references",
+      "from": "dec_inferred_9c2d89ca-b650-4d71-b479-519ca90b4d97_2_imported-user-goal-auth-is-known-but-still-ambiguous-in-scope",
+      "to": "artifact:.control-tower/packets/outbox/scribe-initial-session-state.result.json",
+      "created_at": "2026-03-22T00:31:59Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-initial-session-state.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-node:dec_inferred_9c2d89ca-b650-4d71-b479-519ca90b4d97_2_imported-user-goal-auth-is-known-but-still-ambiguous-in-scope:packet-9c2d89ca-b650-4d71-b479-519ca90b4d97",
+      "type": "references",
+      "from": "dec_inferred_9c2d89ca-b650-4d71-b479-519ca90b4d97_2_imported-user-goal-auth-is-known-but-still-ambiguous-in-scope",
+      "to": "packet:9c2d89ca-b650-4d71-b479-519ca90b4d97",
+      "created_at": "2026-03-22T00:31:59Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-initial-session-state.result.json"
+      ]
+    },
+    {
+      "id": "edge:packet-artifact:09f92dc8-2796-4097-b923-e0cd3f12e5cd:control-tower-packets-outbox-scribe-memory-sync-20260322t003039z-json",
+      "type": "references",
+      "from": "packet:09f92dc8-2796-4097-b923-e0cd3f12e5cd",
+      "to": "artifact:.control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.json",
+      "created_at": "2026-03-22T00:30:39Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.json"
+      ]
+    },
+    {
+      "id": "edge:packet-session:09f92dc8-2796-4097-b923-e0cd3f12e5cd:019d12f0-115b-7a20-a4a0-3a8210a841ee",
+      "type": "discussed_in",
+      "from": "packet:09f92dc8-2796-4097-b923-e0cd3f12e5cd",
+      "to": "session:019d12f0-115b-7a20-a4a0-3a8210a841ee",
+      "created_at": "2026-03-22T00:30:39Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.json"
+      ]
+    },
+    {
+      "id": "edge:packet-artifact:74bb340a-7924-4d97-a5a6-a38776a5a86e:control-tower-packets-outbox-scout-rollout-conventions-json",
+      "type": "references",
+      "from": "packet:74bb340a-7924-4d97-a5a6-a38776a5a86e",
+      "to": "artifact:.control-tower/packets/outbox/scout-rollout-conventions.json",
+      "created_at": "2026-03-22T00:33:00Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scout-rollout-conventions.json"
+      ]
+    },
+    {
+      "id": "edge:packet-session:74bb340a-7924-4d97-a5a6-a38776a5a86e:019d12f0-115b-7a20-a4a0-3a8210a841ee",
+      "type": "discussed_in",
+      "from": "packet:74bb340a-7924-4d97-a5a6-a38776a5a86e",
+      "to": "session:019d12f0-115b-7a20-a4a0-3a8210a841ee",
+      "created_at": "2026-03-22T00:33:00Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scout-rollout-conventions.json"
+      ]
+    },
+    {
+      "id": "edge:packet-artifact:1623fa84-c9a6-4fc8-a268-ec3a151a9515:control-tower-packets-outbox-scribe-memory-sync-20260322t003039z-result-json",
+      "type": "references",
+      "from": "packet:1623fa84-c9a6-4fc8-a268-ec3a151a9515",
+      "to": "artifact:.control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json",
+      "created_at": "2026-03-22T00:33:09Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-ref:dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_0_initial-tower-bootstrap-curation-is-not-complete-yet-the-queued-scribe-packet-exists-but-delegation-previously-failed-before-a-resultpacket-was-produced:control-tower-packets-outbox-scribe-memory-sync-20260322t003039z-result-json",
+      "type": "references",
+      "from": "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_0_initial-tower-bootstrap-curation-is-not-complete-yet-the-queued-scribe-packet-exists-but-delegation-previously-failed-before-a-resultpacket-was-produced",
+      "to": "artifact:.control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json",
+      "created_at": "2026-03-22T00:33:27Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-node:dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_0_initial-tower-bootstrap-curation-is-not-complete-yet-the-queued-scribe-packet-exists-but-delegation-previously-failed-before-a-resultpacket-was-produced:packet-1623fa84-c9a6-4fc8-a268-ec3a151a9515",
+      "type": "references",
+      "from": "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_0_initial-tower-bootstrap-curation-is-not-complete-yet-the-queued-scribe-packet-exists-but-delegation-previously-failed-before-a-resultpacket-was-produced",
+      "to": "packet:1623fa84-c9a6-4fc8-a268-ec3a151a9515",
+      "created_at": "2026-03-22T00:33:27Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-ref:dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_1_the-active-operational-task-is-tower-session-bootstrap-curation-focused-on-restoring-delegation-and-replacing-bootstrap-placeholders-with-curated-state:control-tower-packets-outbox-scribe-memory-sync-20260322t003039z-result-json",
+      "type": "references",
+      "from": "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_1_the-active-operational-task-is-tower-session-bootstrap-curation-focused-on-restoring-delegation-and-replacing-bootstrap-placeholders-with-curated-state",
+      "to": "artifact:.control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json",
+      "created_at": "2026-03-22T00:33:27Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-node:dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_1_the-active-operational-task-is-tower-session-bootstrap-curation-focused-on-restoring-delegation-and-replacing-bootstrap-placeholders-with-curated-state:packet-1623fa84-c9a6-4fc8-a268-ec3a151a9515",
+      "type": "references",
+      "from": "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_1_the-active-operational-task-is-tower-session-bootstrap-curation-focused-on-restoring-delegation-and-replacing-bootstrap-placeholders-with-curated-state",
+      "to": "packet:1623fa84-c9a6-4fc8-a268-ec3a151a9515",
+      "created_at": "2026-03-22T00:33:27Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-ref:dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_2_the-current-blocker-is-codex-auth-refresh-failure-refresh-token-reused-which-prevents-tower-from-delegating-to-scribe-builder-scout-inspector-and-git-master:control-tower-packets-outbox-scribe-memory-sync-20260322t003039z-result-json",
+      "type": "references",
+      "from": "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_2_the-current-blocker-is-codex-auth-refresh-failure-refresh-token-reused-which-prevents-tower-from-delegating-to-scribe-builder-scout-inspector-and-git-master",
+      "to": "artifact:.control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json",
+      "created_at": "2026-03-22T00:33:27Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-node:dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_2_the-current-blocker-is-codex-auth-refresh-failure-refresh-token-reused-which-prevents-tower-from-delegating-to-scribe-builder-scout-inspector-and-git-master:packet-1623fa84-c9a6-4fc8-a268-ec3a151a9515",
+      "type": "references",
+      "from": "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_2_the-current-blocker-is-codex-auth-refresh-failure-refresh-token-reused-which-prevents-tower-from-delegating-to-scribe-builder-scout-inspector-and-git-master",
+      "to": "packet:1623fa84-c9a6-4fc8-a268-ec3a151a9515",
+      "created_at": "2026-03-22T00:33:27Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-ref:dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_3_the-next-best-action-remains-re-authenticate-rerun-the-queued-scribe-packet-then-run-tower-run-sync-memory:control-tower-packets-outbox-scribe-memory-sync-20260322t003039z-result-json",
+      "type": "references",
+      "from": "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_3_the-next-best-action-remains-re-authenticate-rerun-the-queued-scribe-packet-then-run-tower-run-sync-memory",
+      "to": "artifact:.control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json",
+      "created_at": "2026-03-22T00:33:27Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-node:dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_3_the-next-best-action-remains-re-authenticate-rerun-the-queued-scribe-packet-then-run-tower-run-sync-memory:packet-1623fa84-c9a6-4fc8-a268-ec3a151a9515",
+      "type": "references",
+      "from": "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_3_the-next-best-action-remains-re-authenticate-rerun-the-queued-scribe-packet-then-run-tower-run-sync-memory",
+      "to": "packet:1623fa84-c9a6-4fc8-a268-ec3a151a9515",
+      "created_at": "2026-03-22T00:33:27Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-ref:dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_4_the-imported-user-goal-auth-remains-ambiguous-and-should-stay-open-until-grounded-in-repo-state-or-future-logs:control-tower-packets-outbox-scribe-memory-sync-20260322t003039z-result-json",
+      "type": "references",
+      "from": "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_4_the-imported-user-goal-auth-remains-ambiguous-and-should-stay-open-until-grounded-in-repo-state-or-future-logs",
+      "to": "artifact:.control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json",
+      "created_at": "2026-03-22T00:33:27Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-node:dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_4_the-imported-user-goal-auth-remains-ambiguous-and-should-stay-open-until-grounded-in-repo-state-or-future-logs:packet-1623fa84-c9a6-4fc8-a268-ec3a151a9515",
+      "type": "references",
+      "from": "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_4_the-imported-user-goal-auth-remains-ambiguous-and-should-stay-open-until-grounded-in-repo-state-or-future-logs",
+      "to": "packet:1623fa84-c9a6-4fc8-a268-ec3a151a9515",
+      "created_at": "2026-03-22T00:33:27Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json"
+      ]
+    },
+    {
+      "id": "edge:packet-artifact:e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271:control-tower-packets-outbox-scout-rollout-conventions-result-json",
+      "type": "references",
+      "from": "packet:e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271",
+      "to": "artifact:.control-tower/packets/outbox/scout-rollout-conventions.result.json",
+      "created_at": "2026-03-22T00:45:00Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scout-rollout-conventions.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-ref:dec_inferred_e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271_0_this-repo-already-signals-a-branch-and-pr-workflow-on-top-of-main-through-multiple-codex-copilot-and-claude-branches-merged-back-to-main:control-tower-packets-outbox-scout-rollout-conventions-result-json",
+      "type": "references",
+      "from": "dec_inferred_e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271_0_this-repo-already-signals-a-branch-and-pr-workflow-on-top-of-main-through-multiple-codex-copilot-and-claude-branches-merged-back-to-main",
+      "to": "artifact:.control-tower/packets/outbox/scout-rollout-conventions.result.json",
+      "created_at": "2026-03-22T00:34:52Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scout-rollout-conventions.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-node:dec_inferred_e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271_0_this-repo-already-signals-a-branch-and-pr-workflow-on-top-of-main-through-multiple-codex-copilot-and-claude-branches-merged-back-to-main:packet-e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271",
+      "type": "references",
+      "from": "dec_inferred_e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271_0_this-repo-already-signals-a-branch-and-pr-workflow-on-top-of-main-through-multiple-codex-copilot-and-claude-branches-merged-back-to-main",
+      "to": "packet:e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271",
+      "created_at": "2026-03-22T00:34:52Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scout-rollout-conventions.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-ref:dec_inferred_e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271_1_for-this-repo-builder-should-avoid-live-control-tower-operational-state-by-default-scribe-owns-docs-memory-curation-and-docs-is-the-durable-source-of-truth:control-tower-packets-outbox-scout-rollout-conventions-result-json",
+      "type": "references",
+      "from": "dec_inferred_e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271_1_for-this-repo-builder-should-avoid-live-control-tower-operational-state-by-default-scribe-owns-docs-memory-curation-and-docs-is-the-durable-source-of-truth",
+      "to": "artifact:.control-tower/packets/outbox/scout-rollout-conventions.result.json",
+      "created_at": "2026-03-22T00:34:52Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scout-rollout-conventions.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-node:dec_inferred_e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271_1_for-this-repo-builder-should-avoid-live-control-tower-operational-state-by-default-scribe-owns-docs-memory-curation-and-docs-is-the-durable-source-of-truth:packet-e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271",
+      "type": "references",
+      "from": "dec_inferred_e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271_1_for-this-repo-builder-should-avoid-live-control-tower-operational-state-by-default-scribe-owns-docs-memory-curation-and-docs-is-the-durable-source-of-truth",
+      "to": "packet:e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271",
+      "created_at": "2026-03-22T00:34:52Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scout-rollout-conventions.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-ref:dec_inferred_e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271_2_bootstrap-rollout-is-currently-blocked-on-codex-auth-recovery-and-pending-scribe-curation-so-untracked-control-tower-contents-should-not-be-treated-as-final-operating-guidance-yet:control-tower-packets-outbox-scout-rollout-conventions-result-json",
+      "type": "references",
+      "from": "dec_inferred_e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271_2_bootstrap-rollout-is-currently-blocked-on-codex-auth-recovery-and-pending-scribe-curation-so-untracked-control-tower-contents-should-not-be-treated-as-final-operating-guidance-yet",
+      "to": "artifact:.control-tower/packets/outbox/scout-rollout-conventions.result.json",
+      "created_at": "2026-03-22T00:34:52Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scout-rollout-conventions.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-node:dec_inferred_e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271_2_bootstrap-rollout-is-currently-blocked-on-codex-auth-recovery-and-pending-scribe-curation-so-untracked-control-tower-contents-should-not-be-treated-as-final-operating-guidance-yet:packet-e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271",
+      "type": "references",
+      "from": "dec_inferred_e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271_2_bootstrap-rollout-is-currently-blocked-on-codex-auth-recovery-and-pending-scribe-curation-so-untracked-control-tower-contents-should-not-be-treated-as-final-operating-guidance-yet",
+      "to": "packet:e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271",
+      "created_at": "2026-03-22T00:34:52Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scout-rollout-conventions.result.json"
+      ]
+    },
+    {
+      "id": "edge:packet-artifact:0559413a-288e-41ae-bbee-9ef6577f0ab1:control-tower-packets-outbox-scribe-finalize-rollout-state-json",
+      "type": "references",
+      "from": "packet:0559413a-288e-41ae-bbee-9ef6577f0ab1",
+      "to": "artifact:.control-tower/packets/outbox/scribe-finalize-rollout-state.json",
+      "created_at": "2026-03-22T00:34:25Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-finalize-rollout-state.json"
+      ]
+    },
+    {
+      "id": "edge:packet-session:0559413a-288e-41ae-bbee-9ef6577f0ab1:019d12f0-115b-7a20-a4a0-3a8210a841ee",
+      "type": "discussed_in",
+      "from": "packet:0559413a-288e-41ae-bbee-9ef6577f0ab1",
+      "to": "session:019d12f0-115b-7a20-a4a0-3a8210a841ee",
+      "created_at": "2026-03-22T00:34:25Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-finalize-rollout-state.json"
+      ]
+    }
+  ]
+}

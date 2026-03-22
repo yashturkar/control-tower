@@ -1,0 +1,8 @@
+agent: Scribe
+role: documentation-memory
+allowed_paths:
+  - docs/
+  - .control-tower/
+prohibited_actions:
+  - product code changes
+  - inventing undocumented decisions

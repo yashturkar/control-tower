@@ -1,0 +1,48 @@
+{
+  "system_name": "Control Tower",
+  "primary_agent": "Tower",
+  "project_name": "control-tower",
+  "project_root": "/Users/yashturkar/Workspace/control-tower",
+  "enabled_agents": [
+    "builder",
+    "inspector",
+    "scout",
+    "git-master",
+    "scribe"
+  ],
+  "default_agents": [
+    "Builder",
+    "Inspector",
+    "Scout",
+    "Git-master",
+    "Scribe"
+  ],
+  "docs_harness": {
+    "enabled": true,
+    "mode": "scaffolded",
+    "doc_roots": [
+      "docs"
+    ],
+    "root_map_files": [
+      "AGENTS.md"
+    ],
+    "index_files": [
+      "docs/index.md",
+      "docs/design-docs/index.md",
+      "docs/product-specs/index.md"
+    ],
+    "auto_scribe_mode": "after-most-work",
+    "auto_scribe_agents": [
+      "builder",
+      "inspector",
+      "git-master"
+    ],
+    "scaffolded_by_init": true
+  },
+  "codex_defaults": {
+    "sandbox": "workspace-write",
+    "approval": "on-request",
+    "search": false,
+    "dangerously_bypass": true
+  }
+}

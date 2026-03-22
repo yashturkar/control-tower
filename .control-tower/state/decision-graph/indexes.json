@@ -1,0 +1,58 @@
+{
+  "active_decisions": [],
+  "inferred_decisions": [
+    "dec_inferred_e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271_0_this-repo-already-signals-a-branch-and-pr-workflow-on-top-of-main-through-multiple-codex-copilot-and-claude-branches-merged-back-to-main",
+    "dec_inferred_e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271_1_for-this-repo-builder-should-avoid-live-control-tower-operational-state-by-default-scribe-owns-docs-memory-curation-and-docs-is-the-durable-source-of-truth",
+    "dec_inferred_e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271_2_bootstrap-rollout-is-currently-blocked-on-codex-auth-recovery-and-pending-scribe-curation-so-untracked-control-tower-contents-should-not-be-treated-as-final-operating-guidance-yet",
+    "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_0_initial-tower-bootstrap-curation-is-not-complete-yet-the-queued-scribe-packet-exists-but-delegation-previously-failed-before-a-resultpacket-was-produced",
+    "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_1_the-active-operational-task-is-tower-session-bootstrap-curation-focused-on-restoring-delegation-and-replacing-bootstrap-placeholders-with-curated-state",
+    "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_2_the-current-blocker-is-codex-auth-refresh-failure-refresh-token-reused-which-prevents-tower-from-delegating-to-scribe-builder-scout-inspector-and-git-master",
+    "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_3_the-next-best-action-remains-re-authenticate-rerun-the-queued-scribe-packet-then-run-tower-run-sync-memory",
+    "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_4_the-imported-user-goal-auth-remains-ambiguous-and-should-stay-open-until-grounded-in-repo-state-or-future-logs",
+    "dec_inferred_9c2d89ca-b650-4d71-b479-519ca90b4d97_0_first-meaningful-tower-session-resumed-project-control-but-could-not-delegate-because-codex-auth-refresh-failed-with-refresh-token-reused",
+    "dec_inferred_9c2d89ca-b650-4d71-b479-519ca90b4d97_1_operational-next-action-is-to-restore-auth-rerun-the-queued-scribe-packet-then-sync-memory",
+    "dec_inferred_9c2d89ca-b650-4d71-b479-519ca90b4d97_2_imported-user-goal-auth-is-known-but-still-ambiguous-in-scope"
+  ],
+  "superseded_decisions": [],
+  "open_questions": [
+    "question:what-does-the-imported-user-goal-auth-refer-to-in-this-repo",
+    "question:what-git-workflow-should-git-master-assume-for-this-project",
+    "question:which-files-or-paths-should-builder-avoid-by-default",
+    "question:which-repo-conventions-should-scribe-treat-as-canonical"
+  ],
+  "known_risks": [
+    "risk:memory-drift-if-imported-sessions-are-not-curated-into-docs-and-working-summaries",
+    "risk:session-ambiguity-if-tower-sessions-are-not-resumed-through-tower-resume",
+    "risk:specialist-delegation-is-blocked-until-codex-authentication-is-restored-after-the-observed-refresh-token-reused-failure",
+    "risk:tower-role-leakage-into-direct-implementation-if-delegation-discipline-is-not-maintained"
+  ],
+  "current_tasks": [
+    "task:tower-session-bootstrap-curation"
+  ],
+  "recent_commits": [
+    "commit:055b1165945e23e28c36b1fab3ed7e83649f9eb2",
+    "commit:3d0520a5d24b6e341d16dbc75e0d3e370955fe91",
+    "commit:a1599c84866be543e7ed47eaa37340bc33aa0a94",
+    "commit:143c815a964078176082fb39e700c9d49a969570",
+    "commit:a402d2d652d794b2c8b285fdc989fd13b3a6c960"
+  ],
+  "unexplained_commits": [
+    "commit:055b1165945e23e28c36b1fab3ed7e83649f9eb2",
+    "commit:3d0520a5d24b6e341d16dbc75e0d3e370955fe91",
+    "commit:a1599c84866be543e7ed47eaa37340bc33aa0a94",
+    "commit:143c815a964078176082fb39e700c9d49a969570",
+    "commit:a402d2d652d794b2c8b285fdc989fd13b3a6c960"
+  ],
+  "session_links": {
+    "session:tower-session": [
+      "packet:1acb16ee-14f4-4633-be2f-2c2e3b8b57d6"
+    ],
+    "session:019d12f0-115b-7a20-a4a0-3a8210a841ee": [
+      "packet:09f92dc8-2796-4097-b923-e0cd3f12e5cd",
+      "packet:74bb340a-7924-4d97-a5a6-a38776a5a86e",
+      "packet:0559413a-288e-41ae-bbee-9ef6577f0ab1"
+    ]
+  },
+  "last_graph_sync": "2026-03-22T00:34:52Z",
+  "current_branch": "main"
+}

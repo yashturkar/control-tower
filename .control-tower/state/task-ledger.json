@@ -1,0 +1,19 @@
+{
+  "tasks": [
+    {
+      "id": "tower-session-bootstrap-curation",
+      "title": "Unblock Tower delegation and curate initial session state",
+      "status": "active",
+      "objective": "Restore Codex authentication so Tower can delegate the queued Scribe curation packet and establish a non-bootstrap operational baseline.",
+      "next_action": "Re-authenticate this Codex environment, rerun `.control-tower/packets/outbox/scribe-initial-session-state.json`, then run `tower-run sync-memory`.",
+      "blockers": [
+        "Codex auth refresh failed with `refresh_token_reused`, preventing `tower-run delegate` from producing specialist results."
+      ],
+      "open_questions": [
+        "What does the imported user goal `auth` refer to in this repo?"
+      ],
+      "source_packet_id": "1acb16ee-14f4-4633-be2f-2c2e3b8b57d6",
+      "updated_at": "2026-03-22T00:27:39Z"
+    }
+  ]
+}

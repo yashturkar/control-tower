@@ -1,0 +1,764 @@
+{
+  "nodes": {
+    "event:black-box:0": {
+      "id": "event:black-box:0",
+      "type": "event",
+      "event_type": "bootstrap_initialized",
+      "timestamp": null,
+      "payload": {
+        "event_type": "bootstrap_initialized"
+      }
+    },
+    "question:which-repo-conventions-should-scribe-treat-as-canonical": {
+      "id": "question:which-repo-conventions-should-scribe-treat-as-canonical",
+      "type": "question",
+      "title": "Which repo conventions should Scribe treat as canonical?",
+      "status": "open",
+      "source_ref": ".control-tower/docs/state/open-questions.md"
+    },
+    "question:which-files-or-paths-should-builder-avoid-by-default": {
+      "id": "question:which-files-or-paths-should-builder-avoid-by-default",
+      "type": "question",
+      "title": "Which files or paths should Builder avoid by default?",
+      "status": "open",
+      "source_ref": ".control-tower/docs/state/open-questions.md"
+    },
+    "question:what-git-workflow-should-git-master-assume-for-this-project": {
+      "id": "question:what-git-workflow-should-git-master-assume-for-this-project",
+      "type": "question",
+      "title": "What Git workflow should Git-master assume for this project?",
+      "status": "open",
+      "source_ref": ".control-tower/docs/state/open-questions.md"
+    },
+    "risk:tower-role-leakage-into-direct-implementation-if-delegation-discipline-is-not-maintained": {
+      "id": "risk:tower-role-leakage-into-direct-implementation-if-delegation-discipline-is-not-maintained",
+      "type": "risk",
+      "title": "Tower role leakage into direct implementation if delegation discipline is not maintained.",
+      "status": "open",
+      "source_ref": ".control-tower/docs/state/known-risks.md"
+    },
+    "risk:memory-drift-if-imported-sessions-are-not-curated-into-docs-and-working-summaries": {
+      "id": "risk:memory-drift-if-imported-sessions-are-not-curated-into-docs-and-working-summaries",
+      "type": "risk",
+      "title": "Memory drift if imported sessions are not curated into docs and working summaries.",
+      "status": "open",
+      "source_ref": ".control-tower/docs/state/known-risks.md"
+    },
+    "risk:session-ambiguity-if-tower-sessions-are-not-resumed-through-tower-resume": {
+      "id": "risk:session-ambiguity-if-tower-sessions-are-not-resumed-through-tower-resume",
+      "type": "risk",
+      "title": "Session ambiguity if Tower sessions are not resumed through `tower resume`.",
+      "status": "open",
+      "source_ref": ".control-tower/docs/state/known-risks.md"
+    },
+    "commit:055b1165945e23e28c36b1fab3ed7e83649f9eb2": {
+      "id": "commit:055b1165945e23e28c36b1fab3ed7e83649f9eb2",
+      "type": "commit",
+      "sha": "055b1165945e23e28c36b1fab3ed7e83649f9eb2",
+      "parents": [
+        "d61c1cb696c3c20c1c080b4182eadd0c41aa3048"
+      ],
+      "authored_at": "2026-03-21T13:48:02-07:00",
+      "subject": "Investigate tower start source",
+      "files": []
+    },
+    "commit:143c815a964078176082fb39e700c9d49a969570": {
+      "id": "commit:143c815a964078176082fb39e700c9d49a969570",
+      "type": "commit",
+      "sha": "143c815a964078176082fb39e700c9d49a969570",
+      "parents": [
+        "8eb9148c035eb4399735f01b45da854d0d7f2c80"
+      ],
+      "authored_at": "2026-03-20T19:57:31-07:00",
+      "subject": "Added .claude",
+      "files": []
+    },
+    "commit:a402d2d652d794b2c8b285fdc989fd13b3a6c960": {
+      "id": "commit:a402d2d652d794b2c8b285fdc989fd13b3a6c960",
+      "type": "commit",
+      "sha": "a402d2d652d794b2c8b285fdc989fd13b3a6c960",
+      "parents": [
+        "8070f987d669605ad635d2ddac18235a58810e13",
+        "3d0520a5d24b6e341d16dbc75e0d3e370955fe91"
+      ],
+      "authored_at": "2026-03-20T19:55:27-07:00",
+      "subject": "Merge pull request #10 from yashturkar/copilot/add-graph-visualization",
+      "files": []
+    },
+    "commit:3d0520a5d24b6e341d16dbc75e0d3e370955fe91": {
+      "id": "commit:3d0520a5d24b6e341d16dbc75e0d3e370955fe91",
+      "type": "commit",
+      "sha": "3d0520a5d24b6e341d16dbc75e0d3e370955fe91",
+      "parents": [
+        "b338adf60492d14d73aa44af058da6e470a11a43"
+      ],
+      "authored_at": "2026-03-20T21:30:19+00:00",
+      "subject": "chore: remove accidental .control-tower artifacts from merge commit",
+      "files": []
+    },
+    "commit:8070f987d669605ad635d2ddac18235a58810e13": {
+      "id": "commit:8070f987d669605ad635d2ddac18235a58810e13",
+      "type": "commit",
+      "sha": "8070f987d669605ad635d2ddac18235a58810e13",
+      "parents": [
+        "813c158d32d5b6ecd7d1401737a89e843ba231ee",
+        "a1599c84866be543e7ed47eaa37340bc33aa0a94"
+      ],
+      "authored_at": "2026-03-20T14:24:05-07:00",
+      "subject": "Merge pull request #11 from yashturkar/copilot/sub-pr-7-again",
+      "files": []
+    },
+    "commit:a1599c84866be543e7ed47eaa37340bc33aa0a94": {
+      "id": "commit:a1599c84866be543e7ed47eaa37340bc33aa0a94",
+      "type": "commit",
+      "sha": "a1599c84866be543e7ed47eaa37340bc33aa0a94",
+      "parents": [
+        "ae964b19affc5c727afd973cadffe85284128ed8"
+      ],
+      "authored_at": "2026-03-20T21:19:17+00:00",
+      "subject": "refactor: rename graph-view command to graph-search",
+      "files": []
+    },
+    "commit:45ff68b1443e81547f497be90ba6dedab990375c": {
+      "id": "commit:45ff68b1443e81547f497be90ba6dedab990375c",
+      "type": "commit",
+      "sha": "45ff68b1443e81547f497be90ba6dedab990375c",
+      "parents": [
+        "9613bbcfbd363e4f50903c542169ff353611500c"
+      ],
+      "authored_at": "2026-03-20T18:10:07+00:00",
+      "subject": "fix: keep graph-view web html accessible after command exits",
+      "files": []
+    },
+    "commit:ace08d35cba31dd0bcb1302b0c3d0441b3f98fd7": {
+      "id": "commit:ace08d35cba31dd0bcb1302b0c3d0441b3f98fd7",
+      "type": "commit",
+      "sha": "ace08d35cba31dd0bcb1302b0c3d0441b3f98fd7",
+      "parents": [
+        "3ae65c648462ec234baa52e609a5c193a87976f7"
+      ],
+      "authored_at": "2026-03-20T17:37:50+00:00",
+      "subject": "Initial plan",
+      "files": []
+    },
+    "commit:facfcef3441a2e1ffe626dc2249216a512cb2999": {
+      "id": "commit:facfcef3441a2e1ffe626dc2249216a512cb2999",
+      "type": "commit",
+      "sha": "facfcef3441a2e1ffe626dc2249216a512cb2999",
+      "parents": [
+        "7505b6593ec600ed96682c2b8ed53b13b59f8ebb"
+      ],
+      "authored_at": "2026-03-20T16:56:49+00:00",
+      "subject": "docs: add decision graph usage and toy mermaid example to README",
+      "files": []
+    },
+    "commit:3ae65c648462ec234baa52e609a5c193a87976f7": {
+      "id": "commit:3ae65c648462ec234baa52e609a5c193a87976f7",
+      "type": "commit",
+      "sha": "3ae65c648462ec234baa52e609a5c193a87976f7",
+      "parents": [
+        "8eb9148c035eb4399735f01b45da854d0d7f2c80"
+      ],
+      "authored_at": "2026-03-20T08:52:28-07:00",
+      "subject": "decision graphs",
+      "files": []
+    },
+    "commit:2320c23b6b97356531e53e13407f7f8a0223851b": {
+      "id": "commit:2320c23b6b97356531e53e13407f7f8a0223851b",
+      "type": "commit",
+      "sha": "2320c23b6b97356531e53e13407f7f8a0223851b",
+      "parents": [
+        "b7d4a378397f158d2e7c9aff7093e6c48bf483c2"
+      ],
+      "authored_at": "2026-03-18T10:11:03-07:00",
+      "subject": "Enable repo docs harness init",
+      "files": []
+    },
+    "commit:9802758d1aff3d3723507783fa5ae6bb020b3066": {
+      "id": "commit:9802758d1aff3d3723507783fa5ae6bb020b3066",
+      "type": "commit",
+      "sha": "9802758d1aff3d3723507783fa5ae6bb020b3066",
+      "parents": [
+        "6a41a8152094a18b702e782b4c7defce686fa197"
+      ],
+      "authored_at": "2026-03-18T21:38:46-07:00",
+      "subject": "Filter bootstrap goals from memory",
+      "files": []
+    },
+    "commit:9e1e6336900692c433f47ee963cfe4bb56ff1a4b": {
+      "id": "commit:9e1e6336900692c433f47ee963cfe4bb56ff1a4b",
+      "type": "commit",
+      "sha": "9e1e6336900692c433f47ee963cfe4bb56ff1a4b",
+      "parents": [
+        "62927268f3fb42bf1c9049c135a609bda02d921f"
+      ],
+      "authored_at": "2026-03-18T10:26:11-07:00",
+      "subject": "Resolve control-tower update error",
+      "files": []
+    },
+    "commit:02fcddd5ab10dc1f658793d9897943d8149cc2f1": {
+      "id": "commit:02fcddd5ab10dc1f658793d9897943d8149cc2f1",
+      "type": "commit",
+      "sha": "02fcddd5ab10dc1f658793d9897943d8149cc2f1",
+      "parents": [
+        "24f5cf465acc9a58122ba34528ac9a39d605a407"
+      ],
+      "authored_at": "2026-03-18T10:13:20-07:00",
+      "subject": "Trim tower init ASCII banner",
+      "files": []
+    },
+    "commit:24f5cf465acc9a58122ba34528ac9a39d605a407": {
+      "id": "commit:24f5cf465acc9a58122ba34528ac9a39d605a407",
+      "type": "commit",
+      "sha": "24f5cf465acc9a58122ba34528ac9a39d605a407",
+      "parents": [
+        "62927268f3fb42bf1c9049c135a609bda02d921f"
+      ],
+      "authored_at": "2026-03-18T10:10:25-07:00",
+      "subject": "Update tower bootstrap for docs",
+      "files": []
+    },
+    "session:019d12f0-115b-7a20-a4a0-3a8210a841ee": {
+      "id": "session:019d12f0-115b-7a20-a4a0-3a8210a841ee",
+      "type": "session",
+      "session_id": "019d12f0-115b-7a20-a4a0-3a8210a841ee",
+      "timestamp": "2026-03-22T00:26:56.220Z",
+      "source": "cli",
+      "originator": "codex_cli_rs",
+      "transcript_path": ".control-tower/memory/l2/transcripts/019d12f0-115b-7a20-a4a0-3a8210a841ee.md",
+      "session_path": ".control-tower/memory/l2/sessions/019d12f0-115b-7a20-a4a0-3a8210a841ee.jsonl"
+    },
+    "session:019d12f0-c5b7-7d33-804a-413e708b33c4": {
+      "id": "session:019d12f0-c5b7-7d33-804a-413e708b33c4",
+      "type": "session",
+      "session_id": "019d12f0-c5b7-7d33-804a-413e708b33c4",
+      "timestamp": "2026-03-22T00:27:42.393Z",
+      "source": "exec",
+      "originator": "codex_exec",
+      "transcript_path": ".control-tower/memory/l2/transcripts/019d12f0-c5b7-7d33-804a-413e708b33c4.md",
+      "session_path": ".control-tower/memory/l2/sessions/019d12f0-c5b7-7d33-804a-413e708b33c4.jsonl"
+    },
+    "packet:1acb16ee-14f4-4633-be2f-2c2e3b8b57d6": {
+      "id": "packet:1acb16ee-14f4-4633-be2f-2c2e3b8b57d6",
+      "type": "packet",
+      "packet_id": "1acb16ee-14f4-4633-be2f-2c2e3b8b57d6",
+      "packet_type": "task",
+      "title": "Curate initial Tower session state",
+      "status": null,
+      "trace_id": "ec3492a4-6056-43d6-ba1d-b4e74354dea8",
+      "from_agent": "tower",
+      "to_agent": "scribe",
+      "path": ".control-tower/packets/outbox/scribe-initial-session-state.json",
+      "created_at": "2026-03-22T00:27:39Z"
+    },
+    "artifact:.control-tower/packets/outbox/scribe-initial-session-state.json": {
+      "id": "artifact:.control-tower/packets/outbox/scribe-initial-session-state.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/scribe-initial-session-state.json",
+      "title": ".control-tower/packets/outbox/scribe-initial-session-state.json",
+      "created_at": "2026-03-22T00:27:39Z"
+    },
+    "event:black-box:1": {
+      "id": "event:black-box:1",
+      "type": "event",
+      "event_type": "codex_session_imported",
+      "timestamp": "2026-03-22T00:26:56.220Z",
+      "payload": {
+        "event_type": "codex_session_imported",
+        "session_id": "019d12f0-115b-7a20-a4a0-3a8210a841ee",
+        "timestamp": "2026-03-22T00:26:56.220Z",
+        "source": "cli",
+        "originator": "codex_cli_rs",
+        "transcript_path": ".control-tower/memory/l2/transcripts/019d12f0-115b-7a20-a4a0-3a8210a841ee.md"
+      }
+    },
+    "event:black-box:2": {
+      "id": "event:black-box:2",
+      "type": "event",
+      "event_type": "codex_session_imported",
+      "timestamp": "2026-03-22T00:27:42.393Z",
+      "payload": {
+        "event_type": "codex_session_imported",
+        "session_id": "019d12f0-c5b7-7d33-804a-413e708b33c4",
+        "timestamp": "2026-03-22T00:27:42.393Z",
+        "source": "exec",
+        "originator": "codex_exec",
+        "transcript_path": ".control-tower/memory/l2/transcripts/019d12f0-c5b7-7d33-804a-413e708b33c4.md"
+      }
+    },
+    "session:019d12f1-c4b6-74a2-a3d1-2d2a71ed3eb8": {
+      "id": "session:019d12f1-c4b6-74a2-a3d1-2d2a71ed3eb8",
+      "type": "session",
+      "session_id": "019d12f1-c4b6-74a2-a3d1-2d2a71ed3eb8",
+      "timestamp": "2026-03-22T00:28:47.671Z",
+      "source": "cli",
+      "originator": "codex_cli_rs",
+      "transcript_path": ".control-tower/memory/l2/transcripts/019d12f1-c4b6-74a2-a3d1-2d2a71ed3eb8.md",
+      "session_path": ".control-tower/memory/l2/sessions/019d12f1-c4b6-74a2-a3d1-2d2a71ed3eb8.jsonl"
+    },
+    "event:black-box:3": {
+      "id": "event:black-box:3",
+      "type": "event",
+      "event_type": "codex_session_imported",
+      "timestamp": "2026-03-22T00:28:47.671Z",
+      "payload": {
+        "event_type": "codex_session_imported",
+        "session_id": "019d12f1-c4b6-74a2-a3d1-2d2a71ed3eb8",
+        "timestamp": "2026-03-22T00:28:47.671Z",
+        "source": "cli",
+        "originator": "codex_cli_rs",
+        "transcript_path": ".control-tower/memory/l2/transcripts/019d12f1-c4b6-74a2-a3d1-2d2a71ed3eb8.md"
+      }
+    },
+    "session:019d12f2-6cf3-7631-b544-c55013580eaa": {
+      "id": "session:019d12f2-6cf3-7631-b544-c55013580eaa",
+      "type": "session",
+      "session_id": "019d12f2-6cf3-7631-b544-c55013580eaa",
+      "timestamp": "2026-03-22T00:29:30.740Z",
+      "source": "exec",
+      "originator": "codex_exec",
+      "transcript_path": ".control-tower/memory/l2/transcripts/019d12f2-6cf3-7631-b544-c55013580eaa.md",
+      "session_path": ".control-tower/memory/l2/sessions/019d12f2-6cf3-7631-b544-c55013580eaa.jsonl"
+    },
+    "event:black-box:4": {
+      "id": "event:black-box:4",
+      "type": "event",
+      "event_type": "codex_session_imported",
+      "timestamp": "2026-03-22T00:29:30.740Z",
+      "payload": {
+        "event_type": "codex_session_imported",
+        "session_id": "019d12f2-6cf3-7631-b544-c55013580eaa",
+        "timestamp": "2026-03-22T00:29:30.740Z",
+        "source": "exec",
+        "originator": "codex_exec",
+        "transcript_path": ".control-tower/memory/l2/transcripts/019d12f2-6cf3-7631-b544-c55013580eaa.md"
+      }
+    },
+    "session:019d12f3-8a99-7cd2-bb62-c86bd0a3c266": {
+      "id": "session:019d12f3-8a99-7cd2-bb62-c86bd0a3c266",
+      "type": "session",
+      "session_id": "019d12f3-8a99-7cd2-bb62-c86bd0a3c266",
+      "timestamp": "2026-03-22T00:30:43.866Z",
+      "source": "exec",
+      "originator": "codex_exec",
+      "transcript_path": ".control-tower/memory/l2/transcripts/019d12f3-8a99-7cd2-bb62-c86bd0a3c266.md",
+      "session_path": ".control-tower/memory/l2/sessions/019d12f3-8a99-7cd2-bb62-c86bd0a3c266.jsonl"
+    },
+    "task:tower-session-bootstrap-curation": {
+      "id": "task:tower-session-bootstrap-curation",
+      "type": "task",
+      "title": "Unblock Tower delegation and curate initial session state",
+      "status": "active",
+      "priority": "normal",
+      "details": {
+        "id": "tower-session-bootstrap-curation",
+        "title": "Unblock Tower delegation and curate initial session state",
+        "status": "active",
+        "objective": "Restore Codex authentication so Tower can delegate the queued Scribe curation packet and establish a non-bootstrap operational baseline.",
+        "next_action": "Re-authenticate this Codex environment, rerun `.control-tower/packets/outbox/scribe-initial-session-state.json`, then run `tower-run sync-memory`.",
+        "blockers": [
+          "Codex auth refresh failed with `refresh_token_reused`, preventing `tower-run delegate` from producing specialist results."
+        ],
+        "open_questions": [
+          "What does the imported user goal `auth` refer to in this repo?"
+        ],
+        "source_packet_id": "1acb16ee-14f4-4633-be2f-2c2e3b8b57d6",
+        "updated_at": "2026-03-22T00:27:39Z"
+      }
+    },
+    "packet:9c2d89ca-b650-4d71-b479-519ca90b4d97": {
+      "id": "packet:9c2d89ca-b650-4d71-b479-519ca90b4d97",
+      "type": "packet",
+      "packet_id": "9c2d89ca-b650-4d71-b479-519ca90b4d97",
+      "packet_type": "result",
+      "title": "Curated the initial Tower session into operational memory and state. Bootstrap placeholders were replaced with the current objective, blocker, next best action, and an active task record centered on restoring Codex authentication so Tower can rerun the queued Scribe packet.",
+      "status": "success",
+      "trace_id": "ec3492a4-6056-43d6-ba1d-b4e74354dea8",
+      "from_agent": "scribe",
+      "to_agent": "tower",
+      "path": ".control-tower/packets/outbox/scribe-initial-session-state.result.json",
+      "created_at": "2026-03-22T00:35:30Z"
+    },
+    "artifact:.control-tower/packets/outbox/scribe-initial-session-state.result.json": {
+      "id": "artifact:.control-tower/packets/outbox/scribe-initial-session-state.result.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/scribe-initial-session-state.result.json",
+      "title": ".control-tower/packets/outbox/scribe-initial-session-state.result.json",
+      "created_at": "2026-03-22T00:35:30Z"
+    },
+    "dec_inferred_9c2d89ca-b650-4d71-b479-519ca90b4d97_0_first-meaningful-tower-session-resumed-project-control-but-could-not-delegate-because-codex-auth-refresh-failed-with-refresh-token-reused": {
+      "id": "dec_inferred_9c2d89ca-b650-4d71-b479-519ca90b4d97_0_first-meaningful-tower-session-resumed-project-control-but-could-not-delegate-because-codex-auth-refresh-failed-with-refresh-token-reused",
+      "type": "decision",
+      "topic": "first-meaningful-tower-session-resumed-project-control-but-could-not-delegate-because-codex-auth-refresh-failed-with-refresh-token-reused",
+      "title": "First meaningful Tower session resumed project control but could not delegate because Codex auth refresh failed with `refresh_token_reused`.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: First meaningful Tower session resumed project control but could not delegate because Codex auth refresh failed with `refresh_token_reused`.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/scribe-initial-session-state.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-22T00:31:59Z",
+      "created_by": "scribe"
+    },
+    "dec_inferred_9c2d89ca-b650-4d71-b479-519ca90b4d97_1_operational-next-action-is-to-restore-auth-rerun-the-queued-scribe-packet-then-sync-memory": {
+      "id": "dec_inferred_9c2d89ca-b650-4d71-b479-519ca90b4d97_1_operational-next-action-is-to-restore-auth-rerun-the-queued-scribe-packet-then-sync-memory",
+      "type": "decision",
+      "topic": "operational-next-action-is-to-restore-auth-rerun-the-queued-scribe-packet-then-sync-memory",
+      "title": "Operational next action is to restore auth, rerun the queued Scribe packet, then sync memory.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: Operational next action is to restore auth, rerun the queued Scribe packet, then sync memory.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/scribe-initial-session-state.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-22T00:31:59Z",
+      "created_by": "scribe"
+    },
+    "dec_inferred_9c2d89ca-b650-4d71-b479-519ca90b4d97_2_imported-user-goal-auth-is-known-but-still-ambiguous-in-scope": {
+      "id": "dec_inferred_9c2d89ca-b650-4d71-b479-519ca90b4d97_2_imported-user-goal-auth-is-known-but-still-ambiguous-in-scope",
+      "type": "decision",
+      "topic": "imported-user-goal-auth-is-known-but-still-ambiguous-in-scope",
+      "title": "Imported user goal `auth` is known but still ambiguous in scope.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: Imported user goal `auth` is known but still ambiguous in scope.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/scribe-initial-session-state.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-22T00:31:59Z",
+      "created_by": "scribe"
+    },
+    "packet:09f92dc8-2796-4097-b923-e0cd3f12e5cd": {
+      "id": "packet:09f92dc8-2796-4097-b923-e0cd3f12e5cd",
+      "type": "packet",
+      "packet_id": "09f92dc8-2796-4097-b923-e0cd3f12e5cd",
+      "packet_type": "task",
+      "title": "Curate imported Tower memory",
+      "status": null,
+      "trace_id": "717159b8-14b6-4b18-bbb1-cd954125645d",
+      "from_agent": "tower",
+      "to_agent": "scribe",
+      "path": ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.json",
+      "created_at": "2026-03-22T00:30:39Z"
+    },
+    "artifact:.control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.json": {
+      "id": "artifact:.control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.json",
+      "title": ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.json",
+      "created_at": "2026-03-22T00:30:39Z"
+    },
+    "event:black-box:5": {
+      "id": "event:black-box:5",
+      "type": "event",
+      "event_type": "codex_session_imported",
+      "timestamp": "2026-03-22T00:30:43.866Z",
+      "payload": {
+        "event_type": "codex_session_imported",
+        "session_id": "019d12f3-8a99-7cd2-bb62-c86bd0a3c266",
+        "timestamp": "2026-03-22T00:30:43.866Z",
+        "source": "exec",
+        "originator": "codex_exec",
+        "transcript_path": ".control-tower/memory/l2/transcripts/019d12f3-8a99-7cd2-bb62-c86bd0a3c266.md"
+      }
+    },
+    "question:what-does-the-imported-user-goal-auth-refer-to-in-this-repo": {
+      "id": "question:what-does-the-imported-user-goal-auth-refer-to-in-this-repo",
+      "type": "question",
+      "title": "What does the imported user goal `auth` refer to in this repo?",
+      "status": "open",
+      "source_ref": ".control-tower/docs/state/open-questions.md"
+    },
+    "risk:specialist-delegation-is-blocked-until-codex-authentication-is-restored-after-the-observed-refresh-token-reused-failure": {
+      "id": "risk:specialist-delegation-is-blocked-until-codex-authentication-is-restored-after-the-observed-refresh-token-reused-failure",
+      "type": "risk",
+      "title": "Specialist delegation is blocked until Codex authentication is restored after the observed `refresh_token_reused` failure.",
+      "status": "open",
+      "source_ref": ".control-tower/docs/state/known-risks.md"
+    },
+    "session:019d12f5-adad-7251-8ea6-37c328be4636": {
+      "id": "session:019d12f5-adad-7251-8ea6-37c328be4636",
+      "type": "session",
+      "session_id": "019d12f5-adad-7251-8ea6-37c328be4636",
+      "timestamp": "2026-03-22T00:33:03.918Z",
+      "source": "exec",
+      "originator": "codex_exec",
+      "transcript_path": ".control-tower/memory/l2/transcripts/019d12f5-adad-7251-8ea6-37c328be4636.md",
+      "session_path": ".control-tower/memory/l2/sessions/019d12f5-adad-7251-8ea6-37c328be4636.jsonl"
+    },
+    "packet:74bb340a-7924-4d97-a5a6-a38776a5a86e": {
+      "id": "packet:74bb340a-7924-4d97-a5a6-a38776a5a86e",
+      "type": "packet",
+      "packet_id": "74bb340a-7924-4d97-a5a6-a38776a5a86e",
+      "packet_type": "task",
+      "title": "Establish Tower operating conventions for rollout",
+      "status": null,
+      "trace_id": "255a8394-ee8e-4a41-b674-a25315808d03",
+      "from_agent": "tower",
+      "to_agent": "scout",
+      "path": ".control-tower/packets/outbox/scout-rollout-conventions.json",
+      "created_at": "2026-03-22T00:33:00Z"
+    },
+    "artifact:.control-tower/packets/outbox/scout-rollout-conventions.json": {
+      "id": "artifact:.control-tower/packets/outbox/scout-rollout-conventions.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/scout-rollout-conventions.json",
+      "title": ".control-tower/packets/outbox/scout-rollout-conventions.json",
+      "created_at": "2026-03-22T00:33:00Z"
+    },
+    "packet:1623fa84-c9a6-4fc8-a268-ec3a151a9515": {
+      "id": "packet:1623fa84-c9a6-4fc8-a268-ec3a151a9515",
+      "type": "packet",
+      "packet_id": "1623fa84-c9a6-4fc8-a268-ec3a151a9515",
+      "packet_type": "result",
+      "title": "Curated working memory to reflect the imported Tower session\u2019s durable signal: initial Scribe curation was queued, specialist delegation is currently blocked by Codex auth (`refresh_token_reused`), and the next operational step is to restore auth, rerun the queued Scribe packet, then run `tower-run sync-memory`. Existing docs/state files already captured the active task, open question about the imported `auth` goal, and the delegation risk; I aligned L0/L1 and the active-task summary with that state.",
+      "status": "success",
+      "trace_id": "717159b8-14b6-4b18-bbb1-cd954125645d",
+      "from_agent": "scribe",
+      "to_agent": "tower",
+      "path": ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json",
+      "created_at": "2026-03-22T00:33:09Z"
+    },
+    "artifact:.control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json": {
+      "id": "artifact:.control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json",
+      "title": ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json",
+      "created_at": "2026-03-22T00:33:09Z"
+    },
+    "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_0_initial-tower-bootstrap-curation-is-not-complete-yet-the-queued-scribe-packet-exists-but-delegation-previously-failed-before-a-resultpacket-was-produced": {
+      "id": "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_0_initial-tower-bootstrap-curation-is-not-complete-yet-the-queued-scribe-packet-exists-but-delegation-previously-failed-before-a-resultpacket-was-produced",
+      "type": "decision",
+      "topic": "initial-tower-bootstrap-curation-is-not-complete-yet-the-queued-scribe-packet-exists-but-delegation-previously-failed-before-a-resultpacket-was-produced",
+      "title": "Initial Tower bootstrap curation is not complete yet; the queued Scribe packet exists but delegation previously failed before a ResultPacket was produced.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: Initial Tower bootstrap curation is not complete yet; the queued Scribe packet exists but delegation previously failed before a ResultPacket was produced.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-22T00:33:27Z",
+      "created_by": "scribe"
+    },
+    "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_1_the-active-operational-task-is-tower-session-bootstrap-curation-focused-on-restoring-delegation-and-replacing-bootstrap-placeholders-with-curated-state": {
+      "id": "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_1_the-active-operational-task-is-tower-session-bootstrap-curation-focused-on-restoring-delegation-and-replacing-bootstrap-placeholders-with-curated-state",
+      "type": "decision",
+      "topic": "the-active-operational-task-is-tower-session-bootstrap-curation-focused-on-restoring-delegation-and-replacing-bootstrap-placeholders-with-curated-state",
+      "title": "The active operational task is `tower-session-bootstrap-curation`, focused on restoring delegation and replacing bootstrap placeholders with curated state.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: The active operational task is `tower-session-bootstrap-curation`, focused on restoring delegation and replacing bootstrap placeholders with curated state.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-22T00:33:27Z",
+      "created_by": "scribe"
+    },
+    "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_2_the-current-blocker-is-codex-auth-refresh-failure-refresh-token-reused-which-prevents-tower-from-delegating-to-scribe-builder-scout-inspector-and-git-master": {
+      "id": "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_2_the-current-blocker-is-codex-auth-refresh-failure-refresh-token-reused-which-prevents-tower-from-delegating-to-scribe-builder-scout-inspector-and-git-master",
+      "type": "decision",
+      "topic": "the-current-blocker-is-codex-auth-refresh-failure-refresh-token-reused-which-prevents-tower-from-delegating-to-scribe-builder-scout-inspector-and-git-master",
+      "title": "The current blocker is Codex auth refresh failure (`refresh_token_reused`), which prevents Tower from delegating to Scribe, Builder, Scout, Inspector, and Git-master.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: The current blocker is Codex auth refresh failure (`refresh_token_reused`), which prevents Tower from delegating to Scribe, Builder, Scout, Inspector, and Git-master.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-22T00:33:27Z",
+      "created_by": "scribe"
+    },
+    "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_3_the-next-best-action-remains-re-authenticate-rerun-the-queued-scribe-packet-then-run-tower-run-sync-memory": {
+      "id": "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_3_the-next-best-action-remains-re-authenticate-rerun-the-queued-scribe-packet-then-run-tower-run-sync-memory",
+      "type": "decision",
+      "topic": "the-next-best-action-remains-re-authenticate-rerun-the-queued-scribe-packet-then-run-tower-run-sync-memory",
+      "title": "The next best action remains: re-authenticate, rerun the queued Scribe packet, then run `tower-run sync-memory`.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: The next best action remains: re-authenticate, rerun the queued Scribe packet, then run `tower-run sync-memory`.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-22T00:33:27Z",
+      "created_by": "scribe"
+    },
+    "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_4_the-imported-user-goal-auth-remains-ambiguous-and-should-stay-open-until-grounded-in-repo-state-or-future-logs": {
+      "id": "dec_inferred_1623fa84-c9a6-4fc8-a268-ec3a151a9515_4_the-imported-user-goal-auth-remains-ambiguous-and-should-stay-open-until-grounded-in-repo-state-or-future-logs",
+      "type": "decision",
+      "topic": "the-imported-user-goal-auth-remains-ambiguous-and-should-stay-open-until-grounded-in-repo-state-or-future-logs",
+      "title": "The imported user goal `auth` remains ambiguous and should stay open until grounded in repo state or future logs.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: The imported user goal `auth` remains ambiguous and should stay open until grounded in repo state or future logs.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-22T00:33:27Z",
+      "created_by": "scribe"
+    },
+    "event:black-box:6": {
+      "id": "event:black-box:6",
+      "type": "event",
+      "event_type": "codex_session_imported",
+      "timestamp": "2026-03-22T00:33:03.918Z",
+      "payload": {
+        "event_type": "codex_session_imported",
+        "session_id": "019d12f5-adad-7251-8ea6-37c328be4636",
+        "timestamp": "2026-03-22T00:33:03.918Z",
+        "source": "exec",
+        "originator": "codex_exec",
+        "transcript_path": ".control-tower/memory/l2/transcripts/019d12f5-adad-7251-8ea6-37c328be4636.md"
+      }
+    },
+    "session:019d12f6-f51b-7da2-882d-f58e7321b7c1": {
+      "id": "session:019d12f6-f51b-7da2-882d-f58e7321b7c1",
+      "type": "session",
+      "session_id": "019d12f6-f51b-7da2-882d-f58e7321b7c1",
+      "timestamp": "2026-03-22T00:34:27.740Z",
+      "source": "exec",
+      "originator": "codex_exec",
+      "transcript_path": ".control-tower/memory/l2/transcripts/019d12f6-f51b-7da2-882d-f58e7321b7c1.md",
+      "session_path": ".control-tower/memory/l2/sessions/019d12f6-f51b-7da2-882d-f58e7321b7c1.jsonl"
+    },
+    "packet:e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271": {
+      "id": "packet:e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271",
+      "type": "packet",
+      "packet_id": "e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271",
+      "packet_type": "result",
+      "title": "Repo state supports three concrete rollout conventions. Git-master should assume a branch-and-PR workflow off `main`, not direct commits on `main`; Builder should default to product-code surfaces (`src/`, `tests/`) and avoid repo docs and live `.control-tower/` operational state unless a packet explicitly targets bootstrap/runtime plumbing; Scribe should treat `docs/` as canonical durable documentation, `.control-tower/docs/state` as canonical only for Tower operational status/tasks/open questions, and `.control-tower/memory` as derived non-canonical memory. Main rollout risk is that the bootstrap is still uncurated and uncommitted on `main` while the queued Scribe handoff remains blocked by Codex auth failure.",
+      "status": "success",
+      "trace_id": "255a8394-ee8e-4a41-b674-a25315808d03",
+      "from_agent": "scout",
+      "to_agent": "tower",
+      "path": ".control-tower/packets/outbox/scout-rollout-conventions.result.json",
+      "created_at": "2026-03-22T00:45:00Z"
+    },
+    "artifact:.control-tower/packets/outbox/scout-rollout-conventions.result.json": {
+      "id": "artifact:.control-tower/packets/outbox/scout-rollout-conventions.result.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/scout-rollout-conventions.result.json",
+      "title": ".control-tower/packets/outbox/scout-rollout-conventions.result.json",
+      "created_at": "2026-03-22T00:45:00Z"
+    },
+    "dec_inferred_e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271_0_this-repo-already-signals-a-branch-and-pr-workflow-on-top-of-main-through-multiple-codex-copilot-and-claude-branches-merged-back-to-main": {
+      "id": "dec_inferred_e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271_0_this-repo-already-signals-a-branch-and-pr-workflow-on-top-of-main-through-multiple-codex-copilot-and-claude-branches-merged-back-to-main",
+      "type": "decision",
+      "topic": "this-repo-already-signals-a-branch-and-pr-workflow-on-top-of-main-through-multiple-codex-copilot-and-claude-branches-merged-back-to-main",
+      "title": "This repo already signals a branch-and-PR workflow on top of `main` through multiple `codex/*`, `copilot/*`, and `claude/*` branches merged back to `main`.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: This repo already signals a branch-and-PR workflow on top of `main` through multiple `codex/*`, `copilot/*`, and `claude/*` branches merged back to `main`.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/scout-rollout-conventions.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-22T00:34:52Z",
+      "created_by": "scout"
+    },
+    "dec_inferred_e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271_1_for-this-repo-builder-should-avoid-live-control-tower-operational-state-by-default-scribe-owns-docs-memory-curation-and-docs-is-the-durable-source-of-truth": {
+      "id": "dec_inferred_e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271_1_for-this-repo-builder-should-avoid-live-control-tower-operational-state-by-default-scribe-owns-docs-memory-curation-and-docs-is-the-durable-source-of-truth",
+      "type": "decision",
+      "topic": "for-this-repo-builder-should-avoid-live-control-tower-operational-state-by-default-scribe-owns-docs-memory-curation-and-docs-is-the-durable-source-of-truth",
+      "title": "For this repo, Builder should avoid live `.control-tower/` operational state by default; Scribe owns docs/memory curation and `docs/` is the durable source of truth.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: For this repo, Builder should avoid live `.control-tower/` operational state by default; Scribe owns docs/memory curation and `docs/` is the durable source of truth.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/scout-rollout-conventions.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-22T00:34:52Z",
+      "created_by": "scout"
+    },
+    "dec_inferred_e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271_2_bootstrap-rollout-is-currently-blocked-on-codex-auth-recovery-and-pending-scribe-curation-so-untracked-control-tower-contents-should-not-be-treated-as-final-operating-guidance-yet": {
+      "id": "dec_inferred_e3f8d9d8-519a-4d3f-b9f3-17ba6d5d9271_2_bootstrap-rollout-is-currently-blocked-on-codex-auth-recovery-and-pending-scribe-curation-so-untracked-control-tower-contents-should-not-be-treated-as-final-operating-guidance-yet",
+      "type": "decision",
+      "topic": "bootstrap-rollout-is-currently-blocked-on-codex-auth-recovery-and-pending-scribe-curation-so-untracked-control-tower-contents-should-not-be-treated-as-final-operating-guidance-yet",
+      "title": "Bootstrap rollout is currently blocked on Codex auth recovery and pending Scribe curation, so untracked `.control-tower/` contents should not be treated as final operating guidance yet.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: Bootstrap rollout is currently blocked on Codex auth recovery and pending Scribe curation, so untracked `.control-tower/` contents should not be treated as final operating guidance yet.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/scout-rollout-conventions.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-22T00:34:52Z",
+      "created_by": "scout"
+    },
+    "packet:0559413a-288e-41ae-bbee-9ef6577f0ab1": {
+      "id": "packet:0559413a-288e-41ae-bbee-9ef6577f0ab1",
+      "type": "packet",
+      "packet_id": "0559413a-288e-41ae-bbee-9ef6577f0ab1",
+      "packet_type": "task",
+      "title": "Finalize Tower rollout operational state",
+      "status": null,
+      "trace_id": "2396294f-839e-4b8f-a47d-30d0206f80f5",
+      "from_agent": "tower",
+      "to_agent": "scribe",
+      "path": ".control-tower/packets/outbox/scribe-finalize-rollout-state.json",
+      "created_at": "2026-03-22T00:34:25Z"
+    },
+    "artifact:.control-tower/packets/outbox/scribe-finalize-rollout-state.json": {
+      "id": "artifact:.control-tower/packets/outbox/scribe-finalize-rollout-state.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/scribe-finalize-rollout-state.json",
+      "title": ".control-tower/packets/outbox/scribe-finalize-rollout-state.json",
+      "created_at": "2026-03-22T00:34:25Z"
+    },
+    "event:black-box:7": {
+      "id": "event:black-box:7",
+      "type": "event",
+      "event_type": "codex_session_imported",
+      "timestamp": "2026-03-22T00:34:27.740Z",
+      "payload": {
+        "event_type": "codex_session_imported",
+        "session_id": "019d12f6-f51b-7da2-882d-f58e7321b7c1",
+        "timestamp": "2026-03-22T00:34:27.740Z",
+        "source": "exec",
+        "originator": "codex_exec",
+        "transcript_path": ".control-tower/memory/l2/transcripts/019d12f6-f51b-7da2-882d-f58e7321b7c1.md"
+      }
+    }
+  }
+}
