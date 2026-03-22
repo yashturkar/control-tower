@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0.0",
+  "packet_type": "task",
+  "packet_id": "0559413a-288e-41ae-bbee-9ef6577f0ab1",
+  "trace_id": "2396294f-839e-4b8f-a47d-30d0206f80f5",
+  "parent_packet_id": null,
+  "created_at": "2026-03-22T00:34:25Z",
+  "from_agent": "tower",
+  "to_agent": "scribe",
+  "task_type": "docs-curation",
+  "priority": "high",
+  "project_id": "control-tower",
+  "session_id": "019d12f0-115b-7a20-a4a0-3a8210a841ee",
+  "title": "Finalize Tower rollout operational state",
+  "objective": "Reconcile Control Tower operational docs and memory with the current rollout state so the repository can be checked in with accurate status after auth restoration and successful Scribe curation.",
+  "instructions": [
+    "Review the existing Scribe ResultPackets and current operational state files.",
+    "Update operational docs/state and memory to remove stale auth-blocker messaging that is no longer true after re-login and successful Scribe runs.",
+    "Record the current objective and next best action for the repository as a newly added Control Tower rollout awaiting local check-in and any remaining repo-specific convention follow-up."
+  ],
+  "constraints": [
+    "Do not modify product source code.",
+    "Keep changes limited to docs/state, memory, and task tracking relevant to Scribe."
+  ],
+  "inputs": {
+    "files": [
+      ".control-tower/packets/outbox/scribe-initial-session-state.result.json",
+      ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json",
+      ".control-tower/docs/state/current-status.md",
+      ".control-tower/docs/state/open-questions.md",
+      ".control-tower/docs/state/known-risks.md",
+      ".control-tower/docs/tasks/active.md",
+      ".control-tower/state/task-ledger.json",
+      ".control-tower/memory/l0.md",
+      ".control-tower/memory/l1.md"
+    ],
+    "artifacts": [],
+    "references": []
+  },
+  "expected_outputs": [
+    "Updated operational state files and a ResultPacket summarizing the finalized rollout status and any remaining follow-ups."
+  ],
+  "definition_of_done": [
+    "Operational state no longer claims auth is currently blocking delegation if that is no longer true.",
+    "Current status and task tracking reflect a ready-to-check-in Tower rollout.",
+    "Any remaining open questions or risks are explicit."
+  ],
+  "memory_context_refs": [],
+  "doc_context_refs": [],
+  "time_budget": {
+    "soft_seconds": 900,
+    "hard_seconds": 3600
+  },
+  "requires_review": true,
+  "allow_partial": false,
+  "metadata": {}
+}

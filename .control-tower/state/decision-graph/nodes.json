@@ -759,6 +759,283 @@
         "originator": "codex_exec",
         "transcript_path": ".control-tower/memory/l2/transcripts/019d12f6-f51b-7da2-882d-f58e7321b7c1.md"
       }
+    },
+    "session:019d12f8-098a-7663-983d-3955a8b2f3d1": {
+      "id": "session:019d12f8-098a-7663-983d-3955a8b2f3d1",
+      "type": "session",
+      "session_id": "019d12f8-098a-7663-983d-3955a8b2f3d1",
+      "timestamp": "2026-03-22T00:35:38.507Z",
+      "source": "exec",
+      "originator": "codex_exec",
+      "transcript_path": ".control-tower/memory/l2/transcripts/019d12f8-098a-7663-983d-3955a8b2f3d1.md",
+      "session_path": ".control-tower/memory/l2/sessions/019d12f8-098a-7663-983d-3955a8b2f3d1.jsonl"
+    },
+    "packet:661c46b8-c47e-4011-a6f9-a7481bbf83f2": {
+      "id": "packet:661c46b8-c47e-4011-a6f9-a7481bbf83f2",
+      "type": "packet",
+      "packet_id": "661c46b8-c47e-4011-a6f9-a7481bbf83f2",
+      "packet_type": "task",
+      "title": "Check in Control Tower rollout",
+      "status": null,
+      "trace_id": "fc82f8b1-f29f-4261-bf6b-78cec28b023c",
+      "from_agent": "tower",
+      "to_agent": "git-master",
+      "path": ".control-tower/packets/outbox/git-master-checkin-rollout.json",
+      "created_at": "2026-03-22T00:35:35Z"
+    },
+    "artifact:.control-tower/packets/outbox/git-master-checkin-rollout.json": {
+      "id": "artifact:.control-tower/packets/outbox/git-master-checkin-rollout.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/git-master-checkin-rollout.json",
+      "title": ".control-tower/packets/outbox/git-master-checkin-rollout.json",
+      "created_at": "2026-03-22T00:35:35Z"
+    },
+    "packet:8f8a47ef-948d-42ef-94dc-a023c97f1ff5": {
+      "id": "packet:8f8a47ef-948d-42ef-94dc-a023c97f1ff5",
+      "type": "packet",
+      "packet_id": "8f8a47ef-948d-42ef-94dc-a023c97f1ff5",
+      "packet_type": "result",
+      "title": "Created local commit `8d9033f06b4ff4a72589972220ddf87832fa7a78` on `main` with message `chore: add Control Tower rollout bootstrap`. The commit stages the durable Control Tower bootstrap, docs harness, schemas, agents, curated operational docs, and current structured state, and stops before any push.",
+      "status": "success",
+      "trace_id": "fc82f8b1-f29f-4261-bf6b-78cec28b023c",
+      "from_agent": "git-master",
+      "to_agent": "tower",
+      "path": ".control-tower/packets/outbox/git-master-checkin-rollout.result.json",
+      "created_at": "2026-03-22T00:46:30Z"
+    },
+    "artifact:.control-tower/packets/outbox/git-master-checkin-rollout.result.json": {
+      "id": "artifact:.control-tower/packets/outbox/git-master-checkin-rollout.result.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/git-master-checkin-rollout.result.json",
+      "title": ".control-tower/packets/outbox/git-master-checkin-rollout.result.json",
+      "created_at": "2026-03-22T00:46:30Z"
+    },
+    "dec_inferred_8f8a47ef-948d-42ef-94dc-a023c97f1ff5_0_control-tower-rollout-bootstrap-was-committed-locally-on-main-as-8d9033f06b4ff4a72589972220ddf87832fa7a78-with-message-chore-add-control-tower-rollout-bootstrap": {
+      "id": "dec_inferred_8f8a47ef-948d-42ef-94dc-a023c97f1ff5_0_control-tower-rollout-bootstrap-was-committed-locally-on-main-as-8d9033f06b4ff4a72589972220ddf87832fa7a78-with-message-chore-add-control-tower-rollout-bootstrap",
+      "type": "decision",
+      "topic": "control-tower-rollout-bootstrap-was-committed-locally-on-main-as-8d9033f06b4ff4a72589972220ddf87832fa7a78-with-message-chore-add-control-tower-rollout-bootstrap",
+      "title": "Control Tower rollout bootstrap was committed locally on `main` as `8d9033f06b4ff4a72589972220ddf87832fa7a78` with message `chore: add Control Tower rollout bootstrap`.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: Control Tower rollout bootstrap was committed locally on `main` as `8d9033f06b4ff4a72589972220ddf87832fa7a78` with message `chore: add Control Tower rollout bootstrap`.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/git-master-checkin-rollout.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-22T00:37:16Z",
+      "created_by": "git-master"
+    },
+    "dec_inferred_8f8a47ef-948d-42ef-94dc-a023c97f1ff5_1_transient-control-tower-logs-l2-session-transcript-caches-packet-outbox-task-result-files-and-decision-graph-event-log-were-intentionally-left-untracked-for-diff-hygiene": {
+      "id": "dec_inferred_8f8a47ef-948d-42ef-94dc-a023c97f1ff5_1_transient-control-tower-logs-l2-session-transcript-caches-packet-outbox-task-result-files-and-decision-graph-event-log-were-intentionally-left-untracked-for-diff-hygiene",
+      "type": "decision",
+      "topic": "transient-control-tower-logs-l2-session-transcript-caches-packet-outbox-task-result-files-and-decision-graph-event-log-were-intentionally-left-untracked-for-diff-hygiene",
+      "title": "Transient `.control-tower` logs, L2 session/transcript caches, packet outbox task/result files, and decision-graph event log were intentionally left untracked for diff hygiene.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: Transient `.control-tower` logs, L2 session/transcript caches, packet outbox task/result files, and decision-graph event log were intentionally left untracked for diff hygiene.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/git-master-checkin-rollout.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-22T00:37:16Z",
+      "created_by": "git-master"
+    },
+    "dec_inferred_8f8a47ef-948d-42ef-94dc-a023c97f1ff5_2_no-push-occurred-the-repository-still-has-untracked-transient-control-tower-artifacts-after-the-commit": {
+      "id": "dec_inferred_8f8a47ef-948d-42ef-94dc-a023c97f1ff5_2_no-push-occurred-the-repository-still-has-untracked-transient-control-tower-artifacts-after-the-commit",
+      "type": "decision",
+      "topic": "no-push-occurred-the-repository-still-has-untracked-transient-control-tower-artifacts-after-the-commit",
+      "title": "No push occurred; the repository still has untracked transient Control Tower artifacts after the commit.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: No push occurred; the repository still has untracked transient Control Tower artifacts after the commit.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/git-master-checkin-rollout.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-22T00:37:16Z",
+      "created_by": "git-master"
+    },
+    "event:black-box:8": {
+      "id": "event:black-box:8",
+      "type": "event",
+      "event_type": "codex_session_imported",
+      "timestamp": "2026-03-22T00:35:38.507Z",
+      "payload": {
+        "event_type": "codex_session_imported",
+        "session_id": "019d12f8-098a-7663-983d-3955a8b2f3d1",
+        "timestamp": "2026-03-22T00:35:38.507Z",
+        "source": "exec",
+        "originator": "codex_exec",
+        "transcript_path": ".control-tower/memory/l2/transcripts/019d12f8-098a-7663-983d-3955a8b2f3d1.md"
+      }
+    },
+    "commit:8d9033f06b4ff4a72589972220ddf87832fa7a78": {
+      "id": "commit:8d9033f06b4ff4a72589972220ddf87832fa7a78",
+      "type": "commit",
+      "sha": "8d9033f06b4ff4a72589972220ddf87832fa7a78",
+      "parents": [
+        "055b1165945e23e28c36b1fab3ed7e83649f9eb2"
+      ],
+      "authored_at": "2026-03-21T17:36:40-07:00",
+      "subject": "chore: add Control Tower rollout bootstrap",
+      "files": []
+    },
+    "task:tower-rollout-checkin": {
+      "id": "task:tower-rollout-checkin",
+      "type": "task",
+      "title": "Commit Control Tower rollout bootstrap locally",
+      "status": "completed",
+      "priority": "normal",
+      "details": {
+        "id": "tower-rollout-checkin",
+        "title": "Commit Control Tower rollout bootstrap locally",
+        "status": "completed",
+        "objective": "Check in the Control Tower rollout bootstrap with durable operational state while leaving transient artifacts out of the commit.",
+        "next_action": "Completed locally as commit `8d9033f06b4ff4a72589972220ddf87832fa7a78`.",
+        "blockers": [],
+        "open_questions": [
+          "What does the imported user goal `auth` refer to in this repo?"
+        ],
+        "source_packet_id": "661c46b8-c47e-4011-a6f9-a7481bbf83f2",
+        "updated_at": "2026-03-22T00:46:30Z"
+      }
+    },
+    "task:tower-rollout-follow-up": {
+      "id": "task:tower-rollout-follow-up",
+      "type": "task",
+      "title": "Finalize post-check-in Tower rollout guidance",
+      "status": "active",
+      "priority": "normal",
+      "details": {
+        "id": "tower-rollout-follow-up",
+        "title": "Finalize post-check-in Tower rollout guidance",
+        "status": "active",
+        "objective": "Keep the committed Tower rollout state accurate, decide the next Git step for the local rollout commit, and codify the remaining repo-specific operating conventions.",
+        "next_action": "Review the remaining untracked transient `.control-tower` artifacts, decide whether to push or open a PR from commit `8d9033f06b4ff4a72589972220ddf87832fa7a78`, then codify the Git-master and Builder guidance.",
+        "blockers": [],
+        "open_questions": [
+          "What does the imported user goal `auth` refer to in this repo?"
+        ],
+        "source_packet_id": "0559413a-288e-41ae-bbee-9ef6577f0ab1",
+        "updated_at": "2026-03-22T00:46:30Z"
+      }
+    },
+    "packet:6a40bbc4-e77b-4a86-8c3b-e187c230c1d5": {
+      "id": "packet:6a40bbc4-e77b-4a86-8c3b-e187c230c1d5",
+      "type": "packet",
+      "packet_id": "6a40bbc4-e77b-4a86-8c3b-e187c230c1d5",
+      "packet_type": "task",
+      "title": "Update repo docs after Git-Master work",
+      "status": null,
+      "trace_id": "fc82f8b1-f29f-4261-bf6b-78cec28b023c",
+      "from_agent": "tower",
+      "to_agent": "scribe",
+      "path": ".control-tower/packets/outbox/scribe-docs-followup-git-master-20260322T003716Z.json",
+      "created_at": "2026-03-22T00:37:16Z"
+    },
+    "artifact:.control-tower/packets/outbox/scribe-docs-followup-git-master-20260322T003716Z.json": {
+      "id": "artifact:.control-tower/packets/outbox/scribe-docs-followup-git-master-20260322T003716Z.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/scribe-docs-followup-git-master-20260322T003716Z.json",
+      "title": ".control-tower/packets/outbox/scribe-docs-followup-git-master-20260322T003716Z.json",
+      "created_at": "2026-03-22T00:37:16Z"
+    },
+    "packet:9171049e-0688-4314-a057-c3e2f33d5291": {
+      "id": "packet:9171049e-0688-4314-a057-c3e2f33d5291",
+      "type": "packet",
+      "packet_id": "9171049e-0688-4314-a057-c3e2f33d5291",
+      "packet_type": "result",
+      "title": "Reconciled Control Tower operational docs and memory to the current post-auth state. Stale auth-blocker messaging was removed from active status, tasks, memory, and decisions; the rollout is now recorded as locally committed via `8d9033f06b4ff4a72589972220ddf87832fa7a78`, with remaining follow-up limited to transient artifact review, next Git handling, convention codification, and the still-ambiguous imported `auth` goal.",
+      "status": "success",
+      "trace_id": "2396294f-839e-4b8f-a47d-30d0206f80f5",
+      "from_agent": "scribe",
+      "to_agent": "tower",
+      "path": ".control-tower/packets/outbox/scribe-finalize-rollout-state.result.json",
+      "created_at": "2026-03-22T00:39:54Z"
+    },
+    "artifact:.control-tower/packets/outbox/scribe-finalize-rollout-state.result.json": {
+      "id": "artifact:.control-tower/packets/outbox/scribe-finalize-rollout-state.result.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/scribe-finalize-rollout-state.result.json",
+      "title": ".control-tower/packets/outbox/scribe-finalize-rollout-state.result.json",
+      "created_at": "2026-03-22T00:39:54Z"
+    },
+    "dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_0_control-tower-rollout-bootstrap-is-no-longer-auth-blocked-and-is-recorded-as-a-local-commit-on-main-at-8d9033f06b4ff4a72589972220ddf87832fa7a78": {
+      "id": "dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_0_control-tower-rollout-bootstrap-is-no-longer-auth-blocked-and-is-recorded-as-a-local-commit-on-main-at-8d9033f06b4ff4a72589972220ddf87832fa7a78",
+      "type": "decision",
+      "topic": "control-tower-rollout-bootstrap-is-no-longer-auth-blocked-and-is-recorded-as-a-local-commit-on-main-at-8d9033f06b4ff4a72589972220ddf87832fa7a78",
+      "title": "Control Tower rollout bootstrap is no longer auth-blocked and is recorded as a local commit on `main` at `8d9033f06b4ff4a72589972220ddf87832fa7a78`.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: Control Tower rollout bootstrap is no longer auth-blocked and is recorded as a local commit on `main` at `8d9033f06b4ff4a72589972220ddf87832fa7a78`.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/scribe-finalize-rollout-state.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-22T00:40:15Z",
+      "created_by": "scribe"
+    },
+    "dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_1_operational-state-now-treats-git-master-branch-and-pr-flow-builder-avoidance-of-live-control-tower-state-and-docs-as-the-durable-canonical-docs-store-as-active-rollout-guidance": {
+      "id": "dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_1_operational-state-now-treats-git-master-branch-and-pr-flow-builder-avoidance-of-live-control-tower-state-and-docs-as-the-durable-canonical-docs-store-as-active-rollout-guidance",
+      "type": "decision",
+      "topic": "operational-state-now-treats-git-master-branch-and-pr-flow-builder-avoidance-of-live-control-tower-state-and-docs-as-the-durable-canonical-docs-store-as-active-rollout-guidance",
+      "title": "Operational state now treats Git-master branch-and-PR flow, Builder avoidance of live `.control-tower/` state, and `docs/` as the durable canonical docs store as active rollout guidance.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: Operational state now treats Git-master branch-and-PR flow, Builder avoidance of live `.control-tower/` state, and `docs/` as the durable canonical docs store as active rollout guidance.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/scribe-finalize-rollout-state.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-22T00:40:15Z",
+      "created_by": "scribe"
+    },
+    "dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_2_remaining-follow-up-is-limited-to-transient-artifact-review-next-git-handling-for-the-local-commit-convention-codification-in-agent-guidance-and-clarifying-the-imported-auth-goal": {
+      "id": "dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_2_remaining-follow-up-is-limited-to-transient-artifact-review-next-git-handling-for-the-local-commit-convention-codification-in-agent-guidance-and-clarifying-the-imported-auth-goal",
+      "type": "decision",
+      "topic": "remaining-follow-up-is-limited-to-transient-artifact-review-next-git-handling-for-the-local-commit-convention-codification-in-agent-guidance-and-clarifying-the-imported-auth-goal",
+      "title": "Remaining follow-up is limited to transient artifact review, next Git handling for the local commit, convention codification in agent guidance, and clarifying the imported `auth` goal.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: Remaining follow-up is limited to transient artifact review, next Git handling for the local commit, convention codification in agent guidance, and clarifying the imported `auth` goal.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/scribe-finalize-rollout-state.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-22T00:40:15Z",
+      "created_by": "scribe"
+    },
+    "risk:the-local-working-tree-still-contains-untracked-transient-control-tower-artifacts-after-the-rollout-commit": {
+      "id": "risk:the-local-working-tree-still-contains-untracked-transient-control-tower-artifacts-after-the-rollout-commit",
+      "type": "risk",
+      "title": "The local working tree still contains untracked transient `.control-tower` artifacts after the rollout commit.",
+      "status": "open",
+      "source_ref": ".control-tower/docs/state/known-risks.md"
+    },
+    "risk:git-master-and-builder-conventions-are-recommended-in-state-but-not-yet-codified-in-their-prompts-or-policy-files": {
+      "id": "risk:git-master-and-builder-conventions-are-recommended-in-state-but-not-yet-codified-in-their-prompts-or-policy-files",
+      "type": "risk",
+      "title": "Git-master and Builder conventions are recommended in state, but not yet codified in their prompts or policy files.",
+      "status": "open",
+      "source_ref": ".control-tower/docs/state/known-risks.md"
     }
   }
 }

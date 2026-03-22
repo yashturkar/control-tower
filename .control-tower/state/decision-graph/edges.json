@@ -329,6 +329,196 @@
       "evidence_refs": [
         ".control-tower/packets/outbox/scribe-finalize-rollout-state.json"
       ]
+    },
+    {
+      "id": "edge:packet-artifact:661c46b8-c47e-4011-a6f9-a7481bbf83f2:control-tower-packets-outbox-git-master-checkin-rollout-json",
+      "type": "references",
+      "from": "packet:661c46b8-c47e-4011-a6f9-a7481bbf83f2",
+      "to": "artifact:.control-tower/packets/outbox/git-master-checkin-rollout.json",
+      "created_at": "2026-03-22T00:35:35Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/git-master-checkin-rollout.json"
+      ]
+    },
+    {
+      "id": "edge:packet-session:661c46b8-c47e-4011-a6f9-a7481bbf83f2:019d12f0-115b-7a20-a4a0-3a8210a841ee",
+      "type": "discussed_in",
+      "from": "packet:661c46b8-c47e-4011-a6f9-a7481bbf83f2",
+      "to": "session:019d12f0-115b-7a20-a4a0-3a8210a841ee",
+      "created_at": "2026-03-22T00:35:35Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/git-master-checkin-rollout.json"
+      ]
+    },
+    {
+      "id": "edge:packet-artifact:8f8a47ef-948d-42ef-94dc-a023c97f1ff5:control-tower-packets-outbox-git-master-checkin-rollout-result-json",
+      "type": "references",
+      "from": "packet:8f8a47ef-948d-42ef-94dc-a023c97f1ff5",
+      "to": "artifact:.control-tower/packets/outbox/git-master-checkin-rollout.result.json",
+      "created_at": "2026-03-22T00:46:30Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/git-master-checkin-rollout.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-ref:dec_inferred_8f8a47ef-948d-42ef-94dc-a023c97f1ff5_0_control-tower-rollout-bootstrap-was-committed-locally-on-main-as-8d9033f06b4ff4a72589972220ddf87832fa7a78-with-message-chore-add-control-tower-rollout-bootstrap:control-tower-packets-outbox-git-master-checkin-rollout-result-json",
+      "type": "references",
+      "from": "dec_inferred_8f8a47ef-948d-42ef-94dc-a023c97f1ff5_0_control-tower-rollout-bootstrap-was-committed-locally-on-main-as-8d9033f06b4ff4a72589972220ddf87832fa7a78-with-message-chore-add-control-tower-rollout-bootstrap",
+      "to": "artifact:.control-tower/packets/outbox/git-master-checkin-rollout.result.json",
+      "created_at": "2026-03-22T00:37:16Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/git-master-checkin-rollout.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-node:dec_inferred_8f8a47ef-948d-42ef-94dc-a023c97f1ff5_0_control-tower-rollout-bootstrap-was-committed-locally-on-main-as-8d9033f06b4ff4a72589972220ddf87832fa7a78-with-message-chore-add-control-tower-rollout-bootstrap:packet-8f8a47ef-948d-42ef-94dc-a023c97f1ff5",
+      "type": "references",
+      "from": "dec_inferred_8f8a47ef-948d-42ef-94dc-a023c97f1ff5_0_control-tower-rollout-bootstrap-was-committed-locally-on-main-as-8d9033f06b4ff4a72589972220ddf87832fa7a78-with-message-chore-add-control-tower-rollout-bootstrap",
+      "to": "packet:8f8a47ef-948d-42ef-94dc-a023c97f1ff5",
+      "created_at": "2026-03-22T00:37:16Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/git-master-checkin-rollout.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-ref:dec_inferred_8f8a47ef-948d-42ef-94dc-a023c97f1ff5_1_transient-control-tower-logs-l2-session-transcript-caches-packet-outbox-task-result-files-and-decision-graph-event-log-were-intentionally-left-untracked-for-diff-hygiene:control-tower-packets-outbox-git-master-checkin-rollout-result-json",
+      "type": "references",
+      "from": "dec_inferred_8f8a47ef-948d-42ef-94dc-a023c97f1ff5_1_transient-control-tower-logs-l2-session-transcript-caches-packet-outbox-task-result-files-and-decision-graph-event-log-were-intentionally-left-untracked-for-diff-hygiene",
+      "to": "artifact:.control-tower/packets/outbox/git-master-checkin-rollout.result.json",
+      "created_at": "2026-03-22T00:37:16Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/git-master-checkin-rollout.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-node:dec_inferred_8f8a47ef-948d-42ef-94dc-a023c97f1ff5_1_transient-control-tower-logs-l2-session-transcript-caches-packet-outbox-task-result-files-and-decision-graph-event-log-were-intentionally-left-untracked-for-diff-hygiene:packet-8f8a47ef-948d-42ef-94dc-a023c97f1ff5",
+      "type": "references",
+      "from": "dec_inferred_8f8a47ef-948d-42ef-94dc-a023c97f1ff5_1_transient-control-tower-logs-l2-session-transcript-caches-packet-outbox-task-result-files-and-decision-graph-event-log-were-intentionally-left-untracked-for-diff-hygiene",
+      "to": "packet:8f8a47ef-948d-42ef-94dc-a023c97f1ff5",
+      "created_at": "2026-03-22T00:37:16Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/git-master-checkin-rollout.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-ref:dec_inferred_8f8a47ef-948d-42ef-94dc-a023c97f1ff5_2_no-push-occurred-the-repository-still-has-untracked-transient-control-tower-artifacts-after-the-commit:control-tower-packets-outbox-git-master-checkin-rollout-result-json",
+      "type": "references",
+      "from": "dec_inferred_8f8a47ef-948d-42ef-94dc-a023c97f1ff5_2_no-push-occurred-the-repository-still-has-untracked-transient-control-tower-artifacts-after-the-commit",
+      "to": "artifact:.control-tower/packets/outbox/git-master-checkin-rollout.result.json",
+      "created_at": "2026-03-22T00:37:16Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/git-master-checkin-rollout.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-node:dec_inferred_8f8a47ef-948d-42ef-94dc-a023c97f1ff5_2_no-push-occurred-the-repository-still-has-untracked-transient-control-tower-artifacts-after-the-commit:packet-8f8a47ef-948d-42ef-94dc-a023c97f1ff5",
+      "type": "references",
+      "from": "dec_inferred_8f8a47ef-948d-42ef-94dc-a023c97f1ff5_2_no-push-occurred-the-repository-still-has-untracked-transient-control-tower-artifacts-after-the-commit",
+      "to": "packet:8f8a47ef-948d-42ef-94dc-a023c97f1ff5",
+      "created_at": "2026-03-22T00:37:16Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/git-master-checkin-rollout.result.json"
+      ]
+    },
+    {
+      "id": "edge:commit-session:8d9033f06b4ff4a72589972220ddf87832fa7a78:019d12f8-098a-7663-983d-3955a8b2f3d1",
+      "type": "caused_by",
+      "from": "commit:8d9033f06b4ff4a72589972220ddf87832fa7a78",
+      "to": "session:019d12f8-098a-7663-983d-3955a8b2f3d1",
+      "created_at": "2026-03-21T17:36:40-07:00",
+      "evidence_refs": [
+        "/Users/yashturkar/Workspace/control-tower/.control-tower/memory/l2/transcripts/019d12f8-098a-7663-983d-3955a8b2f3d1.md"
+      ]
+    },
+    {
+      "id": "edge:packet-artifact:6a40bbc4-e77b-4a86-8c3b-e187c230c1d5:control-tower-packets-outbox-scribe-docs-followup-git-master-20260322t003716z-json",
+      "type": "references",
+      "from": "packet:6a40bbc4-e77b-4a86-8c3b-e187c230c1d5",
+      "to": "artifact:.control-tower/packets/outbox/scribe-docs-followup-git-master-20260322T003716Z.json",
+      "created_at": "2026-03-22T00:37:16Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-docs-followup-git-master-20260322T003716Z.json"
+      ]
+    },
+    {
+      "id": "edge:packet-session:6a40bbc4-e77b-4a86-8c3b-e187c230c1d5:019d12f0-115b-7a20-a4a0-3a8210a841ee",
+      "type": "discussed_in",
+      "from": "packet:6a40bbc4-e77b-4a86-8c3b-e187c230c1d5",
+      "to": "session:019d12f0-115b-7a20-a4a0-3a8210a841ee",
+      "created_at": "2026-03-22T00:37:16Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-docs-followup-git-master-20260322T003716Z.json"
+      ]
+    },
+    {
+      "id": "edge:packet-artifact:9171049e-0688-4314-a057-c3e2f33d5291:control-tower-packets-outbox-scribe-finalize-rollout-state-result-json",
+      "type": "references",
+      "from": "packet:9171049e-0688-4314-a057-c3e2f33d5291",
+      "to": "artifact:.control-tower/packets/outbox/scribe-finalize-rollout-state.result.json",
+      "created_at": "2026-03-22T00:39:54Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-finalize-rollout-state.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-ref:dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_0_control-tower-rollout-bootstrap-is-no-longer-auth-blocked-and-is-recorded-as-a-local-commit-on-main-at-8d9033f06b4ff4a72589972220ddf87832fa7a78:control-tower-packets-outbox-scribe-finalize-rollout-state-result-json",
+      "type": "references",
+      "from": "dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_0_control-tower-rollout-bootstrap-is-no-longer-auth-blocked-and-is-recorded-as-a-local-commit-on-main-at-8d9033f06b4ff4a72589972220ddf87832fa7a78",
+      "to": "artifact:.control-tower/packets/outbox/scribe-finalize-rollout-state.result.json",
+      "created_at": "2026-03-22T00:40:15Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-finalize-rollout-state.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-node:dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_0_control-tower-rollout-bootstrap-is-no-longer-auth-blocked-and-is-recorded-as-a-local-commit-on-main-at-8d9033f06b4ff4a72589972220ddf87832fa7a78:packet-9171049e-0688-4314-a057-c3e2f33d5291",
+      "type": "references",
+      "from": "dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_0_control-tower-rollout-bootstrap-is-no-longer-auth-blocked-and-is-recorded-as-a-local-commit-on-main-at-8d9033f06b4ff4a72589972220ddf87832fa7a78",
+      "to": "packet:9171049e-0688-4314-a057-c3e2f33d5291",
+      "created_at": "2026-03-22T00:40:15Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-finalize-rollout-state.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-ref:dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_1_operational-state-now-treats-git-master-branch-and-pr-flow-builder-avoidance-of-live-control-tower-state-and-docs-as-the-durable-canonical-docs-store-as-active-rollout-guidance:control-tower-packets-outbox-scribe-finalize-rollout-state-result-json",
+      "type": "references",
+      "from": "dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_1_operational-state-now-treats-git-master-branch-and-pr-flow-builder-avoidance-of-live-control-tower-state-and-docs-as-the-durable-canonical-docs-store-as-active-rollout-guidance",
+      "to": "artifact:.control-tower/packets/outbox/scribe-finalize-rollout-state.result.json",
+      "created_at": "2026-03-22T00:40:15Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-finalize-rollout-state.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-node:dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_1_operational-state-now-treats-git-master-branch-and-pr-flow-builder-avoidance-of-live-control-tower-state-and-docs-as-the-durable-canonical-docs-store-as-active-rollout-guidance:packet-9171049e-0688-4314-a057-c3e2f33d5291",
+      "type": "references",
+      "from": "dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_1_operational-state-now-treats-git-master-branch-and-pr-flow-builder-avoidance-of-live-control-tower-state-and-docs-as-the-durable-canonical-docs-store-as-active-rollout-guidance",
+      "to": "packet:9171049e-0688-4314-a057-c3e2f33d5291",
+      "created_at": "2026-03-22T00:40:15Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-finalize-rollout-state.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-ref:dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_2_remaining-follow-up-is-limited-to-transient-artifact-review-next-git-handling-for-the-local-commit-convention-codification-in-agent-guidance-and-clarifying-the-imported-auth-goal:control-tower-packets-outbox-scribe-finalize-rollout-state-result-json",
+      "type": "references",
+      "from": "dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_2_remaining-follow-up-is-limited-to-transient-artifact-review-next-git-handling-for-the-local-commit-convention-codification-in-agent-guidance-and-clarifying-the-imported-auth-goal",
+      "to": "artifact:.control-tower/packets/outbox/scribe-finalize-rollout-state.result.json",
+      "created_at": "2026-03-22T00:40:15Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-finalize-rollout-state.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-node:dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_2_remaining-follow-up-is-limited-to-transient-artifact-review-next-git-handling-for-the-local-commit-convention-codification-in-agent-guidance-and-clarifying-the-imported-auth-goal:packet-9171049e-0688-4314-a057-c3e2f33d5291",
+      "type": "references",
+      "from": "dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_2_remaining-follow-up-is-limited-to-transient-artifact-review-next-git-handling-for-the-local-commit-convention-codification-in-agent-guidance-and-clarifying-the-imported-auth-goal",
+      "to": "packet:9171049e-0688-4314-a057-c3e2f33d5291",
+      "created_at": "2026-03-22T00:40:15Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-finalize-rollout-state.result.json"
+      ]
     }
   ]
 }

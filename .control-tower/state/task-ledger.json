@@ -3,17 +3,41 @@
     {
       "id": "tower-session-bootstrap-curation",
       "title": "Unblock Tower delegation and curate initial session state",
-      "status": "active",
+      "status": "completed",
       "objective": "Restore Codex authentication so Tower can delegate the queued Scribe curation packet and establish a non-bootstrap operational baseline.",
-      "next_action": "Re-authenticate this Codex environment, rerun `.control-tower/packets/outbox/scribe-initial-session-state.json`, then run `tower-run sync-memory`.",
-      "blockers": [
-        "Codex auth refresh failed with `refresh_token_reused`, preventing `tower-run delegate` from producing specialist results."
-      ],
+      "next_action": "Completed after auth restoration and successful Scribe curation.",
+      "blockers": [],
       "open_questions": [
         "What does the imported user goal `auth` refer to in this repo?"
       ],
       "source_packet_id": "1acb16ee-14f4-4633-be2f-2c2e3b8b57d6",
-      "updated_at": "2026-03-22T00:27:39Z"
+      "updated_at": "2026-03-22T00:35:32Z"
+    },
+    {
+      "id": "tower-rollout-checkin",
+      "title": "Commit Control Tower rollout bootstrap locally",
+      "status": "completed",
+      "objective": "Check in the Control Tower rollout bootstrap with durable operational state while leaving transient artifacts out of the commit.",
+      "next_action": "Completed locally as commit `8d9033f06b4ff4a72589972220ddf87832fa7a78`.",
+      "blockers": [],
+      "open_questions": [
+        "What does the imported user goal `auth` refer to in this repo?"
+      ],
+      "source_packet_id": "661c46b8-c47e-4011-a6f9-a7481bbf83f2",
+      "updated_at": "2026-03-22T00:46:30Z"
+    },
+    {
+      "id": "tower-rollout-follow-up",
+      "title": "Finalize post-check-in Tower rollout guidance",
+      "status": "active",
+      "objective": "Keep the committed Tower rollout state accurate, decide the next Git step for the local rollout commit, and codify the remaining repo-specific operating conventions.",
+      "next_action": "Review the remaining untracked transient `.control-tower` artifacts, decide whether to push or open a PR from commit `8d9033f06b4ff4a72589972220ddf87832fa7a78`, then codify the Git-master and Builder guidance.",
+      "blockers": [],
+      "open_questions": [
+        "What does the imported user goal `auth` refer to in this repo?"
+      ],
+      "source_packet_id": "0559413a-288e-41ae-bbee-9ef6577f0ab1",
+      "updated_at": "2026-03-22T00:46:30Z"
     }
   ]
 }

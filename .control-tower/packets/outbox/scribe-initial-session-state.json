@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0.0",
+  "packet_type": "task",
+  "packet_id": "1acb16ee-14f4-4633-be2f-2c2e3b8b57d6",
+  "trace_id": "ec3492a4-6056-43d6-ba1d-b4e74354dea8",
+  "parent_packet_id": null,
+  "created_at": "2026-03-22T00:27:39Z",
+  "from_agent": "tower",
+  "to_agent": "scribe",
+  "task_type": "docs-curation",
+  "priority": "high",
+  "project_id": "control-tower",
+  "session_id": "tower-session",
+  "title": "Curate initial Tower session state",
+  "objective": "Curate Control Tower operational state after the first meaningful Tower session so future sessions can resume cleanly, and record the current objective plus next best action.",
+  "instructions": [
+    "Review the current bootstrap state, Tower memory, docs harness index, and task ledger.",
+    "Update operational docs/state and memory only where needed to reflect this session's current objective, next best action, open questions, and known risks.",
+    "Preserve uncertainty explicitly; do not invent project facts that are not present in repo state.",
+    "Create or update active-task tracking if appropriate for this resumed Tower session."
+  ],
+  "constraints": [
+    "Do not modify product source code.",
+    "Treat docs/ as durable knowledge and .control-tower/docs/state plus .control-tower/memory as operational memory."
+  ],
+  "inputs": {
+    "files": [
+      ".control-tower/memory/l0.md",
+      ".control-tower/memory/l1.md",
+      ".control-tower/docs/state/current-status.md",
+      ".control-tower/state/task-ledger.json",
+      "docs/index.md",
+      "AGENTS.md"
+    ],
+    "artifacts": [],
+    "references": []
+  },
+  "expected_outputs": [
+    "Updated operational state files and a ResultPacket summarizing changes, current objective, blockers, and recommended next action."
+  ],
+  "definition_of_done": [
+    "Operational status reflects this first meaningful Tower session.",
+    "Current objective and next best action are explicit.",
+    "Any changed files are limited to docs/state or memory/task tracking relevant to Scribe."
+  ],
+  "memory_context_refs": [
+    ".control-tower/memory/l0.md",
+    ".control-tower/memory/l1.md"
+  ],
+  "doc_context_refs": [
+    ".control-tower/docs/state/current-status.md",
+    "docs/index.md"
+  ],
+  "time_budget": {
+    "soft_seconds": 900,
+    "hard_seconds": 3600
+  },
+  "requires_review": true,
+  "allow_partial": false,
+  "metadata": {}
+}

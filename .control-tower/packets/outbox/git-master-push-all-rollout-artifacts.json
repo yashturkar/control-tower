@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0.0",
+  "packet_type": "task",
+  "packet_id": "d6d0b7d7-74c9-462b-9813-0c70961a21e2",
+  "trace_id": "3cc89142-4765-4802-b873-a4eca9ec99dc",
+  "parent_packet_id": null,
+  "created_at": "2026-03-22T00:53:48Z",
+  "from_agent": "tower",
+  "to_agent": "git-master",
+  "task_type": "git",
+  "priority": "high",
+  "project_id": "control-tower",
+  "session_id": "019d12f0-115b-7a20-a4a0-3a8210a841ee",
+  "title": "Commit remaining Tower operational artifacts and push",
+  "objective": "Stage the remaining untracked Control Tower operational artifacts, create a follow-up local commit, and push the current branch to origin.",
+  "instructions": [
+    "Review the current untracked files and stage the remaining Control Tower operational artifacts that were intentionally excluded from the prior durable-baseline commit.",
+    "Create a follow-up local commit that captures those remaining artifacts.",
+    "Push the current branch to origin after the local commit succeeds.",
+    "Report both the new commit hash and the final pushed branch state, including any residual untracked files if any remain."
+  ],
+  "constraints": [
+    "Do not force-push or rewrite history.",
+    "Keep the scope to Git operations and existing working-tree artifacts."
+  ],
+  "inputs": {
+    "files": [],
+    "artifacts": [],
+    "references": []
+  },
+  "expected_outputs": [
+    "ResultPacket with new commit hash, pushed branch/ref, and any residual risks or leftovers."
+  ],
+  "definition_of_done": [
+    "All current Control Tower rollout artifacts requested by the user are committed.",
+    "The branch is pushed to origin.",
+    "Any remaining untracked or modified files are explicitly listed."
+  ],
+  "memory_context_refs": [],
+  "doc_context_refs": [],
+  "time_budget": {
+    "soft_seconds": 900,
+    "hard_seconds": 3600
+  },
+  "requires_review": true,
+  "allow_partial": false,
+  "metadata": {}
+}

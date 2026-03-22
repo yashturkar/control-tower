@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0.0",
+  "packet_type": "task",
+  "packet_id": "661c46b8-c47e-4011-a6f9-a7481bbf83f2",
+  "trace_id": "fc82f8b1-f29f-4261-bf6b-78cec28b023c",
+  "parent_packet_id": null,
+  "created_at": "2026-03-22T00:35:35Z",
+  "from_agent": "tower",
+  "to_agent": "git-master",
+  "task_type": "git",
+  "priority": "high",
+  "project_id": "control-tower",
+  "session_id": "019d12f0-115b-7a20-a4a0-3a8210a841ee",
+  "title": "Check in Control Tower rollout",
+  "objective": "Create a local commit for adding Control Tower to this repository, staging the appropriate bootstrap/docs/runtime artifacts and stopping before any push.",
+  "instructions": [
+    "Review the current working tree and determine which untracked/modified files belong in the Control Tower rollout commit versus transient in-progress artifacts that should be excluded for diff hygiene.",
+    "Stage the appropriate files for the rollout, create a local commit on the current branch, and do not push.",
+    "Report the commit hash, commit message, included paths summary, and any excluded transient files or residual risks."
+  ],
+  "constraints": [
+    "Do not push, force-push, or rewrite history.",
+    "Do not modify product source code except minimal Git-adjacent metadata if required for the commit."
+  ],
+  "inputs": {
+    "files": [
+      "AGENTS.md",
+      "docs/index.md",
+      ".control-tower/docs/state/current-status.md",
+      ".control-tower/docs/tasks/active.md",
+      ".control-tower/state/task-ledger.json"
+    ],
+    "artifacts": [],
+    "references": []
+  },
+  "expected_outputs": [
+    "ResultPacket with commit hash, message, staged scope, and any exclusions or risks."
+  ],
+  "definition_of_done": [
+    "A local commit exists for the Control Tower rollout.",
+    "No push has occurred.",
+    "Transient artifacts, if excluded, are explicitly listed with rationale."
+  ],
+  "memory_context_refs": [],
+  "doc_context_refs": [],
+  "time_budget": {
+    "soft_seconds": 900,
+    "hard_seconds": 3600
+  },
+  "requires_review": true,
+  "allow_partial": false,
+  "metadata": {}
+}

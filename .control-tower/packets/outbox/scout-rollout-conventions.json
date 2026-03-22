@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0.0",
+  "packet_type": "task",
+  "packet_id": "74bb340a-7924-4d97-a5a6-a38776a5a86e",
+  "trace_id": "255a8394-ee8e-4a41-b674-a25315808d03",
+  "parent_packet_id": null,
+  "created_at": "2026-03-22T00:33:00Z",
+  "from_agent": "tower",
+  "to_agent": "scout",
+  "task_type": "research",
+  "priority": "high",
+  "project_id": "control-tower",
+  "session_id": "019d12f0-115b-7a20-a4a0-3a8210a841ee",
+  "title": "Establish Tower operating conventions for rollout",
+  "objective": "Determine the repo-specific conventions Tower should assume for Git workflow, Builder avoid-paths, and Scribe canonical docs so the Control Tower bootstrap can be checked in with explicit operating guidance.",
+  "instructions": [
+    "Inspect the repository structure, existing docs harness, agent contracts, and current untracked Tower bootstrap files.",
+    "Recommend concrete answers for the three standing open questions: Git-master workflow, Builder avoid-paths, and Scribe canonical conventions.",
+    "Identify any risks or gaps that should be called out before checking in the Tower bootstrap."
+  ],
+  "constraints": [
+    "Do not modify files.",
+    "Ground findings in repo state, not generic preferences."
+  ],
+  "inputs": {
+    "files": [
+      "AGENTS.md",
+      "docs/index.md",
+      "docs/design-docs/index.md",
+      "docs/product-specs/index.md",
+      ".control-tower/agents/tower/prompt.md",
+      ".control-tower/agents/builder/prompt.md",
+      ".control-tower/agents/git-master/prompt.md",
+      ".control-tower/agents/scribe/prompt.md"
+    ],
+    "artifacts": [],
+    "references": []
+  },
+  "expected_outputs": [
+    "ResultPacket with recommended conventions, supporting evidence, and rollout risks."
+  ],
+  "definition_of_done": [
+    "All three open questions have concrete recommended answers.",
+    "Any check-in risks for the Tower bootstrap are explicit."
+  ],
+  "memory_context_refs": [],
+  "doc_context_refs": [],
+  "time_budget": {
+    "soft_seconds": 900,
+    "hard_seconds": 3600
+  },
+  "requires_review": true,
+  "allow_partial": false,
+  "metadata": {}
+}

@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0.0",
+  "packet_type": "task",
+  "packet_id": "09f92dc8-2796-4097-b923-e0cd3f12e5cd",
+  "trace_id": "717159b8-14b6-4b18-bbb1-cd954125645d",
+  "parent_packet_id": null,
+  "created_at": "2026-03-22T00:30:39Z",
+  "from_agent": "tower",
+  "to_agent": "scribe",
+  "task_type": "memory-sync",
+  "priority": "normal",
+  "project_id": "control-tower",
+  "session_id": "019d12f0-115b-7a20-a4a0-3a8210a841ee",
+  "title": "Curate imported Tower memory",
+  "objective": "Convert imported Codex sessions into durable working memory, task state, and documentation updates.",
+  "instructions": [
+    "Review newly imported L2 session logs and transcripts.",
+    "Update L1 working memory and docs/state to reflect new durable knowledge.",
+    "Call out unresolved risks, stale docs, and open questions explicitly."
+  ],
+  "constraints": [
+    "Do not invent facts that are not grounded in imported logs or repo state.",
+    "Keep L0 concise and action-oriented.",
+    "Preserve append-only behavior for raw logs."
+  ],
+  "inputs": {
+    "files": [
+      ".control-tower/memory/l2/sessions/019d12f2-6cf3-7631-b544-c55013580eaa.jsonl"
+    ],
+    "artifacts": [],
+    "references": []
+  },
+  "expected_outputs": [
+    "Updated docs/state files if needed",
+    "A ResultPacket with doc and memory follow-ups"
+  ],
+  "definition_of_done": [
+    "New sessions are reflected in memory summaries",
+    "Doc drift is captured or corrected",
+    "Open questions are current"
+  ],
+  "memory_context_refs": [
+    ".control-tower/memory/l2/sessions/019d12f2-6cf3-7631-b544-c55013580eaa.jsonl"
+  ],
+  "doc_context_refs": [
+    ".control-tower/docs/state/current-status.md",
+    ".control-tower/docs/state/open-questions.md",
+    ".control-tower/docs/tasks/active.md"
+  ],
+  "time_budget": {
+    "soft_seconds": 300,
+    "hard_seconds": 900
+  },
+  "requires_review": false,
+  "allow_partial": true,
+  "metadata": {
+    "generated_by": "tower sync-memory"
+  }
+}
