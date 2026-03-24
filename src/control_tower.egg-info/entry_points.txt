@@ -1,0 +1,3 @@
+[console_scripts]
+tower-bootstrap = control_tower.cli:main
+tower-run-bootstrap = control_tower.runtime_cli:main
