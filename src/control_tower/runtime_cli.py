@@ -234,17 +234,19 @@ def cmd_create_packet(project_root: Path, args: argparse.Namespace) -> int:
     if args.include_graph_context:
         indexes = load_graph_indexes(project_root)
         nodes = load_graph_nodes(project_root).get("nodes", {})
+        result_packet_nodes = [
+            node
+            for node in nodes.values()
+            if node.get("type") == "packet" and node.get("packet_type") == "result"
+        ]
+        sorted_result_packet_nodes = sorted(
+            result_packet_nodes,
+            key=lambda node: str(node.get("created_at", "")),
+            reverse=True,
+        )
         recent_result_packets = [
             node.get("id")
-            for node in sorted(
-                (
-                    node
-                    for node in nodes.values()
-                    if node.get("type") == "packet" and node.get("packet_type") == "result"
-                ),
-                key=lambda node: str(node.get("created_at", "")),
-                reverse=True,
-            )
+            for node in sorted_result_packet_nodes
             if node.get("id")
         ][:3]
         metadata["graph_context"] = {
