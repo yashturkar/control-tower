@@ -559,6 +559,17 @@ def _packet_events(project_root: Path) -> list[dict[str, Any]]:
             "to_agent": packet.get("to_agent"),
             "path": relative,
             "created_at": packet.get("created_at"),
+            "summary": packet.get("summary"),
+            "work_completed": packet.get("work_completed"),
+            "findings": packet.get("findings"),
+            "follow_up_recommendations": packet.get("follow_up_recommendations"),
+            "review_requested": packet.get("review_requested"),
+            "doc_update_needed": packet.get("doc_update_needed"),
+            "memory_worthy": packet.get("memory_worthy"),
+            "artifacts_changed": packet.get("artifacts_changed"),
+            "artifacts_created": packet.get("artifacts_created"),
+            "artifacts_deleted": packet.get("artifacts_deleted"),
+            "metrics": packet.get("metrics"),
         }
         events.append(_node_event("packet.observed", node, f"packet:{packet_id}"))
         artifact_node = {

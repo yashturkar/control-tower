@@ -4,7 +4,7 @@ from pathlib import Path
 
 from .docs_harness import docs_harness_context_refs
 from .layout import tower_dir
-from .project import load_agent_registry, load_project_config, read_text
+from .project import load_agent_registry, load_graph_indexes, load_graph_nodes, load_project_config, read_text
 
 
 def build_tower_prompt(project_root: Path, user_prompt: str | None = None) -> str:
@@ -46,6 +46,52 @@ def build_tower_prompt(project_root: Path, user_prompt: str | None = None) -> st
             "",
         ]
 
+    graph_indexes = load_graph_indexes(project_root)
+    graph_nodes = load_graph_nodes(project_root).get("nodes", {})
+    active_decisions = list(graph_indexes.get("active_decisions", []))[:3]
+    open_questions = list(graph_indexes.get("open_questions", []))[:3]
+    current_tasks = list(graph_indexes.get("current_tasks", []))[:3]
+    unresolved_blockers = [
+        node_id
+        for node_id, node in graph_nodes.items()
+        if node.get("type") == "packet" and node.get("packet_type") == "result" and node.get("status") == "blocked"
+    ][:3]
+    recent_outcomes = [
+        node
+        for node in sorted(
+            (
+                candidate
+                for candidate in graph_nodes.values()
+                if candidate.get("type") == "packet" and candidate.get("packet_type") == "result"
+            ),
+            key=lambda candidate: str(candidate.get("created_at", "")),
+            reverse=True,
+        )[:3]
+    ]
+    graph_section = [
+        "## Decision Graph Operational Snapshot",
+        "",
+        f"- Active decisions: {', '.join(active_decisions) if active_decisions else 'none'}",
+        f"- Open questions: {', '.join(open_questions) if open_questions else 'none'}",
+        f"- Current tasks: {', '.join(current_tasks) if current_tasks else 'none'}",
+        f"- Unresolved blockers: {', '.join(unresolved_blockers) if unresolved_blockers else 'none'}",
+        f"- Recent commits: {', '.join(graph_indexes.get('recent_commits', [])[:3]) or 'none'}",
+        f"- Current branch: {graph_indexes.get('current_branch', 'unknown')}",
+        "",
+        "Recent agent outcomes from graph packet nodes:",
+        *(
+            [
+                f"- {node.get('id')}: {node.get('from_agent', 'unknown')} [{node.get('status', 'unknown')}] "
+                f"{node.get('summary') or node.get('title') or ''}".rstrip()
+                for node in recent_outcomes
+            ]
+            or ["- none"]
+        ),
+        "",
+        "Graph context consulted from `.control-tower/state/decision-graph/indexes.json` and `nodes.json`.",
+        "",
+    ]
+
     sections = [
         f"You are {config.get('primary_agent', 'Tower')} for the project `{config.get('project_name', project_root.name)}`.",
         "",
@@ -68,6 +114,7 @@ def build_tower_prompt(project_root: Path, user_prompt: str | None = None) -> st
         "### L1",
         l1 or "No L1 working memory yet.",
         "",
+        *graph_section,
         *docs_section,
         "## Operating Rules",
         "",
