@@ -13,7 +13,7 @@ from control_tower.bootstrap import init_project
 from control_tower.cli import cmd_status, main as tower_main
 from control_tower.config_ui import configure_project_interactively
 from control_tower.docs_harness import MANAGED_SECTION_START
-from control_tower.graph import explain_commit, explain_decision
+from control_tower.graph import explain_commit, explain_decision, sync_decision_graph
 from control_tower.layout import tower_dir
 from control_tower.memory import import_project_sessions
 from control_tower.packets import validate_task_packet
@@ -192,6 +192,8 @@ class BootstrapTests(unittest.TestCase):
             self.assertIn("## Configured Agents", prompt)
             self.assertIn("Builder (builder)", prompt)
             self.assertIn("Review current work", prompt)
+            self.assertIn("## Decision Graph Operational Snapshot", prompt)
+            self.assertIn("Graph context consulted", prompt)
 
     def test_build_tower_prompt_includes_docs_harness_when_enabled(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -1141,6 +1143,176 @@ class BootstrapTests(unittest.TestCase):
             self.assertEqual("Implement feature X", packet["title"])
             self.assertEqual(["Modify the relevant source and tests"], packet["instructions"])
             self.assertEqual("implementation", packet["task_type"])
+            self.assertIn("graph_context", packet["metadata"])
+
+    def test_runtime_cli_create_packet_seeds_graph_context_from_indexes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "sample-project"
+            root.mkdir()
+            subprocess.run(["git", "init"], cwd=root, check=True, capture_output=True)
+            env = os.environ.copy()
+            env["PYTHONPATH"] = str(Path(__file__).resolve().parents[1] / "src")
+
+            subprocess.run(
+                ["python3", "-m", "control_tower.cli", "init", "--defaults"],
+                cwd=root,
+                env=env,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            args = type(
+                "Args",
+                (),
+                {
+                    "title": "Adopt graph lookup for delegation",
+                    "topic": "graph-lookup",
+                    "summary": "Tower should read graph indexes before delegating.",
+                    "rationale": ["Avoid repeated rediscovery."],
+                    "status": "accepted",
+                    "importance": "major",
+                    "source_ref": [".control-tower/memory/l1.md"],
+                    "related_ref": [".control-tower/memory/l1.md"],
+                    "created_by": "tower",
+                },
+            )()
+            cmd_log_decision(root, args)
+
+            result = subprocess.run(
+                [
+                    "python3",
+                    "-m",
+                    "control_tower.runtime_cli",
+                    "create-packet",
+                    "builder",
+                    "--title",
+                    "Implement graph-aware delegation",
+                    "--objective",
+                    "Use graph-backed context in packet metadata",
+                    "--expected-output",
+                    "Updated runtime",
+                    "--definition-of-done",
+                    "Graph context present in packet metadata",
+                ],
+                cwd=root,
+                env=env,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            packet_path = Path(result.stdout.strip())
+            packet = json.loads(packet_path.read_text())
+            graph_context = packet["metadata"]["graph_context"]
+            self.assertIn("active_decisions", graph_context)
+            self.assertTrue(graph_context["active_decisions"])
+            self.assertIn("current_branch", graph_context)
+
+    def test_runtime_cli_create_packet_skips_empty_graph_context(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "sample-project"
+            root.mkdir()
+            subprocess.run(["git", "init"], cwd=root, check=True, capture_output=True)
+            env = os.environ.copy()
+            env["PYTHONPATH"] = str(Path(__file__).resolve().parents[1] / "src")
+
+            subprocess.run(
+                ["python3", "-m", "control_tower.cli", "init", "--defaults"],
+                cwd=root,
+                env=env,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            graph_state_dir = tower_dir(root) / "state" / "decision-graph"
+            (graph_state_dir / "indexes.json").write_text(
+                json.dumps(
+                    {
+                        "active_decisions": [],
+                        "inferred_decisions": [],
+                        "superseded_decisions": [],
+                        "open_questions": [],
+                        "known_risks": [],
+                        "current_tasks": [],
+                        "recent_commits": [],
+                        "unexplained_commits": [],
+                        "session_links": {},
+                        "last_graph_sync": "never",
+                        "current_branch": "unknown",
+                    }
+                )
+                + "\n"
+            )
+            (graph_state_dir / "nodes.json").write_text(json.dumps({"nodes": {}}) + "\n")
+            result = subprocess.run(
+                [
+                    "python3",
+                    "-m",
+                    "control_tower.runtime_cli",
+                    "create-packet",
+                    "builder",
+                    "--title",
+                    "Implement feature X",
+                    "--objective",
+                    "Add feature X and tests",
+                    "--expected-output",
+                    "Updated source and tests",
+                    "--definition-of-done",
+                    "Feature X works and tests pass",
+                ],
+                cwd=root,
+                env=env,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            packet_path = Path(result.stdout.strip())
+            packet = json.loads(packet_path.read_text())
+            self.assertNotIn("graph_context", packet["metadata"])
+            self.assertNotIn("graph_context_note", packet["metadata"])
+
+    def test_sync_decision_graph_keeps_result_packet_fields_queryable(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            result_packet = {
+                "schema_version": "1.0.0",
+                "packet_type": "result",
+                "packet_id": "result-graph-fields",
+                "trace_id": "trace-1",
+                "parent_packet_id": "packet-1",
+                "created_at": "2026-03-18T00:00:00Z",
+                "from_agent": "builder",
+                "to_agent": "tower",
+                "status": "blocked",
+                "summary": "Blocked on missing API token",
+                "work_completed": ["Implemented adapter wiring"],
+                "artifacts_changed": ["src/app.py"],
+                "artifacts_created": ["tests/test_app.py"],
+                "artifacts_deleted": [],
+                "findings": ["Token is required for staging API access."],
+                "follow_up_recommendations": ["Provision staging token"],
+                "review_requested": False,
+                "doc_update_needed": False,
+                "memory_worthy": ["Staging token is required before integration tests"],
+                "metrics": {"tokens_used": 11, "files_touched": 2, "tests_added": 1, "tests_passed": 0},
+                "raw_output_ref": None,
+                "metadata": {},
+            }
+            result_path = tower_dir(root) / "packets" / "inbox" / "builder-result.json"
+            result_path.parent.mkdir(parents=True, exist_ok=True)
+            result_path.write_text(json.dumps(result_packet) + "\n")
+
+            sync_decision_graph(root)
+            packet_node = load_graph_nodes(root)["nodes"]["packet:result-graph-fields"]
+            self.assertEqual("Blocked on missing API token", packet_node["summary"])
+            self.assertEqual(["Implemented adapter wiring"], packet_node["work_completed"])
+            self.assertEqual(["Token is required for staging API access."], packet_node["findings"])
+            self.assertEqual(["src/app.py"], packet_node["artifacts_changed"])
+            self.assertEqual(11, packet_node["metrics"]["tokens_used"])
 
     def test_task_packet_validation_requires_time_budget(self) -> None:
         packet = {
