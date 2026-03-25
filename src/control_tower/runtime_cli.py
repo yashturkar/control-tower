@@ -9,8 +9,9 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
+from .agents import list_registered_agents
+from .backends import run_exec
 from .bootstrap import init_project
-from .codex_cli import run_exec
 from .docs_harness import docs_harness_context_refs
 from .graph import (
     append_graph_events,
@@ -102,7 +103,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     explain_target.add_argument("--decision", help="Decision id to explain")
 
     create_parser = subparsers.add_parser("create-packet", help="Create a TaskPacket for a subagent")
-    create_parser.add_argument("agent", choices=["builder", "inspector", "scout", "git-master", "scribe"])
+    create_parser.add_argument("agent")
     create_parser.add_argument("--title", required=True, help="Short task title")
     create_parser.add_argument("--objective", required=True, help="Task objective")
     create_parser.add_argument("--task-type", help="Task type label")
@@ -127,8 +128,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     create_parser.add_argument("--from-result", help="Path to a ResultPacket JSON file to seed trace, parent, and artifacts")
     create_parser.add_argument("--output", help="Path to write the TaskPacket JSON file")
 
-    delegate_parser = subparsers.add_parser("delegate", help="Run a subagent through codex exec")
-    delegate_parser.add_argument("agent", choices=["builder", "inspector", "scout", "git-master", "scribe"])
+    delegate_parser = subparsers.add_parser("delegate", help="Run a subagent through a headless backend")
+    delegate_parser.add_argument("agent")
     delegate_parser.add_argument("--packet", required=True, help="Path to a TaskPacket JSON file")
     delegate_parser.add_argument("--output", help="Path for the ResultPacket JSON output")
     delegate_parser.add_argument("--model", help="Optional Codex model override")
@@ -230,7 +231,7 @@ def cmd_create_packet(project_root: Path, args: argparse.Namespace) -> int:
     packet = create_task_packet(
         from_agent=args.from_agent,
         to_agent=args.agent,
-        task_type=args.task_type or DEFAULT_TASK_TYPES[args.agent],
+        task_type=args.task_type or DEFAULT_TASK_TYPES.get(args.agent, agent_config.get("role", "custom")),
         priority=args.priority,
         project_id=project_id,
         session_id=session_id,
@@ -485,11 +486,13 @@ def cmd_delegate(
     effective_model = model or agent_config.get("model")
     effective_dangerous = dangerous if dangerous is not None else bool(agent_config.get("dangerously_bypass", False))
     effective_sandbox = None if effective_dangerous else (sandbox or agent_config.get("sandbox") or "workspace-write")
+    effective_backend = str(agent_config.get("backend", "codex"))
     exit_code = run_exec(
         project_root,
         prompt,
         output_schema=schema_path,
         output_path=output_path,
+        backend=effective_backend,
         model=effective_model,
         sandbox=effective_sandbox,
         dangerous=effective_dangerous,

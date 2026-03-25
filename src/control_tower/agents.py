@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from .backends import DEFAULT_BACKEND, VALID_BACKENDS
+
 
 @dataclass(frozen=True)
 class AgentDefinition:
@@ -13,6 +15,7 @@ class AgentDefinition:
     default_search: bool
     default_dangerously_bypass: bool = False
     default_sandbox: str = "workspace-write"
+    default_backend: str = DEFAULT_BACKEND
 
 
 AGENT_DEFINITIONS = [
@@ -63,20 +66,70 @@ AGENT_DEFINITIONS = [
     ),
 ]
 
+BUILTIN_AGENT_KEYS = frozenset(d.key for d in AGENT_DEFINITIONS)
+
+
+def _agent_entry(definition: AgentDefinition) -> dict[str, object]:
+    return {
+        "name": definition.display_name,
+        "role": definition.role,
+        "description": definition.description,
+        "enabled": definition.default_enabled,
+        "model": None,
+        "dangerously_bypass": definition.default_dangerously_bypass,
+        "sandbox": definition.default_sandbox,
+        "search": definition.default_search,
+        "backend": definition.default_backend,
+    }
+
 
 def default_agent_registry() -> dict[str, dict[str, object]]:
     return {
         "agents": {
-            definition.key: {
-                "name": definition.display_name,
-                "role": definition.role,
-                "description": definition.description,
-                "enabled": definition.default_enabled,
-                "model": None,
-                "dangerously_bypass": definition.default_dangerously_bypass,
-                "sandbox": definition.default_sandbox,
-                "search": definition.default_search,
-            }
+            definition.key: _agent_entry(definition)
             for definition in AGENT_DEFINITIONS
         }
     }
+
+
+def make_custom_agent_entry(
+    name: str,
+    role: str,
+    description: str,
+    *,
+    enabled: bool = True,
+    model: str | None = None,
+    dangerously_bypass: bool = False,
+    sandbox: str = "workspace-write",
+    search: bool = False,
+    backend: str = DEFAULT_BACKEND,
+    prompt_file: str | None = None,
+) -> dict[str, object]:
+    if backend not in VALID_BACKENDS:
+        raise ValueError(f"Invalid backend {backend!r}. Valid: {', '.join(VALID_BACKENDS)}")
+    entry: dict[str, object] = {
+        "name": name,
+        "role": role,
+        "description": description,
+        "enabled": enabled,
+        "model": model,
+        "dangerously_bypass": dangerously_bypass,
+        "sandbox": sandbox,
+        "search": search,
+        "backend": backend,
+        "custom": True,
+    }
+    if prompt_file:
+        entry["prompt_file"] = prompt_file
+    return entry
+
+
+def list_registered_agents(registry: dict[str, dict[str, object]]) -> list[str]:
+    return list(registry.get("agents", {}).keys())
+
+
+def list_enabled_agents(registry: dict[str, dict[str, object]]) -> list[str]:
+    return [
+        key for key, config in registry.get("agents", {}).items()
+        if config.get("enabled")
+    ]

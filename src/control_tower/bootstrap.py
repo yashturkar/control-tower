@@ -6,10 +6,10 @@ from datetime import datetime, timezone
 from importlib import resources
 from pathlib import Path
 
-from .agents import default_agent_registry
+from .agents import BUILTIN_AGENT_KEYS, default_agent_registry
 from .docs_harness import detect_docs_harness
 from .layout import tower_dir
-from .project import load_runtime_state, save_runtime_state
+from .project import load_agent_registry, load_runtime_state, save_runtime_state
 
 
 def _template_root() -> Path:
@@ -68,4 +68,35 @@ def init_project(project_root: Path, force: bool = False) -> Path:
     if not runtime.get("session_import_cutoff"):
         runtime["session_import_cutoff"] = _iso_now()
         save_runtime_state(project_root, runtime)
+
+    _scaffold_custom_agent_dirs(project_root, destination)
+
     return destination
+
+
+def _scaffold_custom_agent_dirs(project_root: Path, destination: Path) -> None:
+    registry = load_agent_registry(project_root)
+    for agent_key, agent_config in registry.get("agents", {}).items():
+        if agent_key in BUILTIN_AGENT_KEYS:
+            continue
+        if not agent_config.get("custom"):
+            continue
+        agent_dir = destination / "agents" / agent_key
+        agent_dir.mkdir(parents=True, exist_ok=True)
+        prompt_file = agent_config.get("prompt_file")
+        if prompt_file:
+            prompt_path = project_root / str(prompt_file)
+            if not prompt_path.exists():
+                prompt_path.parent.mkdir(parents=True, exist_ok=True)
+                name = agent_config.get("name", agent_key)
+                role = agent_config.get("role", "custom")
+                description = agent_config.get("description", "")
+                prompt_path.write_text(
+                    f"# {name}\n\n"
+                    f"Role: {role}\n\n"
+                    f"## Responsibilities\n\n"
+                    f"{description}\n\n"
+                    f"## Constraints\n\n"
+                    f"- Return only a JSON ResultPacket.\n"
+                    f"- Do not wrap JSON in markdown.\n"
+                )
