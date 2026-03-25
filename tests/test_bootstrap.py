@@ -1208,6 +1208,70 @@ class BootstrapTests(unittest.TestCase):
             self.assertTrue(graph_context["active_decisions"])
             self.assertIn("current_branch", graph_context)
 
+    def test_runtime_cli_create_packet_skips_empty_graph_context(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "sample-project"
+            root.mkdir()
+            subprocess.run(["git", "init"], cwd=root, check=True, capture_output=True)
+            env = os.environ.copy()
+            env["PYTHONPATH"] = str(Path(__file__).resolve().parents[1] / "src")
+
+            subprocess.run(
+                ["python3", "-m", "control_tower.cli", "init", "--defaults"],
+                cwd=root,
+                env=env,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            graph_state_dir = tower_dir(root) / "state" / "decision-graph"
+            (graph_state_dir / "indexes.json").write_text(
+                json.dumps(
+                    {
+                        "active_decisions": [],
+                        "inferred_decisions": [],
+                        "superseded_decisions": [],
+                        "open_questions": [],
+                        "known_risks": [],
+                        "current_tasks": [],
+                        "recent_commits": [],
+                        "unexplained_commits": [],
+                        "session_links": {},
+                        "last_graph_sync": "never",
+                        "current_branch": "unknown",
+                    }
+                )
+                + "\n"
+            )
+            (graph_state_dir / "nodes.json").write_text(json.dumps({"nodes": {}}) + "\n")
+            result = subprocess.run(
+                [
+                    "python3",
+                    "-m",
+                    "control_tower.runtime_cli",
+                    "create-packet",
+                    "builder",
+                    "--title",
+                    "Implement feature X",
+                    "--objective",
+                    "Add feature X and tests",
+                    "--expected-output",
+                    "Updated source and tests",
+                    "--definition-of-done",
+                    "Feature X works and tests pass",
+                ],
+                cwd=root,
+                env=env,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            packet_path = Path(result.stdout.strip())
+            packet = json.loads(packet_path.read_text())
+            self.assertNotIn("graph_context", packet["metadata"])
+            self.assertNotIn("graph_context_note", packet["metadata"])
+
     def test_sync_decision_graph_keeps_result_packet_fields_queryable(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

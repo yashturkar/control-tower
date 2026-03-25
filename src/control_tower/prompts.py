@@ -6,6 +6,8 @@ from .docs_harness import docs_harness_context_refs
 from .layout import tower_dir
 from .project import load_agent_registry, load_graph_indexes, load_graph_nodes, load_project_config, read_text
 
+MAX_GRAPH_CONTEXT_ITEMS = 3
+
 
 def build_tower_prompt(project_root: Path, user_prompt: str | None = None) -> str:
     base = tower_dir(project_root)
@@ -46,51 +48,7 @@ def build_tower_prompt(project_root: Path, user_prompt: str | None = None) -> st
             "",
         ]
 
-    graph_indexes = load_graph_indexes(project_root)
-    graph_nodes = load_graph_nodes(project_root).get("nodes", {})
-    active_decisions = list(graph_indexes.get("active_decisions", []))[:3]
-    open_questions = list(graph_indexes.get("open_questions", []))[:3]
-    current_tasks = list(graph_indexes.get("current_tasks", []))[:3]
-    unresolved_blockers = [
-        node_id
-        for node_id, node in graph_nodes.items()
-        if node.get("type") == "packet" and node.get("packet_type") == "result" and node.get("status") == "blocked"
-    ][:3]
-    recent_outcomes = [
-        node
-        for node in sorted(
-            (
-                candidate
-                for candidate in graph_nodes.values()
-                if candidate.get("type") == "packet" and candidate.get("packet_type") == "result"
-            ),
-            key=lambda candidate: str(candidate.get("created_at", "")),
-            reverse=True,
-        )[:3]
-    ]
-    graph_section = [
-        "## Decision Graph Operational Snapshot",
-        "",
-        f"- Active decisions: {', '.join(active_decisions) if active_decisions else 'none'}",
-        f"- Open questions: {', '.join(open_questions) if open_questions else 'none'}",
-        f"- Current tasks: {', '.join(current_tasks) if current_tasks else 'none'}",
-        f"- Unresolved blockers: {', '.join(unresolved_blockers) if unresolved_blockers else 'none'}",
-        f"- Recent commits: {', '.join(graph_indexes.get('recent_commits', [])[:3]) or 'none'}",
-        f"- Current branch: {graph_indexes.get('current_branch', 'unknown')}",
-        "",
-        "Recent agent outcomes from graph packet nodes:",
-        *(
-            [
-                f"- {node.get('id')}: {node.get('from_agent', 'unknown')} [{node.get('status', 'unknown')}] "
-                f"{node.get('summary') or node.get('title') or ''}".rstrip()
-                for node in recent_outcomes
-            ]
-            or ["- none"]
-        ),
-        "",
-        "Graph context consulted from `.control-tower/state/decision-graph/indexes.json` and `nodes.json`.",
-        "",
-    ]
+    graph_section = _build_graph_section(project_root)
 
     sections = [
         f"You are {config.get('primary_agent', 'Tower')} for the project `{config.get('project_name', project_root.name)}`.",
@@ -131,6 +89,81 @@ def build_tower_prompt(project_root: Path, user_prompt: str | None = None) -> st
         user_prompt.strip() if user_prompt else "Resume control of the project and report the next best action.",
     ]
     return "\n".join(sections).strip() + "\n"
+
+
+def _build_graph_section(project_root: Path) -> list[str]:
+    try:
+        graph_indexes = load_graph_indexes(project_root)
+        graph_nodes = load_graph_nodes(project_root).get("nodes", {})
+    except Exception:
+        return [
+            "## Decision Graph Operational Snapshot",
+            "",
+            "Graph context unavailable due to malformed graph state files.",
+            "",
+        ]
+    if not isinstance(graph_nodes, dict):
+        graph_nodes = {}
+
+    active_decisions = list(graph_indexes.get("active_decisions", []))[:MAX_GRAPH_CONTEXT_ITEMS]
+    open_questions = list(graph_indexes.get("open_questions", []))[:MAX_GRAPH_CONTEXT_ITEMS]
+    current_tasks = list(graph_indexes.get("current_tasks", []))[:MAX_GRAPH_CONTEXT_ITEMS]
+    indexed_blockers = graph_indexes.get("unresolved_blockers", [])
+    if isinstance(indexed_blockers, list) and indexed_blockers:
+        unresolved_blockers = indexed_blockers[:MAX_GRAPH_CONTEXT_ITEMS]
+    else:
+        # Prefer unresolved blockers from indexes when available; otherwise derive from blocked result packets.
+        unresolved_blockers = _extract_blocked_packet_ids(graph_nodes)[:MAX_GRAPH_CONTEXT_ITEMS]
+
+    # created_at values are expected to be ISO 8601 timestamps when present.
+    recent_outcomes = [
+        node
+        for node in sorted(
+            (
+                candidate
+                for candidate in graph_nodes.values()
+                if isinstance(candidate, dict) and candidate.get("type") == "packet" and candidate.get("packet_type") == "result"
+            ),
+            key=lambda candidate: str(candidate.get("created_at", "")),
+            reverse=True,
+        )[:MAX_GRAPH_CONTEXT_ITEMS]
+    ]
+    recent_commits = list(graph_indexes.get("recent_commits", []))[:MAX_GRAPH_CONTEXT_ITEMS]
+
+    return [
+        "## Decision Graph Operational Snapshot",
+        "",
+        f"- Active decisions: {', '.join(active_decisions) if active_decisions else 'none'}",
+        f"- Open questions: {', '.join(open_questions) if open_questions else 'none'}",
+        f"- Current tasks: {', '.join(current_tasks) if current_tasks else 'none'}",
+        f"- Unresolved blockers: {', '.join(unresolved_blockers) if unresolved_blockers else 'none'}",
+        f"- Recent commits: {', '.join(recent_commits) if recent_commits else 'none'}",
+        f"- Current branch: {graph_indexes.get('current_branch', 'unknown')}",
+        "",
+        "Recent agent outcomes from graph packet nodes:",
+        *(
+            [
+                f"- {node.get('id')}: {node.get('from_agent', 'unknown')} [{node.get('status', 'unknown')}] "
+                f"{node.get('summary') or node.get('title') or ''}".rstrip()
+                for node in recent_outcomes
+            ]
+            or ["- none"]
+        ),
+        "",
+        "Graph context consulted from `.control-tower/state/decision-graph/indexes.json` and `nodes.json`.",
+        "",
+    ]
+
+
+def _extract_blocked_packet_ids(graph_nodes: dict[str, object]) -> list[str]:
+    return [
+        node_id
+        for node_id, node in graph_nodes.items()
+        if isinstance(node, dict)
+        and node.get("type") == "packet"
+        and node.get("packet_type") == "result"
+        and node.get("status") == "blocked"
+    ]
 
 
 def build_subagent_prompt(project_root: Path, agent: str, packet_text: str) -> str:

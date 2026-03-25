@@ -46,6 +46,7 @@ DEFAULT_TASK_TYPES = {
     "git-master": "git-operations",
     "scribe": "documentation",
 }
+MAX_GRAPH_CONTEXT_ITEMS = 3
 
 
 def _positive_int(value: str) -> int:
@@ -239,6 +240,7 @@ def cmd_create_packet(project_root: Path, args: argparse.Namespace) -> int:
             for node in nodes.values()
             if node.get("type") == "packet" and node.get("packet_type") == "result"
         ]
+        # created_at values are expected to be ISO 8601 timestamps when present.
         sorted_result_packet_nodes = sorted(
             result_packet_nodes,
             key=lambda node: str(node.get("created_at", "")),
@@ -248,17 +250,24 @@ def cmd_create_packet(project_root: Path, args: argparse.Namespace) -> int:
             node.get("id")
             for node in sorted_result_packet_nodes
             if node.get("id")
-        ][:3]
-        metadata["graph_context"] = {
-            "active_decisions": list(indexes.get("active_decisions", []))[:3],
-            "open_questions": list(indexes.get("open_questions", []))[:3],
-            "known_risks": list(indexes.get("known_risks", []))[:3],
-            "current_tasks": list(indexes.get("current_tasks", []))[:3],
+        ][:MAX_GRAPH_CONTEXT_ITEMS]
+        graph_context = {
+            "active_decisions": list(indexes.get("active_decisions", []))[:MAX_GRAPH_CONTEXT_ITEMS],
+            "open_questions": list(indexes.get("open_questions", []))[:MAX_GRAPH_CONTEXT_ITEMS],
+            "known_risks": list(indexes.get("known_risks", []))[:MAX_GRAPH_CONTEXT_ITEMS],
+            "current_tasks": list(indexes.get("current_tasks", []))[:MAX_GRAPH_CONTEXT_ITEMS],
             "recent_result_packets": recent_result_packets,
-            "unexplained_commits": list(indexes.get("unexplained_commits", []))[:3],
+            "unexplained_commits": list(indexes.get("unexplained_commits", []))[:MAX_GRAPH_CONTEXT_ITEMS],
             "current_branch": indexes.get("current_branch", "unknown"),
         }
-        metadata["graph_context_note"] = "Seeded from decision graph indexes/nodes at packet creation time."
+        signal_lists = [
+            value
+            for key, value in graph_context.items()
+            if key != "current_branch" and isinstance(value, list)
+        ]
+        if any(signal_lists):
+            metadata["graph_context"] = graph_context
+            metadata["graph_context_note"] = "Seeded from decision graph indexes/nodes at packet creation time."
 
     packet = create_task_packet(
         from_agent=args.from_agent,
