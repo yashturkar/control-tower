@@ -85,7 +85,9 @@ def _scaffold_custom_agent_dirs(project_root: Path, destination: Path) -> None:
         agent_dir.mkdir(parents=True, exist_ok=True)
         prompt_file = agent_config.get("prompt_file")
         if prompt_file:
-            prompt_path = project_root / str(prompt_file)
+            prompt_path = (project_root / str(prompt_file)).resolve()
+            if not prompt_path.resolve().is_relative_to(project_root.resolve()):
+                continue
             if not prompt_path.exists():
                 prompt_path.parent.mkdir(parents=True, exist_ok=True)
                 name = agent_config.get("name", agent_key)

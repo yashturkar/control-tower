@@ -21,8 +21,9 @@ def build_tower_prompt(project_root: Path, user_prompt: str | None = None) -> st
         if agent_config.get("enabled")
     ]
     agent_files = [".control-tower/agents/tower/prompt.md"] + [
-        _agent_prompt_path(agent_key, registry["agents"][agent_key])
+        path
         for agent_key in enabled_agents
+        if (path := _agent_prompt_path(project_root, agent_key, registry["agents"][agent_key])) is not None
     ]
     configured_agents = []
     for agent_key in enabled_agents:
@@ -131,15 +132,40 @@ def build_subagent_prompt(project_root: Path, agent: str, packet_text: str) -> s
     return "\n".join(sections).strip() + "\n"
 
 
-def _agent_prompt_path(agent_key: str, agent_config: dict[str, object]) -> str:
+def _agent_prompt_path(project_root: Path, agent_key: str, agent_config: dict[str, object]) -> str | None:
+    """Return the prompt file path for an agent, or None if no file exists."""
     if agent_config.get("prompt_file"):
-        return str(agent_config["prompt_file"])
-    return f".control-tower/agents/{agent_key}/prompt.md"
+        raw = str(agent_config["prompt_file"])
+        resolved = (project_root / raw).resolve()
+        if not _is_within(resolved, project_root.resolve()):
+            return None
+        if resolved.exists():
+            return raw
+        return None
+    default = f".control-tower/agents/{agent_key}/prompt.md"
+    if (project_root / default).exists():
+        return default
+    return None
+
+
+def _is_within(path: Path, root: Path) -> bool:
+    """Return True if *path* is the same as or contained within *root*."""
+    try:
+        path.resolve().relative_to(root.resolve())
+        return True
+    except ValueError:
+        return False
 
 
 def _load_agent_prompt(project_root: Path, agent: str, agent_config: dict[str, object]) -> str:
     if agent_config.get("prompt_file"):
-        prompt_path = project_root / str(agent_config["prompt_file"])
+        raw = str(agent_config["prompt_file"])
+        prompt_path = (project_root / raw).resolve()
+        if not _is_within(prompt_path, project_root.resolve()):
+            raise ValueError(
+                f"Invalid prompt_file path for agent '{agent}': {raw!r}. "
+                "The prompt_file must be located within the project root."
+            )
         content = read_text(prompt_path).strip()
         if content:
             return content

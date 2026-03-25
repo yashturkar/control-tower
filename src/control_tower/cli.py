@@ -28,11 +28,11 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     init_parser.add_argument("--force", action="store_true", help="Overwrite existing bootstrap files")
     init_parser.add_argument("--defaults", action="store_true", help="Skip the interactive init UI and keep default agent settings")
 
-    start_parser = subparsers.add_parser("start", help="Start a Tower Codex session")
+    start_parser = subparsers.add_parser("start", help="Start a new Tower session")
     _add_codex_options(start_parser)
     start_parser.add_argument("prompt", nargs="*", help="Optional initial Tower prompt")
 
-    resume_parser = subparsers.add_parser("resume", help="Resume the last Tower Codex session")
+    resume_parser = subparsers.add_parser("resume", help="Resume the last Tower session")
     _add_codex_options(resume_parser)
     resume_parser.add_argument("prompt", nargs="*", help="Optional resume prompt")
 
