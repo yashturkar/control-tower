@@ -23,15 +23,15 @@ BACKEND_MODELS: dict[str, list[str]] = {
     "gemini": [
         "gemini-2.5-pro",
         "gemini-2.5-flash",
+        "gemini-2.5-flash-lite",
         "gemini-2.0-flash",
-        "gemini-2.0-flash-lite",
     ],
     "cursor": [
-        "compose-2",
-        "claude-sonnet-4-20250514",
-        "gpt-4.1",
-        "gemini-2.5-pro",
-        "cursor-small",
+        "composer-2",
+        "opus-4.6-thinking",
+        "sonnet-4.6-thinking",
+        "gpt-5.4-high",
+        "auto",
     ],
 }
 INIT_BANNER = [
