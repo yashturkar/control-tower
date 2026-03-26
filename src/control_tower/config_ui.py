@@ -186,7 +186,8 @@ def _configure_agents_custom(registry: dict[str, dict[str, object]], project_roo
         sandbox = str(current.get("sandbox", definition.default_sandbox))
         search = bool(current.get("search", definition.default_search))
         dangerously_bypass = bool(current.get("dangerously_bypass", definition.default_dangerously_bypass))
-        backend = str(current.get("backend", definition.default_backend))
+        backend_raw = current.get("backend", definition.default_backend)
+        backend = str(backend_raw) if backend_raw and str(backend_raw) in VALID_BACKENDS else definition.default_backend
 
         if enabled:
             backend = _prompt_choice("Backend", list(VALID_BACKENDS), backend)
@@ -216,14 +217,16 @@ def _configure_agents_custom(registry: dict[str, dict[str, object]], project_roo
         print(f"  {config.get('description', 'No description')}")
         enabled = _prompt_yes_no("Keep this agent enabled", bool(config.get("enabled", True)))
         if enabled:
-            backend = _prompt_choice("Backend", list(VALID_BACKENDS), str(config.get("backend", "codex")))
+            backend_raw = config.get("backend")
+            backend_default = str(backend_raw) if backend_raw and str(backend_raw) in VALID_BACKENDS else "codex"
+            backend = _prompt_choice("Backend", list(VALID_BACKENDS), backend_default)
             model = _prompt_text("Model override", str(config.get("model") or ""), allow_blank=True)
             dangerously_bypass = _prompt_yes_no("Use dangerous bypass", bool(config.get("dangerously_bypass", False)))
             sandbox = config.get("sandbox", "workspace-write")
             if not dangerously_bypass:
                 sandbox = _prompt_choice("Sandbox", SANDBOX_OPTIONS, str(sandbox))
         else:
-            backend = str(config.get("backend", "codex"))
+            backend = str(config.get("backend") or "codex") if config.get("backend") and str(config["backend"]) in VALID_BACKENDS else "codex"
             model = config.get("model") or ""
             dangerously_bypass = bool(config.get("dangerously_bypass", False))
             sandbox = config.get("sandbox", "workspace-write")
@@ -260,7 +263,7 @@ def _create_custom_agent_interactive(
     project_root: Path,
     existing: dict[str, dict[str, object]],
 ) -> tuple[str, dict[str, object]] | None:
-    name = _prompt_text("Agent display name", "", allow_blank=False)
+    name = _prompt_text("Agent display name (blank to cancel)", "", allow_blank=True)
     if not name:
         return None
     key = _slugify(name)
@@ -269,7 +272,7 @@ def _create_custom_agent_interactive(
         return None
 
     role = _prompt_text("Role (e.g. security-review, migration, infra)", "custom", allow_blank=False)
-    description = _prompt_text("Description", "", allow_blank=False)
+    description = _prompt_text("Description (blank to cancel)", "", allow_blank=True)
     if not description:
         return None
 

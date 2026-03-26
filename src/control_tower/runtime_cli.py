@@ -230,7 +230,7 @@ def cmd_create_packet(project_root: Path, args: argparse.Namespace) -> int:
     packet = create_task_packet(
         from_agent=args.from_agent,
         to_agent=args.agent,
-        task_type=args.task_type or DEFAULT_TASK_TYPES.get(args.agent, agent_config.get("role", "custom")),
+        task_type=args.task_type or DEFAULT_TASK_TYPES.get(args.agent, agent_config.get("role") or "custom"),
         priority=args.priority,
         project_id=project_id,
         session_id=session_id,
@@ -485,7 +485,7 @@ def cmd_delegate(
     effective_model = model or agent_config.get("model")
     effective_dangerous = dangerous if dangerous is not None else bool(agent_config.get("dangerously_bypass", False))
     effective_sandbox = None if effective_dangerous else (sandbox or agent_config.get("sandbox") or "workspace-write")
-    effective_backend = str(agent_config.get("backend", "codex"))
+    effective_backend = agent_config.get("backend") or "codex"
     exit_code = run_exec(
         project_root,
         prompt,
