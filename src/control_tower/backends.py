@@ -137,12 +137,15 @@ def _cursor_interactive(
     prompt: str | None,
     model: str | None = None,
     sandbox: str | None = None,
+    dangerous: bool = False,
     **_kwargs: object,
 ) -> int:
-    args = ["cursor", "--headless"]
+    args = ["agent", "--workspace", str(project_root)]
     if model:
         args.extend(["--model", model])
-    if sandbox:
+    if dangerous:
+        args.append("--force")
+    elif sandbox:
         args.extend(["--sandbox", sandbox])
     if prompt:
         args.append(prompt)
@@ -157,15 +160,28 @@ def _cursor_exec(
     output_path: Path,
     model: str | None = None,
     sandbox: str | None = None,
+    dangerous: bool = False,
     **_kwargs: object,
 ) -> int:
-    args = ["cursor", "--headless", "exec", "--output-schema", str(output_schema), "-o", str(output_path)]
+    args = [
+        "agent", "-p",
+        "--workspace", str(project_root),
+        "--output-format", "json",
+    ]
     if model:
         args.extend(["--model", model])
-    if sandbox:
+    if dangerous:
+        args.append("--force")
+    elif sandbox:
         args.extend(["--sandbox", sandbox])
     args.append(prompt)
-    result = subprocess.run(args, cwd=project_root, env=_common_env())
+    result = subprocess.run(
+        args, cwd=project_root, env=_common_env(),
+        capture_output=True, text=True,
+    )
+    if result.returncode == 0 and result.stdout.strip():
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        Path(output_path).write_text(result.stdout)
     return result.returncode
 
 
@@ -197,7 +213,7 @@ def run_interactive(
         )
     if backend == "cursor":
         return _cursor_interactive(
-            project_root, prompt, model=model, sandbox=sandbox,
+            project_root, prompt, model=model, sandbox=sandbox, dangerous=dangerous,
         )
     raise ValueError(f"Unknown backend: {backend!r}. Valid backends: {', '.join(VALID_BACKENDS)}")
 
@@ -225,6 +241,6 @@ def run_exec(
     if backend == "cursor":
         return _cursor_exec(
             project_root, prompt, output_schema, output_path,
-            model=model, sandbox=sandbox,
+            model=model, sandbox=sandbox, dangerous=dangerous,
         )
     raise ValueError(f"Unknown backend: {backend!r}. Valid backends: {', '.join(VALID_BACKENDS)}")
