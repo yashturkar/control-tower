@@ -292,7 +292,7 @@ def _create_custom_agent_interactive(
         print(f"Agent key '{key}' already exists. Choose a different name.")
         return None
 
-    role = _prompt_text("Role (e.g. security-review, migration, infra)", "custom", allow_blank=False)
+    role = _prompt_text("Role (e.g. security-review, migration, infra)", "custom")
     description = _prompt_text("Description (blank to cancel)", "", allow_blank=True)
     if not description:
         return None
@@ -394,6 +394,7 @@ def _prompt_text(label: str, default: str, allow_blank: bool = False) -> str:
             return ""
         if default:
             return default
+        print("A value is required. Please try again.")
 
 
 def _prompt_yes_no(label: str, default: bool) -> bool:
