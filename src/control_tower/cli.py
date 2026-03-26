@@ -8,9 +8,9 @@ import sys
 from pathlib import Path
 
 from . import __version__
+from .backends import VALID_BACKENDS, run_interactive
 from .config_ui import configure_project_interactively, should_prompt_for_init_ui
 from .bootstrap import init_project
-from .codex_cli import run_interactive
 from .docs_harness import ensure_docs_harness
 from .layout import find_project_root, tower_dir
 from .memory import mark_runtime_sync
@@ -28,11 +28,11 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     init_parser.add_argument("--force", action="store_true", help="Overwrite existing bootstrap files")
     init_parser.add_argument("--defaults", action="store_true", help="Skip the interactive init UI and keep default agent settings")
 
-    start_parser = subparsers.add_parser("start", help="Start a Tower Codex session")
+    start_parser = subparsers.add_parser("start", help="Start a new Tower session")
     _add_codex_options(start_parser)
     start_parser.add_argument("prompt", nargs="*", help="Optional initial Tower prompt")
 
-    resume_parser = subparsers.add_parser("resume", help="Resume the last Tower Codex session")
+    resume_parser = subparsers.add_parser("resume", help="Resume the last Tower session")
     _add_codex_options(resume_parser)
     resume_parser.add_argument("prompt", nargs="*", help="Optional resume prompt")
 
@@ -46,14 +46,15 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 
 def _add_codex_options(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--model", help="Optional Codex model override")
-    parser.add_argument("--sandbox", help="Codex sandbox mode")
-    parser.add_argument("--approval", help="Codex approval policy")
+    parser.add_argument("--model", help="Optional model override")
+    parser.add_argument("--sandbox", help="Sandbox mode")
+    parser.add_argument("--approval", help="Approval policy")
+    parser.add_argument("--backend", choices=list(VALID_BACKENDS), help="Execution backend (codex, gemini, cursor)")
     parser.add_argument(
         "--search",
         action=argparse.BooleanOptionalAction,
         default=None,
-        help="Enable or disable Codex web search",
+        help="Enable or disable web search",
     )
     parser.add_argument(
         "--dangerous",
@@ -105,6 +106,7 @@ def main(argv: list[str] | None = None) -> int:
             return run_interactive(
                 project_root,
                 assembled,
+                backend=codex_options["backend"],
                 model=codex_options["model"],
                 sandbox=codex_options["sandbox"],
                 approval=codex_options["approval"],
@@ -129,6 +131,7 @@ def main(argv: list[str] | None = None) -> int:
             return run_interactive(
                 project_root,
                 resume_prompt,
+                backend=codex_options["backend"],
                 resume=True,
                 session_id=session_id,
                 model=codex_options["model"],
@@ -153,11 +156,16 @@ def cmd_status(project_root: Path) -> int:
     registry = load_agent_registry(project_root)
     runtime = load_runtime_state(project_root)
     codex_defaults = config.get("codex_defaults", {})
-    active_agents = [
-        agent_config.get("name", agent_key)
-        for agent_key, agent_config in registry.get("agents", {}).items()
-        if agent_config.get("enabled")
-    ]
+    active_agents = []
+    custom_agents = []
+    for agent_key, agent_config in registry.get("agents", {}).items():
+        if agent_config.get("enabled"):
+            name = agent_config.get("name", agent_key)
+            backend = agent_config.get("backend", "codex")
+            label = f"{name} ({backend})" if backend != "codex" else name
+            active_agents.append(label)
+            if agent_config.get("custom"):
+                custom_agents.append(name)
     l0 = (base / "memory" / "l0.md").read_text().strip() if (base / "memory" / "l0.md").exists() else "No L0 snapshot"
     print(f"Project: {config.get('project_name', project_root.name)}")
     print(f"Root: {project_root}")
@@ -166,6 +174,9 @@ def cmd_status(project_root: Path) -> int:
     print(f"Last Tower session: {runtime.get('last_tower_session_id', 'none')}")
     print(f"Last sync: {runtime.get('last_sync_time', 'never')}")
     print(f"Enabled agents: {', '.join(active_agents) if active_agents else 'none'}")
+    if custom_agents:
+        print(f"Custom agents: {', '.join(custom_agents)}")
+    print(f"Default backend: {codex_defaults.get('backend', 'codex')}")
     print(f"Tower dangerous mode: {codex_defaults.get('dangerously_bypass', False)}")
     docs_harness = config.get("docs_harness", {}) if isinstance(config, dict) else {}
     print(f"Docs harness: {'enabled' if docs_harness.get('enabled') else 'disabled'}")
@@ -212,12 +223,14 @@ def cmd_update(project_root: Path) -> int:
 
 def resolve_codex_options(config: dict[str, object], args: argparse.Namespace) -> dict[str, object]:
     defaults = config.get("codex_defaults", {}) if isinstance(config, dict) else {}
+    backend_arg = getattr(args, "backend", None)
     return {
         "model": args.model,
         "sandbox": args.sandbox if args.sandbox is not None else defaults.get("sandbox", "workspace-write"),
         "approval": args.approval if args.approval is not None else defaults.get("approval", "on-request"),
         "search": args.search if args.search is not None else bool(defaults.get("search", False)),
         "dangerous": args.dangerous if args.dangerous is not None else bool(defaults.get("dangerously_bypass", True)),
+        "backend": backend_arg if backend_arg is not None else str(defaults.get("backend", "codex")),
     }
 
 
