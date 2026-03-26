@@ -11,6 +11,28 @@ from .project import load_agent_registry, load_project_config, save_agent_regist
 
 
 SANDBOX_OPTIONS = ["workspace-write", "read-only", "danger-full-access"]
+
+BACKEND_MODELS: dict[str, list[str]] = {
+    "codex": [
+        "o4-mini",
+        "o3",
+        "codex-mini-latest",
+        "gpt-4.1",
+        "o4-mini-high",
+    ],
+    "gemini": [
+        "gemini-2.5-pro",
+        "gemini-2.5-flash",
+        "gemini-2.0-flash",
+        "gemini-2.0-flash-lite",
+    ],
+    "cursor": [
+        "claude-sonnet-4-20250514",
+        "gpt-4.1",
+        "gemini-2.5-pro",
+        "cursor-small",
+    ],
+}
 INIT_BANNER = [
     "                                                                                                    ",
     "                                                                                                    ",
@@ -190,8 +212,7 @@ def _configure_agents_custom(registry: dict[str, dict[str, object]], project_roo
         backend = str(backend_raw) if backend_raw and str(backend_raw) in VALID_BACKENDS else definition.default_backend
 
         if enabled:
-            backend = _prompt_choice("Backend", list(VALID_BACKENDS), backend)
-            model = _prompt_text("Model override", model, allow_blank=True)
+            backend, model = _prompt_backend_and_model(backend, str(model))
             dangerously_bypass = _prompt_yes_no("Use dangerous bypass", dangerously_bypass)
             if not dangerously_bypass:
                 sandbox = _prompt_choice("Sandbox", SANDBOX_OPTIONS, sandbox)
@@ -219,8 +240,7 @@ def _configure_agents_custom(registry: dict[str, dict[str, object]], project_roo
         if enabled:
             backend_raw = config.get("backend")
             backend_default = str(backend_raw) if backend_raw and str(backend_raw) in VALID_BACKENDS else "codex"
-            backend = _prompt_choice("Backend", list(VALID_BACKENDS), backend_default)
-            model = _prompt_text("Model override", str(config.get("model") or ""), allow_blank=True)
+            backend, model = _prompt_backend_and_model(backend_default, str(config.get("model") or ""))
             dangerously_bypass = _prompt_yes_no("Use dangerous bypass", bool(config.get("dangerously_bypass", False)))
             sandbox = config.get("sandbox", "workspace-write")
             if not dangerously_bypass:
@@ -276,8 +296,7 @@ def _create_custom_agent_interactive(
     if not description:
         return None
 
-    backend = _prompt_choice("Backend", list(VALID_BACKENDS), "codex")
-    model = _prompt_text("Model override", "", allow_blank=True)
+    backend, model = _prompt_backend_and_model("codex", "")
     dangerously_bypass = _prompt_yes_no("Use dangerous bypass", False)
     sandbox = "workspace-write"
     if not dangerously_bypass:
@@ -398,3 +417,38 @@ def _prompt_choice(label: str, options: list[str], default: str) -> str:
         if raw in options:
             return raw
         print(f"Choose one of: {joined}")
+
+
+def _prompt_backend_and_model(
+    default_backend: str = "codex",
+    default_model: str = "",
+) -> tuple[str, str]:
+    """Prompt for backend, then show curated model choices for that backend."""
+    backend = _prompt_choice("Backend", list(VALID_BACKENDS), default_backend)
+    models = BACKEND_MODELS.get(backend, [])
+    if not models:
+        model = _prompt_text("Model", default_model, allow_blank=True)
+        return backend, model
+
+    print(f"  Models for {backend}:")
+    for i, m in enumerate(models, 1):
+        tag = " (default)" if i == 1 else ""
+        print(f"    {i}) {m}{tag}")
+    print(f"    {len(models) + 1}) custom")
+
+    while True:
+        current_display = default_model if default_model else models[0]
+        raw = input(f"  Model [{current_display}]: ").strip()
+        if not raw:
+            return backend, default_model or ""
+        if raw.isdigit():
+            idx = int(raw)
+            if 1 <= idx <= len(models):
+                return backend, models[idx - 1]
+            if idx == len(models) + 1:
+                custom = _prompt_text("  Custom model name", "", allow_blank=True)
+                return backend, custom
+            print(f"  Enter 1-{len(models) + 1} or a model name.")
+            continue
+        # Accept a typed-in model name directly
+        return backend, raw
