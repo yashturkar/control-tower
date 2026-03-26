@@ -27,6 +27,7 @@ BACKEND_MODELS: dict[str, list[str]] = {
         "gemini-2.0-flash-lite",
     ],
     "cursor": [
+        "compose-2",
         "claude-sonnet-4-20250514",
         "gpt-4.1",
         "gemini-2.5-pro",
