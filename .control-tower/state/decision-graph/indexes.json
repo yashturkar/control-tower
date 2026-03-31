@@ -1,6 +1,8 @@
 {
   "active_decisions": [],
   "inferred_decisions": [
+    "dec_inferred_01e91bc6-a760-499d-8316-c3f1f17a8ecc_0_commit-93cdca07b6cf480f3ff17da9694103640b051ed3-captures-the-remaining-control-tower-rollout-operational-artifacts",
+    "dec_inferred_01e91bc6-a760-499d-8316-c3f1f17a8ecc_1_main-has-been-pushed-to-origin-and-is-now-synchronized-with-the-remote-at-93cdca07b6cf480f3ff17da9694103640b051ed3",
     "dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_0_control-tower-rollout-bootstrap-is-no-longer-auth-blocked-and-is-recorded-as-a-local-commit-on-main-at-8d9033f06b4ff4a72589972220ddf87832fa7a78",
     "dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_1_operational-state-now-treats-git-master-branch-and-pr-flow-builder-avoidance-of-live-control-tower-state-and-docs-as-the-durable-canonical-docs-store-as-active-rollout-guidance",
     "dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_2_remaining-follow-up-is-limited-to-transient-artifact-review-next-git-handling-for-the-local-commit-convention-codification-in-agent-guidance-and-clarifying-the-imported-auth-goal",
@@ -40,18 +42,18 @@
     "task:tower-session-bootstrap-curation"
   ],
   "recent_commits": [
+    "commit:93cdca07b6cf480f3ff17da9694103640b051ed3",
     "commit:8d9033f06b4ff4a72589972220ddf87832fa7a78",
     "commit:055b1165945e23e28c36b1fab3ed7e83649f9eb2",
     "commit:3d0520a5d24b6e341d16dbc75e0d3e370955fe91",
-    "commit:a1599c84866be543e7ed47eaa37340bc33aa0a94",
-    "commit:143c815a964078176082fb39e700c9d49a969570"
+    "commit:a1599c84866be543e7ed47eaa37340bc33aa0a94"
   ],
   "unexplained_commits": [
+    "commit:93cdca07b6cf480f3ff17da9694103640b051ed3",
     "commit:8d9033f06b4ff4a72589972220ddf87832fa7a78",
     "commit:055b1165945e23e28c36b1fab3ed7e83649f9eb2",
     "commit:3d0520a5d24b6e341d16dbc75e0d3e370955fe91",
-    "commit:a1599c84866be543e7ed47eaa37340bc33aa0a94",
-    "commit:143c815a964078176082fb39e700c9d49a969570"
+    "commit:a1599c84866be543e7ed47eaa37340bc33aa0a94"
   ],
   "session_links": {
     "session:tower-session": [
@@ -62,9 +64,11 @@
       "packet:74bb340a-7924-4d97-a5a6-a38776a5a86e",
       "packet:0559413a-288e-41ae-bbee-9ef6577f0ab1",
       "packet:661c46b8-c47e-4011-a6f9-a7481bbf83f2",
-      "packet:6a40bbc4-e77b-4a86-8c3b-e187c230c1d5"
+      "packet:6a40bbc4-e77b-4a86-8c3b-e187c230c1d5",
+      "packet:d6d0b7d7-74c9-462b-9813-0c70961a21e2",
+      "packet:f98e1644-96d0-4933-8e6a-6f11bfbeaf17"
     ]
   },
-  "last_graph_sync": "2026-03-22T00:40:15Z",
+  "last_graph_sync": "2026-03-22T03:21:08Z",
   "current_branch": "main"
 }

@@ -519,6 +519,106 @@
       "evidence_refs": [
         ".control-tower/packets/outbox/scribe-finalize-rollout-state.result.json"
       ]
+    },
+    {
+      "id": "edge:packet-artifact:d6d0b7d7-74c9-462b-9813-0c70961a21e2:control-tower-packets-outbox-git-master-push-all-rollout-artifacts-json",
+      "type": "references",
+      "from": "packet:d6d0b7d7-74c9-462b-9813-0c70961a21e2",
+      "to": "artifact:.control-tower/packets/outbox/git-master-push-all-rollout-artifacts.json",
+      "created_at": "2026-03-22T00:53:48Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/git-master-push-all-rollout-artifacts.json"
+      ]
+    },
+    {
+      "id": "edge:packet-session:d6d0b7d7-74c9-462b-9813-0c70961a21e2:019d12f0-115b-7a20-a4a0-3a8210a841ee",
+      "type": "discussed_in",
+      "from": "packet:d6d0b7d7-74c9-462b-9813-0c70961a21e2",
+      "to": "session:019d12f0-115b-7a20-a4a0-3a8210a841ee",
+      "created_at": "2026-03-22T00:53:48Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/git-master-push-all-rollout-artifacts.json"
+      ]
+    },
+    {
+      "id": "edge:packet-artifact:01e91bc6-a760-499d-8316-c3f1f17a8ecc:control-tower-packets-outbox-git-master-push-all-rollout-artifacts-result-json",
+      "type": "references",
+      "from": "packet:01e91bc6-a760-499d-8316-c3f1f17a8ecc",
+      "to": "artifact:.control-tower/packets/outbox/git-master-push-all-rollout-artifacts.result.json",
+      "created_at": "2026-03-22T00:54:35Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/git-master-push-all-rollout-artifacts.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-ref:dec_inferred_01e91bc6-a760-499d-8316-c3f1f17a8ecc_0_commit-93cdca07b6cf480f3ff17da9694103640b051ed3-captures-the-remaining-control-tower-rollout-operational-artifacts:control-tower-packets-outbox-git-master-push-all-rollout-artifacts-result-json",
+      "type": "references",
+      "from": "dec_inferred_01e91bc6-a760-499d-8316-c3f1f17a8ecc_0_commit-93cdca07b6cf480f3ff17da9694103640b051ed3-captures-the-remaining-control-tower-rollout-operational-artifacts",
+      "to": "artifact:.control-tower/packets/outbox/git-master-push-all-rollout-artifacts.result.json",
+      "created_at": "2026-03-22T00:55:12Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/git-master-push-all-rollout-artifacts.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-node:dec_inferred_01e91bc6-a760-499d-8316-c3f1f17a8ecc_0_commit-93cdca07b6cf480f3ff17da9694103640b051ed3-captures-the-remaining-control-tower-rollout-operational-artifacts:packet-01e91bc6-a760-499d-8316-c3f1f17a8ecc",
+      "type": "references",
+      "from": "dec_inferred_01e91bc6-a760-499d-8316-c3f1f17a8ecc_0_commit-93cdca07b6cf480f3ff17da9694103640b051ed3-captures-the-remaining-control-tower-rollout-operational-artifacts",
+      "to": "packet:01e91bc6-a760-499d-8316-c3f1f17a8ecc",
+      "created_at": "2026-03-22T00:55:12Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/git-master-push-all-rollout-artifacts.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-ref:dec_inferred_01e91bc6-a760-499d-8316-c3f1f17a8ecc_1_main-has-been-pushed-to-origin-and-is-now-synchronized-with-the-remote-at-93cdca07b6cf480f3ff17da9694103640b051ed3:control-tower-packets-outbox-git-master-push-all-rollout-artifacts-result-json",
+      "type": "references",
+      "from": "dec_inferred_01e91bc6-a760-499d-8316-c3f1f17a8ecc_1_main-has-been-pushed-to-origin-and-is-now-synchronized-with-the-remote-at-93cdca07b6cf480f3ff17da9694103640b051ed3",
+      "to": "artifact:.control-tower/packets/outbox/git-master-push-all-rollout-artifacts.result.json",
+      "created_at": "2026-03-22T00:55:12Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/git-master-push-all-rollout-artifacts.result.json"
+      ]
+    },
+    {
+      "id": "edge:decision-node:dec_inferred_01e91bc6-a760-499d-8316-c3f1f17a8ecc_1_main-has-been-pushed-to-origin-and-is-now-synchronized-with-the-remote-at-93cdca07b6cf480f3ff17da9694103640b051ed3:packet-01e91bc6-a760-499d-8316-c3f1f17a8ecc",
+      "type": "references",
+      "from": "dec_inferred_01e91bc6-a760-499d-8316-c3f1f17a8ecc_1_main-has-been-pushed-to-origin-and-is-now-synchronized-with-the-remote-at-93cdca07b6cf480f3ff17da9694103640b051ed3",
+      "to": "packet:01e91bc6-a760-499d-8316-c3f1f17a8ecc",
+      "created_at": "2026-03-22T00:55:12Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/git-master-push-all-rollout-artifacts.result.json"
+      ]
+    },
+    {
+      "id": "edge:commit-session:93cdca07b6cf480f3ff17da9694103640b051ed3:019d1308-c033-7992-85f9-a90b31fe0513",
+      "type": "caused_by",
+      "from": "commit:93cdca07b6cf480f3ff17da9694103640b051ed3",
+      "to": "session:019d1308-c033-7992-85f9-a90b31fe0513",
+      "created_at": "2026-03-21T17:54:19-07:00",
+      "evidence_refs": [
+        "/Users/yashturkar/Workspace/control-tower/.control-tower/memory/l2/transcripts/019d1308-c033-7992-85f9-a90b31fe0513.md"
+      ]
+    },
+    {
+      "id": "edge:packet-artifact:f98e1644-96d0-4933-8e6a-6f11bfbeaf17:control-tower-packets-outbox-scribe-docs-followup-git-master-20260322t005512z-json",
+      "type": "references",
+      "from": "packet:f98e1644-96d0-4933-8e6a-6f11bfbeaf17",
+      "to": "artifact:.control-tower/packets/outbox/scribe-docs-followup-git-master-20260322T005512Z.json",
+      "created_at": "2026-03-22T00:55:12Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-docs-followup-git-master-20260322T005512Z.json"
+      ]
+    },
+    {
+      "id": "edge:packet-session:f98e1644-96d0-4933-8e6a-6f11bfbeaf17:019d12f0-115b-7a20-a4a0-3a8210a841ee",
+      "type": "discussed_in",
+      "from": "packet:f98e1644-96d0-4933-8e6a-6f11bfbeaf17",
+      "to": "session:019d12f0-115b-7a20-a4a0-3a8210a841ee",
+      "created_at": "2026-03-22T00:55:12Z",
+      "evidence_refs": [
+        ".control-tower/packets/outbox/scribe-docs-followup-git-master-20260322T005512Z.json"
+      ]
     }
   ]
 }

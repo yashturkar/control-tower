@@ -1036,6 +1036,137 @@
       "title": "Git-master and Builder conventions are recommended in state, but not yet codified in their prompts or policy files.",
       "status": "open",
       "source_ref": ".control-tower/docs/state/known-risks.md"
+    },
+    "session:019d1308-c033-7992-85f9-a90b31fe0513": {
+      "id": "session:019d1308-c033-7992-85f9-a90b31fe0513",
+      "type": "session",
+      "session_id": "019d1308-c033-7992-85f9-a90b31fe0513",
+      "timestamp": "2026-03-22T00:53:53.844Z",
+      "source": "exec",
+      "originator": "codex_exec",
+      "transcript_path": ".control-tower/memory/l2/transcripts/019d1308-c033-7992-85f9-a90b31fe0513.md",
+      "session_path": ".control-tower/memory/l2/sessions/019d1308-c033-7992-85f9-a90b31fe0513.jsonl"
+    },
+    "packet:d6d0b7d7-74c9-462b-9813-0c70961a21e2": {
+      "id": "packet:d6d0b7d7-74c9-462b-9813-0c70961a21e2",
+      "type": "packet",
+      "packet_id": "d6d0b7d7-74c9-462b-9813-0c70961a21e2",
+      "packet_type": "task",
+      "title": "Commit remaining Tower operational artifacts and push",
+      "status": null,
+      "trace_id": "3cc89142-4765-4802-b873-a4eca9ec99dc",
+      "from_agent": "tower",
+      "to_agent": "git-master",
+      "path": ".control-tower/packets/outbox/git-master-push-all-rollout-artifacts.json",
+      "created_at": "2026-03-22T00:53:48Z"
+    },
+    "artifact:.control-tower/packets/outbox/git-master-push-all-rollout-artifacts.json": {
+      "id": "artifact:.control-tower/packets/outbox/git-master-push-all-rollout-artifacts.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/git-master-push-all-rollout-artifacts.json",
+      "title": ".control-tower/packets/outbox/git-master-push-all-rollout-artifacts.json",
+      "created_at": "2026-03-22T00:53:48Z"
+    },
+    "packet:01e91bc6-a760-499d-8316-c3f1f17a8ecc": {
+      "id": "packet:01e91bc6-a760-499d-8316-c3f1f17a8ecc",
+      "type": "packet",
+      "packet_id": "01e91bc6-a760-499d-8316-c3f1f17a8ecc",
+      "packet_type": "result",
+      "title": "Staged the remaining `.control-tower/` operational artifacts, created follow-up commit `93cdca07b6cf480f3ff17da9694103640b051ed3` (`chore: capture rollout operational artifacts`), and pushed `main` to `origin`. Final branch state is `main...origin/main` with no residual modified or untracked files.",
+      "status": "success",
+      "trace_id": "3cc89142-4765-4802-b873-a4eca9ec99dc",
+      "from_agent": "git-master",
+      "to_agent": "tower",
+      "path": ".control-tower/packets/outbox/git-master-push-all-rollout-artifacts.result.json",
+      "created_at": "2026-03-22T00:54:35Z"
+    },
+    "artifact:.control-tower/packets/outbox/git-master-push-all-rollout-artifacts.result.json": {
+      "id": "artifact:.control-tower/packets/outbox/git-master-push-all-rollout-artifacts.result.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/git-master-push-all-rollout-artifacts.result.json",
+      "title": ".control-tower/packets/outbox/git-master-push-all-rollout-artifacts.result.json",
+      "created_at": "2026-03-22T00:54:35Z"
+    },
+    "dec_inferred_01e91bc6-a760-499d-8316-c3f1f17a8ecc_0_commit-93cdca07b6cf480f3ff17da9694103640b051ed3-captures-the-remaining-control-tower-rollout-operational-artifacts": {
+      "id": "dec_inferred_01e91bc6-a760-499d-8316-c3f1f17a8ecc_0_commit-93cdca07b6cf480f3ff17da9694103640b051ed3-captures-the-remaining-control-tower-rollout-operational-artifacts",
+      "type": "decision",
+      "topic": "commit-93cdca07b6cf480f3ff17da9694103640b051ed3-captures-the-remaining-control-tower-rollout-operational-artifacts",
+      "title": "Commit `93cdca07b6cf480f3ff17da9694103640b051ed3` captures the remaining Control Tower rollout operational artifacts.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: Commit `93cdca07b6cf480f3ff17da9694103640b051ed3` captures the remaining Control Tower rollout operational artifacts.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/git-master-push-all-rollout-artifacts.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-22T00:55:12Z",
+      "created_by": "git-master"
+    },
+    "dec_inferred_01e91bc6-a760-499d-8316-c3f1f17a8ecc_1_main-has-been-pushed-to-origin-and-is-now-synchronized-with-the-remote-at-93cdca07b6cf480f3ff17da9694103640b051ed3": {
+      "id": "dec_inferred_01e91bc6-a760-499d-8316-c3f1f17a8ecc_1_main-has-been-pushed-to-origin-and-is-now-synchronized-with-the-remote-at-93cdca07b6cf480f3ff17da9694103640b051ed3",
+      "type": "decision",
+      "topic": "main-has-been-pushed-to-origin-and-is-now-synchronized-with-the-remote-at-93cdca07b6cf480f3ff17da9694103640b051ed3",
+      "title": "`main` has been pushed to `origin` and is now synchronized with the remote at `93cdca07b6cf480f3ff17da9694103640b051ed3`.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: `main` has been pushed to `origin` and is now synchronized with the remote at `93cdca07b6cf480f3ff17da9694103640b051ed3`.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/git-master-push-all-rollout-artifacts.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-22T00:55:12Z",
+      "created_by": "git-master"
+    },
+    "event:black-box:9": {
+      "id": "event:black-box:9",
+      "type": "event",
+      "event_type": "codex_session_imported",
+      "timestamp": "2026-03-22T00:53:53.844Z",
+      "payload": {
+        "event_type": "codex_session_imported",
+        "session_id": "019d1308-c033-7992-85f9-a90b31fe0513",
+        "timestamp": "2026-03-22T00:53:53.844Z",
+        "source": "exec",
+        "originator": "codex_exec",
+        "transcript_path": ".control-tower/memory/l2/transcripts/019d1308-c033-7992-85f9-a90b31fe0513.md"
+      }
+    },
+    "commit:93cdca07b6cf480f3ff17da9694103640b051ed3": {
+      "id": "commit:93cdca07b6cf480f3ff17da9694103640b051ed3",
+      "type": "commit",
+      "sha": "93cdca07b6cf480f3ff17da9694103640b051ed3",
+      "parents": [
+        "8d9033f06b4ff4a72589972220ddf87832fa7a78"
+      ],
+      "authored_at": "2026-03-21T17:54:19-07:00",
+      "subject": "chore: capture rollout operational artifacts",
+      "files": []
+    },
+    "packet:f98e1644-96d0-4933-8e6a-6f11bfbeaf17": {
+      "id": "packet:f98e1644-96d0-4933-8e6a-6f11bfbeaf17",
+      "type": "packet",
+      "packet_id": "f98e1644-96d0-4933-8e6a-6f11bfbeaf17",
+      "packet_type": "task",
+      "title": "Update repo docs after Git-Master work",
+      "status": null,
+      "trace_id": "3cc89142-4765-4802-b873-a4eca9ec99dc",
+      "from_agent": "tower",
+      "to_agent": "scribe",
+      "path": ".control-tower/packets/outbox/scribe-docs-followup-git-master-20260322T005512Z.json",
+      "created_at": "2026-03-22T00:55:12Z"
+    },
+    "artifact:.control-tower/packets/outbox/scribe-docs-followup-git-master-20260322T005512Z.json": {
+      "id": "artifact:.control-tower/packets/outbox/scribe-docs-followup-git-master-20260322T005512Z.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/scribe-docs-followup-git-master-20260322T005512Z.json",
+      "title": ".control-tower/packets/outbox/scribe-docs-followup-git-master-20260322T005512Z.json",
+      "created_at": "2026-03-22T00:55:12Z"
     }
   }
 }

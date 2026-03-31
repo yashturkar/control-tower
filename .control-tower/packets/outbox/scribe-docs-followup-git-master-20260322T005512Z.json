@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0.0",
+  "packet_type": "task",
+  "packet_id": "f98e1644-96d0-4933-8e6a-6f11bfbeaf17",
+  "trace_id": "3cc89142-4765-4802-b873-a4eca9ec99dc",
+  "parent_packet_id": null,
+  "created_at": "2026-03-22T00:55:12Z",
+  "from_agent": "tower",
+  "to_agent": "scribe",
+  "task_type": "documentation",
+  "priority": "normal",
+  "project_id": "control-tower",
+  "session_id": "019d12f0-115b-7a20-a4a0-3a8210a841ee",
+  "title": "Update repo docs after Git-Master work",
+  "objective": "Inspect the latest agent result and update the impacted durable repo docs under the configured docs harness.",
+  "instructions": [
+    "Review the referenced ResultPacket and the changed files before editing docs.",
+    "Update existing relevant docs under the configured repo docs roots when possible.",
+    "Create a new repo doc only if no suitable existing page covers the change.",
+    "Refresh docs indices if you add a new page.",
+    "Report doc drift or unresolved ambiguity explicitly instead of inventing facts."
+  ],
+  "constraints": [
+    "Treat repo docs under `docs/` as the durable docs harness.",
+    "Treat `.control-tower/docs/state` and `.control-tower/memory` as operational memory, not durable product docs.",
+    "Do not modify product source code unless the task packet explicitly requires a small doc-adjacent fix."
+  ],
+  "inputs": {
+    "files": [
+      ".control-tower/docs/state/current-status.md",
+      ".control-tower/docs/state/decisions.md",
+      ".control-tower/docs/state/known-risks.md",
+      ".control-tower/docs/state/open-questions.md",
+      ".control-tower/docs/tasks/active.md",
+      ".control-tower/memory/l0.md",
+      ".control-tower/memory/l1.md",
+      ".control-tower/state/decision-graph/edges.json",
+      ".control-tower/state/decision-graph/indexes.json",
+      ".control-tower/state/decision-graph/nodes.json",
+      ".control-tower/state/runtime.json",
+      ".control-tower/state/session-index.json",
+      ".control-tower/state/task-ledger.json",
+      ".control-tower/logs/black-box.jsonl",
+      ".control-tower/memory/l2/sessions/019d12f0-115b-7a20-a4a0-3a8210a841ee.jsonl",
+      ".control-tower/memory/l2/sessions/019d12f0-c5b7-7d33-804a-413e708b33c4.jsonl",
+      ".control-tower/memory/l2/sessions/019d12f1-c4b6-74a2-a3d1-2d2a71ed3eb8.jsonl",
+      ".control-tower/memory/l2/sessions/019d12f2-6cf3-7631-b544-c55013580eaa.jsonl",
+      ".control-tower/memory/l2/sessions/019d12f3-8a99-7cd2-bb62-c86bd0a3c266.jsonl",
+      ".control-tower/memory/l2/sessions/019d12f5-adad-7251-8ea6-37c328be4636.jsonl",
+      ".control-tower/memory/l2/sessions/019d12f6-f51b-7da2-882d-f58e7321b7c1.jsonl",
+      ".control-tower/memory/l2/sessions/019d12f8-098a-7663-983d-3955a8b2f3d1.jsonl",
+      ".control-tower/memory/l2/transcripts/019d12f0-115b-7a20-a4a0-3a8210a841ee.md",
+      ".control-tower/memory/l2/transcripts/019d12f0-c5b7-7d33-804a-413e708b33c4.md",
+      ".control-tower/memory/l2/transcripts/019d12f1-c4b6-74a2-a3d1-2d2a71ed3eb8.md",
+      ".control-tower/memory/l2/transcripts/019d12f2-6cf3-7631-b544-c55013580eaa.md",
+      ".control-tower/memory/l2/transcripts/019d12f3-8a99-7cd2-bb62-c86bd0a3c266.md",
+      ".control-tower/memory/l2/transcripts/019d12f5-adad-7251-8ea6-37c328be4636.md",
+      ".control-tower/memory/l2/transcripts/019d12f6-f51b-7da2-882d-f58e7321b7c1.md",
+      ".control-tower/memory/l2/transcripts/019d12f8-098a-7663-983d-3955a8b2f3d1.md",
+      ".control-tower/packets/outbox/git-master-checkin-rollout.json",
+      ".control-tower/packets/outbox/git-master-checkin-rollout.result.json",
+      ".control-tower/packets/outbox/git-master-push-all-rollout-artifacts.json",
+      ".control-tower/packets/outbox/scout-rollout-conventions.json",
+      ".control-tower/packets/outbox/scout-rollout-conventions.result.json",
+      ".control-tower/packets/outbox/scribe-docs-followup-git-master-20260322T003716Z.json",
+      ".control-tower/packets/outbox/scribe-finalize-rollout-state.json",
+      ".control-tower/packets/outbox/scribe-finalize-rollout-state.result.json",
+      ".control-tower/packets/outbox/scribe-initial-session-state.json",
+      ".control-tower/packets/outbox/scribe-initial-session-state.result.json",
+      ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.json",
+      ".control-tower/packets/outbox/scribe-memory-sync-20260322T003039Z.result.json",
+      ".control-tower/state/decision-graph/events.jsonl"
+    ],
+    "artifacts": [],
+    "references": [
+      ".control-tower/packets/outbox/git-master-push-all-rollout-artifacts.result.json"
+    ]
+  },
+  "expected_outputs": [
+    "Updated repo docs if needed",
+    "A ResultPacket summarizing doc updates, drift, and follow-up gaps"
+  ],
+  "definition_of_done": [
+    "Durable repo docs reflect the changed behavior or workflow",
+    "Relevant indices are refreshed if new docs were added",
+    "Open doc drift or ambiguity is called out explicitly"
+  ],
+  "memory_context_refs": [
+    ".control-tower/packets/outbox/git-master-push-all-rollout-artifacts.result.json"
+  ],
+  "doc_context_refs": [
+    "AGENTS.md",
+    "docs/index.md",
+    "docs/design-docs/index.md",
+    "docs/product-specs/index.md",
+    ".control-tower/docs/state/current-status.md"
+  ],
+  "time_budget": {
+    "soft_seconds": 300,
+    "hard_seconds": 900
+  },
+  "requires_review": false,
+  "allow_partial": true,
+  "metadata": {
+    "generated_by": "tower delegate follow-up",
+    "seed_result_packet": ".control-tower/packets/outbox/git-master-push-all-rollout-artifacts.result.json",
+    "seed_result_agent": "git-master"
+  }
+}

@@ -95,6 +95,18 @@
       "source": "exec",
       "user_message_count": 1,
       "agent_message_count": 1
+    },
+    "019d1308-c033-7992-85f9-a90b31fe0513": {
+      "session_id": "019d1308-c033-7992-85f9-a90b31fe0513",
+      "timestamp": "2026-03-22T00:53:53.844Z",
+      "source_path": "/Users/yashturkar/.codex/sessions/2026/03/21/rollout-2026-03-21T17-53-53-019d1308-c033-7992-85f9-a90b31fe0513.jsonl",
+      "cached_copy": "/Users/yashturkar/Workspace/control-tower/.control-tower/memory/l2/sessions/019d1308-c033-7992-85f9-a90b31fe0513.jsonl",
+      "transcript_path": "/Users/yashturkar/Workspace/control-tower/.control-tower/memory/l2/transcripts/019d1308-c033-7992-85f9-a90b31fe0513.md",
+      "cwd": "/Users/yashturkar/Workspace/control-tower",
+      "originator": "codex_exec",
+      "source": "exec",
+      "user_message_count": 1,
+      "agent_message_count": 1
     }
   }
 }
