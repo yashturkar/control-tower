@@ -806,21 +806,26 @@ class BootstrapTests(unittest.TestCase):
 
             prompts = [
                 "custom",
-                "",
-                "",
-                "",
-                "n",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
+                "",       # builder: enable
+                "",       # builder: backend
+                "",       # builder: model
+                "",       # builder: bypass
+                "n",      # inspector: enable (disabled)
+                "",       # scout: enable
+                "",       # scout: backend
+                "",       # scout: model
+                "",       # scout: bypass
+                "",       # scout: sandbox
+                "",       # git-master: enable
+                "",       # git-master: backend
+                "",       # git-master: model
+                "",       # git-master: bypass
+                "",       # scribe: enable
+                "",       # scribe: backend
+                "",       # scribe: model
+                "",       # scribe: bypass
+                "n",      # add custom agent
+                "",       # docs harness
             ]
             responses = iter(prompts)
 
@@ -860,25 +865,30 @@ class BootstrapTests(unittest.TestCase):
 
             prompts = [
                 "custom",
-                "",
-                "",
-                "n",
-                "danger-full-access",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
+                "",       # builder: enable
+                "",       # builder: backend
+                "",       # builder: model
+                "n",      # builder: bypass=no
+                "danger-full-access",  # builder: sandbox
+                "",       # inspector: enable
+                "",       # inspector: backend
+                "",       # inspector: model
+                "",       # inspector: bypass
+                "",       # scout: enable
+                "",       # scout: backend
+                "",       # scout: model
+                "",       # scout: bypass
+                "",       # scout: sandbox
+                "",       # git-master: enable
+                "",       # git-master: backend
+                "",       # git-master: model
+                "",       # git-master: bypass
+                "",       # scribe: enable
+                "",       # scribe: backend
+                "",       # scribe: model
+                "",       # scribe: bypass
+                "n",      # add custom agent
+                "",       # docs harness
             ]
             responses = iter(prompts)
 
@@ -1801,6 +1811,398 @@ class BootstrapTests(unittest.TestCase):
                 latest = sync_and_capture_latest(root, role="tower")
 
             self.assertEqual("tower-1", latest)
+
+
+class CustomAgentTests(unittest.TestCase):
+
+    def test_custom_agent_entry_has_expected_fields(self) -> None:
+        from control_tower.agents import make_custom_agent_entry
+        entry = make_custom_agent_entry(
+            name="Security Reviewer",
+            role="security-review",
+            description="Reviews code for security vulnerabilities.",
+            backend="gemini",
+            model="gemini-2.5-pro",
+        )
+        self.assertEqual("Security Reviewer", entry["name"])
+        self.assertEqual("security-review", entry["role"])
+        self.assertEqual("gemini", entry["backend"])
+        self.assertEqual("gemini-2.5-pro", entry["model"])
+        self.assertTrue(entry["custom"])
+
+    def test_custom_agent_entry_rejects_invalid_backend(self) -> None:
+        from control_tower.agents import make_custom_agent_entry
+        with self.assertRaises(ValueError):
+            make_custom_agent_entry(
+                name="Bad Agent",
+                role="test",
+                description="test",
+                backend="invalid-backend",
+            )
+
+    def test_custom_agent_persists_in_registry(self) -> None:
+        from control_tower.agents import make_custom_agent_entry
+        from control_tower.project import save_agent_registry
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            registry = load_agent_registry(root)
+            registry["agents"]["security-reviewer"] = make_custom_agent_entry(
+                name="Security Reviewer",
+                role="security-review",
+                description="Reviews code for security vulnerabilities.",
+                backend="gemini",
+                model="gemini-2.5-pro",
+            )
+            save_agent_registry(root, registry)
+
+            reloaded = load_agent_registry(root)
+            self.assertIn("security-reviewer", reloaded["agents"])
+            self.assertEqual("gemini", reloaded["agents"]["security-reviewer"]["backend"])
+            self.assertTrue(reloaded["agents"]["security-reviewer"]["custom"])
+
+    def test_custom_agent_included_in_tower_prompt(self) -> None:
+        from control_tower.agents import make_custom_agent_entry
+        from control_tower.project import save_agent_registry
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            registry = load_agent_registry(root)
+            registry["agents"]["security-reviewer"] = make_custom_agent_entry(
+                name="Security Reviewer",
+                role="security-review",
+                description="Reviews code for security vulnerabilities.",
+                backend="gemini",
+            )
+            save_agent_registry(root, registry)
+
+            prompt = build_tower_prompt(root, "test prompt")
+            self.assertIn("Security Reviewer", prompt)
+            self.assertIn("[backend: gemini]", prompt)
+            self.assertIn("[custom]", prompt)
+
+    def test_custom_agent_subagent_prompt_uses_fallback(self) -> None:
+        from control_tower.agents import make_custom_agent_entry
+        from control_tower.project import save_agent_registry
+        from control_tower.prompts import build_subagent_prompt
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            registry = load_agent_registry(root)
+            registry["agents"]["migration-helper"] = make_custom_agent_entry(
+                name="Migration Helper",
+                role="migration",
+                description="Handles database migrations.",
+            )
+            save_agent_registry(root, registry)
+
+            packet_text = '{"task": "test"}'
+            prompt = build_subagent_prompt(root, "migration-helper", packet_text)
+            self.assertIn("Migration Helper", prompt)
+            self.assertIn("migration", prompt)
+            self.assertIn(packet_text, prompt)
+
+    def test_custom_agent_with_prompt_file(self) -> None:
+        from control_tower.agents import make_custom_agent_entry
+        from control_tower.project import save_agent_registry
+        from control_tower.prompts import build_subagent_prompt
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            prompt_file = ".control-tower/agents/infra-bot/prompt.md"
+            prompt_path = root / prompt_file
+            prompt_path.parent.mkdir(parents=True, exist_ok=True)
+            prompt_path.write_text("# Infra Bot\n\nYou manage infrastructure.\n")
+
+            registry = load_agent_registry(root)
+            registry["agents"]["infra-bot"] = make_custom_agent_entry(
+                name="Infra Bot",
+                role="infrastructure",
+                description="Manages infrastructure.",
+                prompt_file=prompt_file,
+            )
+            save_agent_registry(root, registry)
+
+            prompt = build_subagent_prompt(root, "infra-bot", '{"task": "deploy"}')
+            self.assertIn("You manage infrastructure.", prompt)
+
+    def test_bootstrap_scaffolds_custom_agent_dirs(self) -> None:
+        from control_tower.agents import make_custom_agent_entry
+        from control_tower.project import save_agent_registry
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            registry = load_agent_registry(root)
+            registry["agents"]["docs-bot"] = make_custom_agent_entry(
+                name="Docs Bot",
+                role="documentation",
+                description="Writes documentation.",
+                prompt_file=".control-tower/agents/docs-bot/prompt.md",
+            )
+            save_agent_registry(root, registry)
+
+            # Re-init to trigger scaffolding
+            init_project(root)
+
+            prompt_path = root / ".control-tower" / "agents" / "docs-bot" / "prompt.md"
+            self.assertTrue(prompt_path.exists())
+            self.assertIn("Docs Bot", prompt_path.read_text())
+
+    def test_list_registered_and_enabled_agents(self) -> None:
+        from control_tower.agents import list_enabled_agents, list_registered_agents, make_custom_agent_entry
+        from control_tower.project import save_agent_registry
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            registry = load_agent_registry(root)
+            registry["agents"]["custom-agent"] = make_custom_agent_entry(
+                name="Custom Agent",
+                role="custom",
+                description="A custom agent.",
+                enabled=False,
+            )
+            save_agent_registry(root, registry)
+            reloaded = load_agent_registry(root)
+
+            all_agents = list_registered_agents(reloaded)
+            enabled = list_enabled_agents(reloaded)
+
+            self.assertIn("custom-agent", all_agents)
+            self.assertNotIn("custom-agent", enabled)
+            self.assertIn("builder", enabled)
+
+    def test_default_registry_includes_backend_field(self) -> None:
+        from control_tower.agents import default_agent_registry
+        registry = default_agent_registry()
+        for key, config in registry["agents"].items():
+            self.assertEqual("codex", config["backend"], f"Agent {key} should default to codex backend")
+
+    def test_interactive_custom_agent_creation(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            prompts = [
+                "custom",
+                # Built-in agents: all default (enable + backend + model + bypass)
+                # builder: enable, backend, model, bypass(Y)
+                "", "", "", "",
+                # inspector: enable, backend, model, bypass(Y)
+                "", "", "", "",
+                # scout: enable, backend, model, bypass(N), sandbox
+                "", "", "", "", "",
+                # git-master: enable, backend, model, bypass(Y)
+                "", "", "", "",
+                # scribe: enable, backend, model, bypass(Y)
+                "", "", "", "",
+                # Add custom agent? Yes
+                "y",
+                "Security Reviewer",   # name
+                "security-review",     # role
+                "Reviews code for security vulnerabilities.",  # description
+                "gemini",              # backend
+                "",                    # model
+                "n",                   # bypass=no
+                "read-only",           # sandbox
+                "",                    # create prompt file (Y)
+                # Add another custom agent? No
+                "n",
+                # docs harness
+                "",
+            ]
+            responses = iter(prompts)
+
+            with patch("builtins.input", side_effect=lambda _: next(responses)):
+                configure_project_interactively(root)
+
+            registry = load_agent_registry(root)
+            self.assertIn("security-reviewer", registry["agents"])
+            agent = registry["agents"]["security-reviewer"]
+            self.assertEqual("Security Reviewer", agent["name"])
+            self.assertEqual("gemini", agent["backend"])
+            self.assertEqual("read-only", agent["sandbox"])
+            self.assertTrue(agent["custom"])
+            self.assertTrue((root / ".control-tower" / "agents" / "security-reviewer" / "prompt.md").exists())
+
+
+class BackendTests(unittest.TestCase):
+
+    def test_valid_backends(self) -> None:
+        from control_tower.backends import VALID_BACKENDS
+        self.assertIn("codex", VALID_BACKENDS)
+        self.assertIn("gemini", VALID_BACKENDS)
+        self.assertIn("cursor", VALID_BACKENDS)
+
+    def test_run_exec_rejects_invalid_backend(self) -> None:
+        from control_tower.backends import run_exec
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with self.assertRaises(ValueError):
+                run_exec(root, "test", Path("schema.json"), Path("out.json"), backend="invalid")
+
+    def test_run_interactive_rejects_invalid_backend(self) -> None:
+        from control_tower.backends import run_interactive
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with self.assertRaises(ValueError):
+                run_interactive(root, "test", backend="invalid")
+
+    def test_codex_exec_builds_correct_args(self) -> None:
+        from control_tower.backends import run_exec
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with patch("control_tower.backends.subprocess.run") as mock_run:
+                mock_run.return_value = subprocess.CompletedProcess(args=[], returncode=0)
+                run_exec(root, "test prompt", Path("schema.json"), Path("out.json"), backend="codex", model="gpt-4")
+                args = mock_run.call_args[0][0]
+                self.assertEqual("codex", args[0])
+                self.assertEqual("exec", args[1])
+                self.assertIn("-m", args)
+                self.assertIn("gpt-4", args)
+
+    def test_gemini_exec_builds_correct_args(self) -> None:
+        from control_tower.backends import run_exec
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with patch("control_tower.backends.subprocess.run") as mock_run:
+                mock_run.return_value = subprocess.CompletedProcess(args=[], returncode=0)
+                run_exec(root, "test prompt", Path("schema.json"), Path("out.json"), backend="gemini", model="gemini-2.5-pro")
+                args = mock_run.call_args[0][0]
+                self.assertEqual("gemini", args[0])
+                self.assertEqual("exec", args[1])
+                self.assertIn("--model", args)
+                self.assertIn("gemini-2.5-pro", args)
+
+    def test_cursor_exec_builds_correct_args(self) -> None:
+        from control_tower.backends import run_exec
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with patch("control_tower.backends.subprocess.run") as mock_run:
+                mock_run.return_value = subprocess.CompletedProcess(args=[], returncode=0, stdout='{"ok": true}')
+                run_exec(root, "test prompt", Path("schema.json"), Path("out.json"), backend="cursor")
+                args = mock_run.call_args[0][0]
+                self.assertEqual("agent", args[0])
+                self.assertIn("-p", args)
+                self.assertIn("--output-format", args)
+                self.assertIn("json", args)
+
+    def test_cursor_exec_tolerates_missing_stdout(self) -> None:
+        from control_tower.backends import run_exec
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            output_path = root / "out.json"
+            with patch("control_tower.backends.subprocess.run") as mock_run:
+                mock_run.return_value = subprocess.CompletedProcess(args=[], returncode=0, stdout=None)
+                exit_code = run_exec(root, "test prompt", Path("schema.json"), output_path, backend="cursor")
+
+            self.assertEqual(0, exit_code)
+            self.assertFalse(output_path.exists())
+
+    def test_delegate_uses_agent_backend(self) -> None:
+        from control_tower.agents import make_custom_agent_entry
+        from control_tower.project import save_agent_registry
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            registry = load_agent_registry(root)
+            registry["agents"]["gemini-agent"] = make_custom_agent_entry(
+                name="Gemini Agent",
+                role="implementation",
+                description="Builds with Gemini.",
+                backend="gemini",
+                enabled=True,
+                dangerously_bypass=True,
+            )
+            save_agent_registry(root, registry)
+
+            # Create a valid task packet
+            from control_tower.packets import create_task_packet
+            packet = create_task_packet(
+                from_agent="tower",
+                to_agent="gemini-agent",
+                task_type="implementation",
+                priority="normal",
+                project_id="test",
+                session_id="test-session",
+                title="Test task",
+                objective="Test objective",
+                instructions=["Do the thing"],
+                constraints=[],
+                files=[],
+                artifacts=[],
+                references=[],
+                expected_outputs=[],
+                definition_of_done=["Done"],
+                memory_context_refs=[],
+                doc_context_refs=[],
+                soft_seconds=900,
+                hard_seconds=3600,
+                requires_review=False,
+                allow_partial=False,
+            )
+            packet_path = root / ".control-tower" / "packets" / "outbox" / "test.json"
+            packet_path.parent.mkdir(parents=True, exist_ok=True)
+            packet_path.write_text(json.dumps(packet, indent=2))
+
+            with patch("control_tower.runtime_cli.run_exec") as mock_exec:
+                mock_exec.return_value = 1  # non-zero to skip result validation
+                cmd_delegate(root, "gemini-agent", packet_path, output=None, model=None, sandbox=None)
+
+            self.assertEqual("gemini", mock_exec.call_args[1].get("backend", mock_exec.call_args.kwargs.get("backend")))
+
+    def test_cli_resolve_options_includes_backend(self) -> None:
+        from control_tower.cli import resolve_codex_options
+        config = {"codex_defaults": {"backend": "gemini"}}
+        args = type("Args", (), {"model": None, "sandbox": None, "approval": None, "search": None, "dangerous": None, "backend": None})()
+        options = resolve_codex_options(config, args)
+        self.assertEqual("gemini", options["backend"])
+
+    def test_cli_resolve_options_cli_overrides_config_backend(self) -> None:
+        from control_tower.cli import resolve_codex_options
+        config = {"codex_defaults": {"backend": "gemini"}}
+        args = type("Args", (), {"model": None, "sandbox": None, "approval": None, "search": None, "dangerous": None, "backend": "cursor"})()
+        options = resolve_codex_options(config, args)
+        self.assertEqual("cursor", options["backend"])
+
+    def test_status_shows_custom_agents(self) -> None:
+        from control_tower.agents import make_custom_agent_entry
+        from control_tower.project import save_agent_registry
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            registry = load_agent_registry(root)
+            registry["agents"]["my-agent"] = make_custom_agent_entry(
+                name="My Agent",
+                role="custom",
+                description="A custom agent.",
+                backend="cursor",
+            )
+            save_agent_registry(root, registry)
+
+            captured = StringIO()
+            with patch("control_tower.cli.find_project_root", return_value=root), patch("sys.stdout", new=captured):
+                cmd_status(root)
+
+            output = captured.getvalue()
+            self.assertIn("My Agent (cursor)", output)
+            self.assertIn("Custom agents: My Agent", output)
 
 
 if __name__ == "__main__":
