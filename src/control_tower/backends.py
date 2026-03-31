@@ -179,9 +179,10 @@ def _cursor_exec(
         args, cwd=project_root, env=_common_env(),
         capture_output=True, text=True,
     )
-    if result.returncode == 0 and result.stdout.strip():
+    stdout = result.stdout or ""
+    if result.returncode == 0 and stdout.strip():
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        Path(output_path).write_text(result.stdout)
+        Path(output_path).write_text(stdout)
     return result.returncode
 
 

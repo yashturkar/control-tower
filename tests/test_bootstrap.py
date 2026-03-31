@@ -2065,11 +2065,25 @@ class BackendTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             with patch("control_tower.backends.subprocess.run") as mock_run:
-                mock_run.return_value = subprocess.CompletedProcess(args=[], returncode=0)
+                mock_run.return_value = subprocess.CompletedProcess(args=[], returncode=0, stdout='{"ok": true}')
                 run_exec(root, "test prompt", Path("schema.json"), Path("out.json"), backend="cursor")
                 args = mock_run.call_args[0][0]
-                self.assertEqual("cursor", args[0])
-                self.assertIn("--headless", args)
+                self.assertEqual("agent", args[0])
+                self.assertIn("-p", args)
+                self.assertIn("--output-format", args)
+                self.assertIn("json", args)
+
+    def test_cursor_exec_tolerates_missing_stdout(self) -> None:
+        from control_tower.backends import run_exec
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            output_path = root / "out.json"
+            with patch("control_tower.backends.subprocess.run") as mock_run:
+                mock_run.return_value = subprocess.CompletedProcess(args=[], returncode=0, stdout=None)
+                exit_code = run_exec(root, "test prompt", Path("schema.json"), output_path, backend="cursor")
+
+            self.assertEqual(0, exit_code)
+            self.assertFalse(output_path.exists())
 
     def test_delegate_uses_agent_backend(self) -> None:
         from control_tower.agents import make_custom_agent_entry
