@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import shutil
+import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -68,9 +69,18 @@ def _iter_session_files() -> list[Path]:
 
 def _load_jsonl(path: Path) -> list[dict[str, Any]]:
     items = []
-    for line in path.read_text().splitlines():
-        if line.strip():
+    for index, line in enumerate(path.read_text().splitlines(), start=1):
+        if not line.strip():
+            continue
+        if not line.lstrip().startswith("{"):
+            continue
+        try:
             items.append(json.loads(line))
+        except json.JSONDecodeError:
+            print(
+                f"Warning: skipped malformed JSONL entry in {path}:{index}",
+                file=sys.stderr,
+            )
     return items
 
 

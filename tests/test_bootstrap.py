@@ -15,7 +15,7 @@ from control_tower.config_ui import configure_project_interactively
 from control_tower.docs_harness import MANAGED_SECTION_START
 from control_tower.graph import explain_commit, explain_decision
 from control_tower.layout import tower_dir
-from control_tower.memory import import_project_sessions
+from control_tower.memory import _load_jsonl, import_project_sessions
 from control_tower.packets import validate_task_packet
 from control_tower.project import load_agent_registry, load_graph_indexes, load_graph_nodes, load_project_config, load_runtime_state, save_runtime_state
 from control_tower.prompts import build_tower_prompt
@@ -240,6 +240,32 @@ class BootstrapTests(unittest.TestCase):
             self.assertIn("Most recent user goal", l0)
             self.assertIn("Top active decision", l0)
             self.assertIn("open_questions", indexes)
+
+    def test_load_jsonl_skips_malformed_trailing_line(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "session.jsonl"
+            valid = {"type": "session_meta", "payload": {"id": "session-1", "cwd": "/tmp"}}
+            path.write_text(json.dumps(valid) + "\n" + '{"type":"event_msg","payload":{"message":"unterminated' + "\n")
+
+            with patch("sys.stderr", new=StringIO()) as stderr:
+                items = _load_jsonl(path)
+
+            self.assertEqual([valid], items)
+            self.assertIn("skipped malformed JSONL entry", stderr.getvalue())
+
+    def test_load_jsonl_skips_malformed_non_trailing_line_and_recovers(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "session.jsonl"
+            valid = {"type": "session_meta", "payload": {"id": "session-1", "cwd": "/tmp"}}
+            path.write_text(
+                '{"type":"event_msg","payload":{"message":"unterminated' + "\n" + json.dumps(valid) + "\n"
+            )
+
+            with patch("sys.stderr", new=StringIO()) as stderr:
+                items = _load_jsonl(path)
+
+            self.assertEqual([valid], items)
+            self.assertIn("skipped malformed JSONL entry", stderr.getvalue())
 
     def test_import_project_sessions_skips_history_before_cutoff(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
