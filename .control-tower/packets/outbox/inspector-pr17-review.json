@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0.0",
+  "packet_type": "task",
+  "packet_id": "6f515ff2-e511-4932-a582-1f0d376f52f6",
+  "trace_id": "e9e52f09-68ab-4a8f-a86b-c23512aeffdd",
+  "parent_packet_id": null,
+  "created_at": "2026-03-31T05:33:33Z",
+  "from_agent": "tower",
+  "to_agent": "inspector",
+  "task_type": "review",
+  "priority": "high",
+  "project_id": "control-tower",
+  "session_id": "019d12f0-115b-7a20-a4a0-3a8210a841ee",
+  "title": "Review PR #17 for merge readiness",
+  "objective": "Determine whether https://github.com/yashturkar/control-tower/pull/17 is safe to merge, with specific attention to whether the existing review comments were addressed.",
+  "instructions": [
+    "Review PR #17 against main with a code-review mindset focused on correctness, regressions, security, and missing tests.",
+    "Check whether the outstanding review comments on prompts.py, bootstrap.py, runtime_cli.py, cli.py, and config_ui.py are addressed in the current PR head or remain valid.",
+    "Return severity-graded findings first, then state whether the PR is good to merge or should not merge yet."
+  ],
+  "constraints": [
+    "Keep findings evidence-based and tied to the PR diff or current PR head.",
+    "Do not modify code."
+  ],
+  "inputs": {
+    "files": [],
+    "artifacts": [],
+    "references": [
+      "https://github.com/yashturkar/control-tower/pull/17",
+      "https://github.com/yashturkar/control-tower/pull/17#discussion_r2985588654",
+      "https://github.com/yashturkar/control-tower/pull/17#discussion_r2985588668",
+      "https://github.com/yashturkar/control-tower/pull/17#discussion_r2985588682",
+      "https://github.com/yashturkar/control-tower/pull/17#discussion_r2985588693",
+      "https://github.com/yashturkar/control-tower/pull/17#discussion_r2985588701",
+      "https://github.com/yashturkar/control-tower/pull/17#discussion_r2985811777",
+      "https://github.com/yashturkar/control-tower/pull/17#discussion_r2985811794",
+      "https://github.com/yashturkar/control-tower/pull/17#discussion_r2985811807"
+    ]
+  },
+  "expected_outputs": [
+    "ResultPacket with merge recommendation and findings tied to the PR comments and diff."
+  ],
+  "definition_of_done": [
+    "All material review comments are checked against the current PR head.",
+    "The response clearly states whether the PR is merge-ready."
+  ],
+  "memory_context_refs": [],
+  "doc_context_refs": [],
+  "time_budget": {
+    "soft_seconds": 900,
+    "hard_seconds": 3600
+  },
+  "requires_review": true,
+  "allow_partial": false,
+  "metadata": {}
+}

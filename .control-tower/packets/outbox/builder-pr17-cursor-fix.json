@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0.0",
+  "packet_type": "task",
+  "packet_id": "51df52f2-fb91-4ef5-bc8a-0c3c33d63a69",
+  "trace_id": "8151eb27-adbe-4a02-8f0a-23445632d6c3",
+  "parent_packet_id": null,
+  "created_at": "2026-03-31T05:40:56Z",
+  "from_agent": "tower",
+  "to_agent": "builder",
+  "task_type": "implementation",
+  "priority": "high",
+  "project_id": "control-tower",
+  "session_id": "019d12f0-115b-7a20-a4a0-3a8210a841ee",
+  "title": "Fix PR 17 Cursor backend issues",
+  "objective": "On PR 17 branch claude/tender-darwin, fix the Cursor backend exec handling and any associated test mismatches so the PR is merge-ready.",
+  "instructions": [
+    "Work in the existing PR worktree at /Users/yashturkar/Workspace/control-tower/.claude/worktrees/tender-darwin on branch claude/tender-darwin.",
+    "Fix the Cursor exec failure where _cursor_exec() assumes result.stdout is always a string and crashes on None.",
+    "Resolve the implementation/test mismatch around the expected Cursor headless invocation so the contract is clear and the tests pass.",
+    "Do not broaden scope beyond the review blockers unless required to make the targeted tests pass cleanly.",
+    "Run focused tests first, then the relevant broader bootstrap/backend test suite if feasible, and report exactly what passed."
+  ],
+  "constraints": [
+    "Do not perform Git operations beyond what is needed to inspect state; Git-master will handle commit/push.",
+    "Stay within the PR branch worktree and do not touch the main worktree."
+  ],
+  "inputs": {
+    "files": [
+      "src/control_tower/backends.py",
+      "tests/test_bootstrap.py",
+      "src/control_tower/config_ui.py",
+      "src/control_tower/prompts.py",
+      "src/control_tower/bootstrap.py",
+      "src/control_tower/runtime_cli.py"
+    ],
+    "artifacts": [],
+    "references": [
+      "https://github.com/yashturkar/control-tower/pull/17",
+      "https://github.com/yashturkar/control-tower/pull/17#discussion_r2985588654",
+      "https://github.com/yashturkar/control-tower/pull/17#discussion_r2985588668",
+      "https://github.com/yashturkar/control-tower/pull/17#discussion_r2985588701",
+      "https://github.com/yashturkar/control-tower/pull/17#discussion_r2985811777",
+      "https://github.com/yashturkar/control-tower/pull/17#discussion_r2985811794",
+      "https://github.com/yashturkar/control-tower/pull/17#discussion_r2985811807"
+    ]
+  },
+  "expected_outputs": [
+    "ResultPacket summarizing code changes, tests run, and whether the PR blockers are resolved."
+  ],
+  "definition_of_done": [
+    "Cursor exec no longer crashes on None stdout.",
+    "The Cursor backend contract and its test are aligned.",
+    "Relevant tests pass in the PR worktree."
+  ],
+  "memory_context_refs": [],
+  "doc_context_refs": [],
+  "time_budget": {
+    "soft_seconds": 900,
+    "hard_seconds": 3600
+  },
+  "requires_review": true,
+  "allow_partial": false,
+  "metadata": {}
+}

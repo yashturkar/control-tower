@@ -1202,6 +1202,666 @@
       "authored_at": "2026-03-30T22:09:44-07:00",
       "subject": "tower memory",
       "files": []
+    },
+    "commit:61c7d552a8a3f68f4a4d36629143875205436b6a": {
+      "id": "commit:61c7d552a8a3f68f4a4d36629143875205436b6a",
+      "type": "commit",
+      "sha": "61c7d552a8a3f68f4a4d36629143875205436b6a",
+      "parents": [
+        "541782cc3ca428c96763a784b05eba15eecbf2ef"
+      ],
+      "authored_at": "2026-03-30T22:11:50-07:00",
+      "subject": "tower memory",
+      "files": []
+    },
+    "session:019d4262-1041-7c82-9a1e-47e786033359": {
+      "id": "session:019d4262-1041-7c82-9a1e-47e786033359",
+      "type": "session",
+      "session_id": "019d4262-1041-7c82-9a1e-47e786033359",
+      "timestamp": "2026-03-31T05:33:36.195Z",
+      "source": "exec",
+      "originator": "codex_exec",
+      "transcript_path": ".control-tower/memory/l2/transcripts/019d4262-1041-7c82-9a1e-47e786033359.md",
+      "session_path": ".control-tower/memory/l2/sessions/019d4262-1041-7c82-9a1e-47e786033359.jsonl"
+    },
+    "packet:6f515ff2-e511-4932-a582-1f0d376f52f6": {
+      "id": "packet:6f515ff2-e511-4932-a582-1f0d376f52f6",
+      "type": "packet",
+      "packet_id": "6f515ff2-e511-4932-a582-1f0d376f52f6",
+      "packet_type": "task",
+      "title": "Review PR #17 for merge readiness",
+      "status": null,
+      "trace_id": "e9e52f09-68ab-4a8f-a86b-c23512aeffdd",
+      "from_agent": "tower",
+      "to_agent": "inspector",
+      "path": ".control-tower/packets/outbox/inspector-pr17-review.json",
+      "created_at": "2026-03-31T05:33:33Z"
+    },
+    "artifact:.control-tower/packets/outbox/inspector-pr17-review.json": {
+      "id": "artifact:.control-tower/packets/outbox/inspector-pr17-review.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/inspector-pr17-review.json",
+      "title": ".control-tower/packets/outbox/inspector-pr17-review.json",
+      "created_at": "2026-03-31T05:33:33Z"
+    },
+    "packet:fdfda8cb-fae6-4c49-b8f0-d4ec0199423d": {
+      "id": "packet:fdfda8cb-fae6-4c49-b8f0-d4ec0199423d",
+      "type": "packet",
+      "packet_id": "fdfda8cb-fae6-4c49-b8f0-d4ec0199423d",
+      "packet_type": "result",
+      "title": "PR #17 should not merge yet. I verified the referenced review comments against head 8dbd799 and they are addressed, but the current PR head still has a merge-blocking issue: the added backend test suite is red when run against the PR code (`PYTHONPATH=src python3 -m unittest tests.test_bootstrap -q`), failing in the new Cursor backend path.",
+      "status": "success",
+      "trace_id": "e9e52f09-68ab-4a8f-a86b-c23512aeffdd",
+      "from_agent": "inspector",
+      "to_agent": "tower",
+      "path": ".control-tower/packets/outbox/inspector-pr17-review.result.json",
+      "created_at": "2026-03-31T05:35:30Z"
+    },
+    "artifact:.control-tower/packets/outbox/inspector-pr17-review.result.json": {
+      "id": "artifact:.control-tower/packets/outbox/inspector-pr17-review.result.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/inspector-pr17-review.result.json",
+      "title": ".control-tower/packets/outbox/inspector-pr17-review.result.json",
+      "created_at": "2026-03-31T05:35:30Z"
+    },
+    "event:black-box:11": {
+      "id": "event:black-box:11",
+      "type": "event",
+      "event_type": "codex_session_imported",
+      "timestamp": "2026-03-31T05:33:36.195Z",
+      "payload": {
+        "event_type": "codex_session_imported",
+        "session_id": "019d4262-1041-7c82-9a1e-47e786033359",
+        "timestamp": "2026-03-31T05:33:36.195Z",
+        "source": "exec",
+        "originator": "codex_exec",
+        "transcript_path": ".control-tower/memory/l2/transcripts/019d4262-1041-7c82-9a1e-47e786033359.md"
+      }
+    },
+    "session:019d4274-7d26-7031-8259-8dd0762b2392": {
+      "id": "session:019d4274-7d26-7031-8259-8dd0762b2392",
+      "type": "session",
+      "session_id": "019d4274-7d26-7031-8259-8dd0762b2392",
+      "timestamp": "2026-03-31T05:53:43.720Z",
+      "source": "exec",
+      "originator": "codex_exec",
+      "transcript_path": ".control-tower/memory/l2/transcripts/019d4274-7d26-7031-8259-8dd0762b2392.md",
+      "session_path": ".control-tower/memory/l2/sessions/019d4274-7d26-7031-8259-8dd0762b2392.jsonl"
+    },
+    "session:019d4274-7d26-77e2-ac18-5867113dc207": {
+      "id": "session:019d4274-7d26-77e2-ac18-5867113dc207",
+      "type": "session",
+      "session_id": "019d4274-7d26-77e2-ac18-5867113dc207",
+      "timestamp": "2026-03-31T05:53:43.720Z",
+      "source": "exec",
+      "originator": "codex_exec",
+      "transcript_path": ".control-tower/memory/l2/transcripts/019d4274-7d26-77e2-ac18-5867113dc207.md",
+      "session_path": ".control-tower/memory/l2/sessions/019d4274-7d26-77e2-ac18-5867113dc207.jsonl"
+    },
+    "packet:51df52f2-fb91-4ef5-bc8a-0c3c33d63a69": {
+      "id": "packet:51df52f2-fb91-4ef5-bc8a-0c3c33d63a69",
+      "type": "packet",
+      "packet_id": "51df52f2-fb91-4ef5-bc8a-0c3c33d63a69",
+      "packet_type": "task",
+      "title": "Fix PR 17 Cursor backend issues",
+      "status": null,
+      "trace_id": "8151eb27-adbe-4a02-8f0a-23445632d6c3",
+      "from_agent": "tower",
+      "to_agent": "builder",
+      "path": ".control-tower/packets/outbox/builder-pr17-cursor-fix.json",
+      "created_at": "2026-03-31T05:40:56Z"
+    },
+    "artifact:.control-tower/packets/outbox/builder-pr17-cursor-fix.json": {
+      "id": "artifact:.control-tower/packets/outbox/builder-pr17-cursor-fix.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/builder-pr17-cursor-fix.json",
+      "title": ".control-tower/packets/outbox/builder-pr17-cursor-fix.json",
+      "created_at": "2026-03-31T05:40:56Z"
+    },
+    "packet:b4e0d5af-958e-4fc2-a449-0cf25f24c068": {
+      "id": "packet:b4e0d5af-958e-4fc2-a449-0cf25f24c068",
+      "type": "packet",
+      "packet_id": "b4e0d5af-958e-4fc2-a449-0cf25f24c068",
+      "packet_type": "result",
+      "title": "Fixed the Cursor exec crash on successful runs with null stdout and aligned the backend test contract to the actual headless Cursor agent invocation. Focused backend tests and the broader bootstrap test module now pass in the PR worktree.",
+      "status": "success",
+      "trace_id": "8151eb27-adbe-4a02-8f0a-23445632d6c3",
+      "from_agent": "builder",
+      "to_agent": "tower",
+      "path": ".control-tower/packets/outbox/builder-pr17-cursor-fix.result.json",
+      "created_at": "2026-03-30T22:43:55Z"
+    },
+    "artifact:.control-tower/packets/outbox/builder-pr17-cursor-fix.result.json": {
+      "id": "artifact:.control-tower/packets/outbox/builder-pr17-cursor-fix.result.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/builder-pr17-cursor-fix.result.json",
+      "title": ".control-tower/packets/outbox/builder-pr17-cursor-fix.result.json",
+      "created_at": "2026-03-30T22:43:55Z"
+    },
+    "packet:44f1a884-404c-4446-8470-b1b962afdf79": {
+      "id": "packet:44f1a884-404c-4446-8470-b1b962afdf79",
+      "type": "packet",
+      "packet_id": "44f1a884-404c-4446-8470-b1b962afdf79",
+      "packet_type": "task",
+      "title": "Commit and push PR 17 Cursor fix",
+      "status": null,
+      "trace_id": "380cbe3e-f4de-4917-9c46-b5a4ce0c18c4",
+      "from_agent": "tower",
+      "to_agent": "git-master",
+      "path": ".control-tower/packets/outbox/git-master-pr17-cursor-fix-push.json",
+      "created_at": "2026-03-31T05:45:18Z"
+    },
+    "artifact:.control-tower/packets/outbox/git-master-pr17-cursor-fix-push.json": {
+      "id": "artifact:.control-tower/packets/outbox/git-master-pr17-cursor-fix-push.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/git-master-pr17-cursor-fix-push.json",
+      "title": ".control-tower/packets/outbox/git-master-pr17-cursor-fix-push.json",
+      "created_at": "2026-03-31T05:45:18Z"
+    },
+    "packet:9DD3A86A-A3CF-4F6E-96BD-62600F9A264B": {
+      "id": "packet:9DD3A86A-A3CF-4F6E-96BD-62600F9A264B",
+      "type": "packet",
+      "packet_id": "9DD3A86A-A3CF-4F6E-96BD-62600F9A264B",
+      "packet_type": "result",
+      "title": "Committed the Cursor backend fix on claude/tender-darwin as 78b38e296b32f0a187879ab17cc2fa1bcaba7256 and pushed it to origin. Only src/control_tower/backends.py and tests/test_bootstrap.py were included; unrelated runtime drift, out.json, and src/control_tower.egg-info remain uncommitted.",
+      "status": "success",
+      "trace_id": "380cbe3e-f4de-4917-9c46-b5a4ce0c18c4",
+      "from_agent": "git-master",
+      "to_agent": "tower",
+      "path": ".control-tower/packets/outbox/git-master-pr17-cursor-fix-push.result.json",
+      "created_at": "2026-03-31T05:46:16Z"
+    },
+    "artifact:.control-tower/packets/outbox/git-master-pr17-cursor-fix-push.result.json": {
+      "id": "artifact:.control-tower/packets/outbox/git-master-pr17-cursor-fix-push.result.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/git-master-pr17-cursor-fix-push.result.json",
+      "title": ".control-tower/packets/outbox/git-master-pr17-cursor-fix-push.result.json",
+      "created_at": "2026-03-31T05:46:16Z"
+    },
+    "dec_inferred_9DD3A86A-A3CF-4F6E-96BD-62600F9A264B_0_commit-78b38e296b32f0a187879ab17cc2fa1bcaba7256-updates-pr-17-branch-claude-tender-darwin-with-the-cursor-stdout-handling-fix-and-associated-bootstrap-test-coverage": {
+      "id": "dec_inferred_9DD3A86A-A3CF-4F6E-96BD-62600F9A264B_0_commit-78b38e296b32f0a187879ab17cc2fa1bcaba7256-updates-pr-17-branch-claude-tender-darwin-with-the-cursor-stdout-handling-fix-and-associated-bootstrap-test-coverage",
+      "type": "decision",
+      "topic": "commit-78b38e296b32f0a187879ab17cc2fa1bcaba7256-updates-pr-17-branch-claude-tender-darwin-with-the-cursor-stdout-handling-fix-and-associated-bootstrap-test-coverage",
+      "title": "Commit 78b38e296b32f0a187879ab17cc2fa1bcaba7256 updates PR 17 branch claude/tender-darwin with the Cursor stdout handling fix and associated bootstrap test coverage.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: Commit 78b38e296b32f0a187879ab17cc2fa1bcaba7256 updates PR 17 branch claude/tender-darwin with the Cursor stdout handling fix and associated bootstrap test coverage.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/git-master-pr17-cursor-fix-push.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-31T05:54:49Z",
+      "created_by": "git-master"
+    },
+    "packet:e0827733-9e3e-4da6-9013-9005bc9ca13c": {
+      "id": "packet:e0827733-9e3e-4da6-9013-9005bc9ca13c",
+      "type": "packet",
+      "packet_id": "e0827733-9e3e-4da6-9013-9005bc9ca13c",
+      "packet_type": "task",
+      "title": "Sync local main after PR 17 merge",
+      "status": null,
+      "trace_id": "4256d614-ae07-4dc1-8c71-09bbad773aba",
+      "from_agent": "tower",
+      "to_agent": "git-master",
+      "path": ".control-tower/packets/outbox/git-master-sync-main-after-pr17.json",
+      "created_at": "2026-03-31T05:53:37Z"
+    },
+    "artifact:.control-tower/packets/outbox/git-master-sync-main-after-pr17.json": {
+      "id": "artifact:.control-tower/packets/outbox/git-master-sync-main-after-pr17.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/git-master-sync-main-after-pr17.json",
+      "title": ".control-tower/packets/outbox/git-master-sync-main-after-pr17.json",
+      "created_at": "2026-03-31T05:53:37Z"
+    },
+    "packet:782c0c94-eb0b-4857-827b-9d2cba114102": {
+      "id": "packet:782c0c94-eb0b-4857-827b-9d2cba114102",
+      "type": "packet",
+      "packet_id": "782c0c94-eb0b-4857-827b-9d2cba114102",
+      "packet_type": "result",
+      "title": "Local `main` was fast-forwarded from `61c7d55` to `77c1440` to match `origin/main`. Transient `.control-tower` operational artifacts were temporarily stashed with `git stash push -u`, restored with `git stash pop --index`, and remain uncommitted in the working tree.",
+      "status": "success",
+      "trace_id": "4256d614-ae07-4dc1-8c71-09bbad773aba",
+      "from_agent": "git-master",
+      "to_agent": "tower",
+      "path": ".control-tower/packets/outbox/git-master-sync-main-after-pr17.result.json",
+      "created_at": "2026-03-31T05:54:27Z"
+    },
+    "artifact:.control-tower/packets/outbox/git-master-sync-main-after-pr17.result.json": {
+      "id": "artifact:.control-tower/packets/outbox/git-master-sync-main-after-pr17.result.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/git-master-sync-main-after-pr17.result.json",
+      "title": ".control-tower/packets/outbox/git-master-sync-main-after-pr17.result.json",
+      "created_at": "2026-03-31T05:54:27Z"
+    },
+    "dec_inferred_782c0c94-eb0b-4857-827b-9d2cba114102_0_local-main-now-matches-origin-main-at-77c1440-after-pr-17-merge": {
+      "id": "dec_inferred_782c0c94-eb0b-4857-827b-9d2cba114102_0_local-main-now-matches-origin-main-at-77c1440-after-pr-17-merge",
+      "type": "decision",
+      "topic": "local-main-now-matches-origin-main-at-77c1440-after-pr-17-merge",
+      "title": "Local `main` now matches `origin/main` at `77c1440` after PR #17 merge.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: Local `main` now matches `origin/main` at `77c1440` after PR #17 merge.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/git-master-sync-main-after-pr17.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-31T05:54:49Z",
+      "created_by": "git-master"
+    },
+    "dec_inferred_782c0c94-eb0b-4857-827b-9d2cba114102_1_transient-control-tower-operational-artifacts-required-a-temporary-stash-during-sync-and-were-restored-afterward-without-being-committed": {
+      "id": "dec_inferred_782c0c94-eb0b-4857-827b-9d2cba114102_1_transient-control-tower-operational-artifacts-required-a-temporary-stash-during-sync-and-were-restored-afterward-without-being-committed",
+      "type": "decision",
+      "topic": "transient-control-tower-operational-artifacts-required-a-temporary-stash-during-sync-and-were-restored-afterward-without-being-committed",
+      "title": "Transient `.control-tower` operational artifacts required a temporary stash during sync and were restored afterward without being committed.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: Transient `.control-tower` operational artifacts required a temporary stash during sync and were restored afterward without being committed.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/git-master-sync-main-after-pr17.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-31T05:54:49Z",
+      "created_by": "git-master"
+    },
+    "packet:d38da250-b1dc-4461-9d43-0dc08b42da90": {
+      "id": "packet:d38da250-b1dc-4461-9d43-0dc08b42da90",
+      "type": "packet",
+      "packet_id": "d38da250-b1dc-4461-9d43-0dc08b42da90",
+      "packet_type": "task",
+      "title": "Verify PR 17 after Cursor fix",
+      "status": null,
+      "trace_id": "4bbc8e26-d301-4334-a982-a96aa814da45",
+      "from_agent": "tower",
+      "to_agent": "inspector",
+      "path": ".control-tower/packets/outbox/inspector-pr17-postfix-review.json",
+      "created_at": "2026-03-31T05:44:06Z"
+    },
+    "artifact:.control-tower/packets/outbox/inspector-pr17-postfix-review.json": {
+      "id": "artifact:.control-tower/packets/outbox/inspector-pr17-postfix-review.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/inspector-pr17-postfix-review.json",
+      "title": ".control-tower/packets/outbox/inspector-pr17-postfix-review.json",
+      "created_at": "2026-03-31T05:44:06Z"
+    },
+    "packet:6b9ca9d3-cf69-4f0f-96c8-44e23874e4d3": {
+      "id": "packet:6b9ca9d3-cf69-4f0f-96c8-44e23874e4d3",
+      "type": "packet",
+      "packet_id": "6b9ca9d3-cf69-4f0f-96c8-44e23874e4d3",
+      "packet_type": "result",
+      "title": "Approved. I found no correctness, regression, or coverage issues in the updated changes to src/control_tower/backends.py and tests/test_bootstrap.py. The prior Cursor exec/test mismatch is resolved, the missing-stdout case is now handled safely, and the reviewed branch is merge-ready.",
+      "status": "success",
+      "trace_id": "4bbc8e26-d301-4334-a982-a96aa814da45",
+      "from_agent": "inspector",
+      "to_agent": "tower",
+      "path": ".control-tower/packets/outbox/inspector-pr17-postfix-review.result.json",
+      "created_at": "2026-03-31T06:00:00Z"
+    },
+    "artifact:.control-tower/packets/outbox/inspector-pr17-postfix-review.result.json": {
+      "id": "artifact:.control-tower/packets/outbox/inspector-pr17-postfix-review.result.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/inspector-pr17-postfix-review.result.json",
+      "title": ".control-tower/packets/outbox/inspector-pr17-postfix-review.result.json",
+      "created_at": "2026-03-31T06:00:00Z"
+    },
+    "packet:f8dc6803-1de6-4d8b-87fd-68d6a330c301": {
+      "id": "packet:f8dc6803-1de6-4d8b-87fd-68d6a330c301",
+      "type": "packet",
+      "packet_id": "f8dc6803-1de6-4d8b-87fd-68d6a330c301",
+      "packet_type": "task",
+      "title": "Recommend current Codex init model defaults",
+      "status": null,
+      "trace_id": "d33890b0-1684-45b7-aa05-9797079c0db7",
+      "from_agent": "tower",
+      "to_agent": "scout",
+      "path": ".control-tower/packets/outbox/scout-codex-init-model-options.json",
+      "created_at": "2026-03-31T05:53:37Z"
+    },
+    "artifact:.control-tower/packets/outbox/scout-codex-init-model-options.json": {
+      "id": "artifact:.control-tower/packets/outbox/scout-codex-init-model-options.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/scout-codex-init-model-options.json",
+      "title": ".control-tower/packets/outbox/scout-codex-init-model-options.json",
+      "created_at": "2026-03-31T05:53:37Z"
+    },
+    "packet:cd8d3ec0-ef18-47f5-bc54-39f0a019d423": {
+      "id": "packet:cd8d3ec0-ef18-47f5-bc54-39f0a019d423",
+      "type": "packet",
+      "packet_id": "cd8d3ec0-ef18-47f5-bc54-39f0a019d423",
+      "packet_type": "task",
+      "title": "Update repo docs after Inspector work",
+      "status": null,
+      "trace_id": "e9e52f09-68ab-4a8f-a86b-c23512aeffdd",
+      "from_agent": "tower",
+      "to_agent": "scribe",
+      "path": ".control-tower/packets/outbox/scribe-docs-followup-inspector-20260331T053640Z.json",
+      "created_at": "2026-03-31T05:36:40Z"
+    },
+    "artifact:.control-tower/packets/outbox/scribe-docs-followup-inspector-20260331T053640Z.json": {
+      "id": "artifact:.control-tower/packets/outbox/scribe-docs-followup-inspector-20260331T053640Z.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/scribe-docs-followup-inspector-20260331T053640Z.json",
+      "title": ".control-tower/packets/outbox/scribe-docs-followup-inspector-20260331T053640Z.json",
+      "created_at": "2026-03-31T05:36:40Z"
+    },
+    "event:black-box:12": {
+      "id": "event:black-box:12",
+      "type": "event",
+      "event_type": "codex_session_imported",
+      "timestamp": "2026-03-31T05:53:43.720Z",
+      "payload": {
+        "event_type": "codex_session_imported",
+        "session_id": "019d4274-7d26-7031-8259-8dd0762b2392",
+        "timestamp": "2026-03-31T05:53:43.720Z",
+        "source": "exec",
+        "originator": "codex_exec",
+        "transcript_path": ".control-tower/memory/l2/transcripts/019d4274-7d26-7031-8259-8dd0762b2392.md"
+      }
+    },
+    "event:black-box:13": {
+      "id": "event:black-box:13",
+      "type": "event",
+      "event_type": "codex_session_imported",
+      "timestamp": "2026-03-31T05:53:43.720Z",
+      "payload": {
+        "event_type": "codex_session_imported",
+        "session_id": "019d4274-7d26-77e2-ac18-5867113dc207",
+        "timestamp": "2026-03-31T05:53:43.720Z",
+        "source": "exec",
+        "originator": "codex_exec",
+        "transcript_path": ".control-tower/memory/l2/transcripts/019d4274-7d26-77e2-ac18-5867113dc207.md"
+      }
+    },
+    "commit:77c1440ea0c1a216bc3ae85222638b0e931c5a6c": {
+      "id": "commit:77c1440ea0c1a216bc3ae85222638b0e931c5a6c",
+      "type": "commit",
+      "sha": "77c1440ea0c1a216bc3ae85222638b0e931c5a6c",
+      "parents": [
+        "61c7d552a8a3f68f4a4d36629143875205436b6a",
+        "78b38e296b32f0a187879ab17cc2fa1bcaba7256"
+      ],
+      "authored_at": "2026-03-30T22:49:09-07:00",
+      "subject": "Merge pull request #17 from yashturkar/claude/tender-darwin",
+      "files": []
+    },
+    "commit:78b38e296b32f0a187879ab17cc2fa1bcaba7256": {
+      "id": "commit:78b38e296b32f0a187879ab17cc2fa1bcaba7256",
+      "type": "commit",
+      "sha": "78b38e296b32f0a187879ab17cc2fa1bcaba7256",
+      "parents": [
+        "8dbd79906ba190e21c999b3329a2c84fa26d1fde"
+      ],
+      "authored_at": "2026-03-30T22:46:05-07:00",
+      "subject": "Fix cursor backend stdout handling",
+      "files": []
+    },
+    "packet:2bd4e3b3-6776-434b-8a51-b338cc64fe82": {
+      "id": "packet:2bd4e3b3-6776-434b-8a51-b338cc64fe82",
+      "type": "packet",
+      "packet_id": "2bd4e3b3-6776-434b-8a51-b338cc64fe82",
+      "packet_type": "task",
+      "title": "Refresh tower init Codex model defaults",
+      "status": null,
+      "trace_id": "33e0f624-f99a-484a-84ca-c40c24dab4bf",
+      "from_agent": "tower",
+      "to_agent": "builder",
+      "path": ".control-tower/packets/outbox/builder-refresh-codex-init-models.json",
+      "created_at": "2026-03-31T05:56:31Z"
+    },
+    "artifact:.control-tower/packets/outbox/builder-refresh-codex-init-models.json": {
+      "id": "artifact:.control-tower/packets/outbox/builder-refresh-codex-init-models.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/builder-refresh-codex-init-models.json",
+      "title": ".control-tower/packets/outbox/builder-refresh-codex-init-models.json",
+      "created_at": "2026-03-31T05:56:31Z"
+    },
+    "packet:25df214e-7c8f-4a4f-a40a-1edb5d0df07d": {
+      "id": "packet:25df214e-7c8f-4a4f-a40a-1edb5d0df07d",
+      "type": "packet",
+      "packet_id": "25df214e-7c8f-4a4f-a40a-1edb5d0df07d",
+      "packet_type": "result",
+      "title": "Recommend replacing the current hardcoded Codex init shortlist in `src/control_tower/config_ui.py` with exactly these five options, in order: `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.3-codex`, `gpt-5.2-codex`, `gpt-5.2`. This is the best current blend of official OpenAI guidance and current local Codex CLI reality: official docs say to start with `gpt-5.4` and use `gpt-5.4-mini`/`gpt-5.4-nano` for cheaper lower-latency work, while the local Codex CLI v0.117.0 visible model list currently prioritizes `gpt-5.4`, `gpt-5.4-mini`, then legacy-but-still-listed Codex-optimized fallbacks (`gpt-5.3-codex`, `gpt-5.2-codex`, `gpt-5.2`).",
+      "status": "success",
+      "trace_id": "d33890b0-1684-45b7-aa05-9797079c0db7",
+      "from_agent": "scout",
+      "to_agent": "tower",
+      "path": ".control-tower/packets/outbox/scout-codex-init-model-options.result.json",
+      "created_at": "2026-03-31T06:08:00Z"
+    },
+    "artifact:.control-tower/packets/outbox/scout-codex-init-model-options.result.json": {
+      "id": "artifact:.control-tower/packets/outbox/scout-codex-init-model-options.result.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/scout-codex-init-model-options.result.json",
+      "title": ".control-tower/packets/outbox/scout-codex-init-model-options.result.json",
+      "created_at": "2026-03-31T06:08:00Z"
+    },
+    "dec_inferred_25df214e-7c8f-4a4f-a40a-1edb5d0df07d_0_as-of-2026-03-31-the-best-current-tower-init-shortlist-for-the-codex-backend-is-gpt-5-4-gpt-5-4-mini-gpt-5-3-codex-gpt-5-2-codex-gpt-5-2": {
+      "id": "dec_inferred_25df214e-7c8f-4a4f-a40a-1edb5d0df07d_0_as-of-2026-03-31-the-best-current-tower-init-shortlist-for-the-codex-backend-is-gpt-5-4-gpt-5-4-mini-gpt-5-3-codex-gpt-5-2-codex-gpt-5-2",
+      "type": "decision",
+      "topic": "as-of-2026-03-31-the-best-current-tower-init-shortlist-for-the-codex-backend-is-gpt-5-4-gpt-5-4-mini-gpt-5-3-codex-gpt-5-2-codex-gpt-5-2",
+      "title": "As of 2026-03-31, the best current Tower init shortlist for the Codex backend is `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.3-codex`, `gpt-5.2-codex`, `gpt-5.2`.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: As of 2026-03-31, the best current Tower init shortlist for the Codex backend is `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.3-codex`, `gpt-5.2-codex`, `gpt-5.2`.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/scout-codex-init-model-options.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-31T05:56:42Z",
+      "created_by": "scout"
+    },
+    "dec_inferred_25df214e-7c8f-4a4f-a40a-1edb5d0df07d_1_official-openai-docs-now-position-gpt-5-4-as-the-default-starting-point-and-gpt-5-4-mini-gpt-5-4-nano-as-the-lower-cost-frontier-variants-while-local-codex-cli-still-visibly-lists-older-codex-specific-fallback-models": {
+      "id": "dec_inferred_25df214e-7c8f-4a4f-a40a-1edb5d0df07d_1_official-openai-docs-now-position-gpt-5-4-as-the-default-starting-point-and-gpt-5-4-mini-gpt-5-4-nano-as-the-lower-cost-frontier-variants-while-local-codex-cli-still-visibly-lists-older-codex-specific-fallback-models",
+      "type": "decision",
+      "topic": "official-openai-docs-now-position-gpt-5-4-as-the-default-starting-point-and-gpt-5-4-mini-gpt-5-4-nano-as-the-lower-cost-frontier-variants-while-local-codex-cli-still-visibly-lists-older-codex-specific-fallback-models",
+      "title": "Official OpenAI docs now position `gpt-5.4` as the default starting point and `gpt-5.4-mini`/`gpt-5.4-nano` as the lower-cost frontier variants, while local Codex CLI still visibly lists older Codex-specific fallback models.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: Official OpenAI docs now position `gpt-5.4` as the default starting point and `gpt-5.4-mini`/`gpt-5.4-nano` as the lower-cost frontier variants, while local Codex CLI still visibly lists older Codex-specific fallback models.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/scout-codex-init-model-options.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-31T05:56:42Z",
+      "created_by": "scout"
+    },
+    "dec_inferred_25df214e-7c8f-4a4f-a40a-1edb5d0df07d_2_codex-mini-latest-is-deprecated-and-should-not-appear-in-tower-init-defaults": {
+      "id": "dec_inferred_25df214e-7c8f-4a4f-a40a-1edb5d0df07d_2_codex-mini-latest-is-deprecated-and-should-not-appear-in-tower-init-defaults",
+      "type": "decision",
+      "topic": "codex-mini-latest-is-deprecated-and-should-not-appear-in-tower-init-defaults",
+      "title": "`codex-mini-latest` is deprecated and should not appear in Tower init defaults.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: `codex-mini-latest` is deprecated and should not appear in Tower init defaults.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/scout-codex-init-model-options.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-31T05:56:42Z",
+      "created_by": "scout"
+    },
+    "packet:abf8f82b-f729-4c81-913f-a8297178a8e8": {
+      "id": "packet:abf8f82b-f729-4c81-913f-a8297178a8e8",
+      "type": "packet",
+      "packet_id": "abf8f82b-f729-4c81-913f-a8297178a8e8",
+      "packet_type": "task",
+      "title": "Update repo docs after Git-Master work",
+      "status": null,
+      "trace_id": "4256d614-ae07-4dc1-8c71-09bbad773aba",
+      "from_agent": "tower",
+      "to_agent": "scribe",
+      "path": ".control-tower/packets/outbox/scribe-docs-followup-git-master-20260331T055449Z.json",
+      "created_at": "2026-03-31T05:54:49Z"
+    },
+    "artifact:.control-tower/packets/outbox/scribe-docs-followup-git-master-20260331T055449Z.json": {
+      "id": "artifact:.control-tower/packets/outbox/scribe-docs-followup-git-master-20260331T055449Z.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/scribe-docs-followup-git-master-20260331T055449Z.json",
+      "title": ".control-tower/packets/outbox/scribe-docs-followup-git-master-20260331T055449Z.json",
+      "created_at": "2026-03-31T05:54:49Z"
+    },
+    "session:019d4277-30bc-7363-8599-90e43c9eb493": {
+      "id": "session:019d4277-30bc-7363-8599-90e43c9eb493",
+      "type": "session",
+      "session_id": "019d4277-30bc-7363-8599-90e43c9eb493",
+      "timestamp": "2026-03-31T05:56:40.765Z",
+      "source": "exec",
+      "originator": "codex_exec",
+      "transcript_path": ".control-tower/memory/l2/transcripts/019d4277-30bc-7363-8599-90e43c9eb493.md",
+      "session_path": ".control-tower/memory/l2/sessions/019d4277-30bc-7363-8599-90e43c9eb493.jsonl"
+    },
+    "session:019d4279-5048-7bd3-9ab7-eea62df9970b": {
+      "id": "session:019d4279-5048-7bd3-9ab7-eea62df9970b",
+      "type": "session",
+      "session_id": "019d4279-5048-7bd3-9ab7-eea62df9970b",
+      "timestamp": "2026-03-31T05:58:59.914Z",
+      "source": "exec",
+      "originator": "codex_exec",
+      "transcript_path": ".control-tower/memory/l2/transcripts/019d4279-5048-7bd3-9ab7-eea62df9970b.md",
+      "session_path": ".control-tower/memory/l2/sessions/019d4279-5048-7bd3-9ab7-eea62df9970b.jsonl"
+    },
+    "packet:41772cb2-ae4c-4c31-bd85-456625ba6a50": {
+      "id": "packet:41772cb2-ae4c-4c31-bd85-456625ba6a50",
+      "type": "packet",
+      "packet_id": "41772cb2-ae4c-4c31-bd85-456625ba6a50",
+      "packet_type": "result",
+      "title": "Updated the init UI Codex model shortlist to the requested five-model lineup and added focused tests that lock both the curated list and the picker display order.",
+      "status": "success",
+      "trace_id": "33e0f624-f99a-484a-84ca-c40c24dab4bf",
+      "from_agent": "builder",
+      "to_agent": "tower",
+      "path": ".control-tower/packets/outbox/builder-refresh-codex-init-models.result.json",
+      "created_at": "2026-03-30T23:10:00Z"
+    },
+    "artifact:.control-tower/packets/outbox/builder-refresh-codex-init-models.result.json": {
+      "id": "artifact:.control-tower/packets/outbox/builder-refresh-codex-init-models.result.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/builder-refresh-codex-init-models.result.json",
+      "title": ".control-tower/packets/outbox/builder-refresh-codex-init-models.result.json",
+      "created_at": "2026-03-30T23:10:00Z"
+    },
+    "packet:3f9ccdd5-a02c-4627-bc27-92b4ca448559": {
+      "id": "packet:3f9ccdd5-a02c-4627-bc27-92b4ca448559",
+      "type": "packet",
+      "packet_id": "3f9ccdd5-a02c-4627-bc27-92b4ca448559",
+      "packet_type": "task",
+      "title": "Verify Codex init model default refresh",
+      "status": null,
+      "trace_id": "357d2416-19a1-4a84-bd04-9b625be0ea34",
+      "from_agent": "tower",
+      "to_agent": "inspector",
+      "path": ".control-tower/packets/outbox/inspector-codex-init-models.json",
+      "created_at": "2026-03-31T05:58:56Z"
+    },
+    "artifact:.control-tower/packets/outbox/inspector-codex-init-models.json": {
+      "id": "artifact:.control-tower/packets/outbox/inspector-codex-init-models.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/inspector-codex-init-models.json",
+      "title": ".control-tower/packets/outbox/inspector-codex-init-models.json",
+      "created_at": "2026-03-31T05:58:56Z"
+    },
+    "event:black-box:14": {
+      "id": "event:black-box:14",
+      "type": "event",
+      "event_type": "codex_session_imported",
+      "timestamp": "2026-03-31T05:56:40.765Z",
+      "payload": {
+        "event_type": "codex_session_imported",
+        "session_id": "019d4277-30bc-7363-8599-90e43c9eb493",
+        "timestamp": "2026-03-31T05:56:40.765Z",
+        "source": "exec",
+        "originator": "codex_exec",
+        "transcript_path": ".control-tower/memory/l2/transcripts/019d4277-30bc-7363-8599-90e43c9eb493.md"
+      }
+    },
+    "event:black-box:15": {
+      "id": "event:black-box:15",
+      "type": "event",
+      "event_type": "codex_session_imported",
+      "timestamp": "2026-03-31T05:58:59.914Z",
+      "payload": {
+        "event_type": "codex_session_imported",
+        "session_id": "019d4279-5048-7bd3-9ab7-eea62df9970b",
+        "timestamp": "2026-03-31T05:58:59.914Z",
+        "source": "exec",
+        "originator": "codex_exec",
+        "transcript_path": ".control-tower/memory/l2/transcripts/019d4279-5048-7bd3-9ab7-eea62df9970b.md"
+      }
+    },
+    "packet:385f4325-3a0a-473a-9a6b-722ce648c17a": {
+      "id": "packet:385f4325-3a0a-473a-9a6b-722ce648c17a",
+      "type": "packet",
+      "packet_id": "385f4325-3a0a-473a-9a6b-722ce648c17a",
+      "packet_type": "result",
+      "title": "Review completed. The curated Codex shortlist update itself is straightforward, but the current picker still does not apply the displayed default on Enter. That means the init flow continues to persist no explicit Codex model for fresh agents, so the refreshed shortlist does not actually change default runtime selection. This should be treated as a blocker for merge-readiness, not a follow-up.",
+      "status": "partial",
+      "trace_id": "357d2416-19a1-4a84-bd04-9b625be0ea34",
+      "from_agent": "Inspector",
+      "to_agent": "tower",
+      "path": ".control-tower/packets/outbox/inspector-codex-init-models.result.json",
+      "created_at": "2026-03-31T06:08:30Z"
+    },
+    "artifact:.control-tower/packets/outbox/inspector-codex-init-models.result.json": {
+      "id": "artifact:.control-tower/packets/outbox/inspector-codex-init-models.result.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/inspector-codex-init-models.result.json",
+      "title": ".control-tower/packets/outbox/inspector-codex-init-models.result.json",
+      "created_at": "2026-03-31T06:08:30Z"
+    },
+    "dec_inferred_385f4325-3a0a-473a-9a6b-722ce648c17a_0_the-refreshed-codex-picker-currently-advertises-gpt-5-4-as-the-default-but-enter-still-persists-no-model-for-fresh-agents-merge-readiness-is-blocked-until-picker-semantics-and-tests-align": {
+      "id": "dec_inferred_385f4325-3a0a-473a-9a6b-722ce648c17a_0_the-refreshed-codex-picker-currently-advertises-gpt-5-4-as-the-default-but-enter-still-persists-no-model-for-fresh-agents-merge-readiness-is-blocked-until-picker-semantics-and-tests-align",
+      "type": "decision",
+      "topic": "the-refreshed-codex-picker-currently-advertises-gpt-5-4-as-the-default-but-enter-still-persists-no-model-for-fresh-agents-merge-readiness-is-blocked-until-picker-semantics-and-tests-align",
+      "title": "The refreshed Codex picker currently advertises `gpt-5.4` as the default, but Enter still persists no model for fresh agents; merge-readiness is blocked until picker semantics and tests align.",
+      "status": "proposed",
+      "importance": "normal",
+      "summary": "Inferred from ResultPacket memory_worthy entry: The refreshed Codex picker currently advertises `gpt-5.4` as the default, but Enter still persists no model for fresh agents; merge-readiness is blocked until picker semantics and tests align.",
+      "rationale": [
+        "Captured from a ResultPacket memory_worthy entry pending curation."
+      ],
+      "source_refs": [
+        ".control-tower/packets/outbox/inspector-codex-init-models.result.json"
+      ],
+      "inferred": true,
+      "created_at": "2026-03-31T06:00:48Z",
+      "created_by": "Inspector"
+    },
+    "packet:002666ab-c8a1-4b6a-a048-78ccfe004ee5": {
+      "id": "packet:002666ab-c8a1-4b6a-a048-78ccfe004ee5",
+      "type": "packet",
+      "packet_id": "002666ab-c8a1-4b6a-a048-78ccfe004ee5",
+      "packet_type": "task",
+      "title": "Update repo docs after Builder work",
+      "status": null,
+      "trace_id": "33e0f624-f99a-484a-84ca-c40c24dab4bf",
+      "from_agent": "tower",
+      "to_agent": "scribe",
+      "path": ".control-tower/packets/outbox/scribe-docs-followup-builder-20260331T055906Z.json",
+      "created_at": "2026-03-31T05:59:06Z"
+    },
+    "artifact:.control-tower/packets/outbox/scribe-docs-followup-builder-20260331T055906Z.json": {
+      "id": "artifact:.control-tower/packets/outbox/scribe-docs-followup-builder-20260331T055906Z.json",
+      "type": "artifact",
+      "ref": ".control-tower/packets/outbox/scribe-docs-followup-builder-20260331T055906Z.json",
+      "title": ".control-tower/packets/outbox/scribe-docs-followup-builder-20260331T055906Z.json",
+      "created_at": "2026-03-31T05:59:06Z"
     }
   }
 }

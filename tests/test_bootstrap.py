@@ -2046,6 +2046,36 @@ class BackendTests(unittest.TestCase):
         self.assertIn("gemini", VALID_BACKENDS)
         self.assertIn("cursor", VALID_BACKENDS)
 
+    def test_codex_model_picker_defaults_match_curated_order(self) -> None:
+        from control_tower.config_ui import BACKEND_MODELS
+
+        self.assertEqual(
+            ["gpt-5.4", "gpt-5.4-mini", "gpt-5.3-codex", "gpt-5.2-codex", "gpt-5.2"],
+            BACKEND_MODELS["codex"],
+        )
+
+    def test_codex_model_picker_displays_curated_defaults_in_order(self) -> None:
+        from control_tower.config_ui import _prompt_backend_and_model
+
+        captured = StringIO()
+        with patch("builtins.input", side_effect=["", ""]), patch("sys.stdout", new=captured):
+            backend, model = _prompt_backend_and_model("codex", "")
+
+        self.assertEqual("codex", backend)
+        self.assertEqual("", model)
+        output = captured.getvalue()
+        expected_lines = [
+            "  Models for codex:",
+            "    1) gpt-5.4 (default)",
+            "    2) gpt-5.4-mini",
+            "    3) gpt-5.3-codex",
+            "    4) gpt-5.2-codex",
+            "    5) gpt-5.2",
+            "    6) custom",
+        ]
+        positions = [output.index(line) for line in expected_lines]
+        self.assertEqual(sorted(positions), positions)
+
     def test_run_exec_rejects_invalid_backend(self) -> None:
         from control_tower.backends import run_exec
         with tempfile.TemporaryDirectory() as tmp:

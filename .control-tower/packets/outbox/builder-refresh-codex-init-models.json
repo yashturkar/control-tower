@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "packet_type": "task",
+  "packet_id": "2bd4e3b3-6776-434b-8a51-b338cc64fe82",
+  "trace_id": "33e0f624-f99a-484a-84ca-c40c24dab4bf",
+  "parent_packet_id": null,
+  "created_at": "2026-03-31T05:56:31Z",
+  "from_agent": "tower",
+  "to_agent": "builder",
+  "task_type": "implementation",
+  "priority": "high",
+  "project_id": "control-tower",
+  "session_id": "019d12f0-115b-7a20-a4a0-3a8210a841ee",
+  "title": "Refresh tower init Codex model defaults",
+  "objective": "Update the tower init custom model picker so the five default Codex options reflect the current Codex model lineup on main rather than the legacy o-series and gpt-4.1 entries.",
+  "instructions": [
+    "Change only the Codex model shortlist used by the init model picker in src/control_tower/config_ui.py.",
+    "Use this exact Codex order, based on the current local Codex model registry visible to Tower: gpt-5.4, gpt-5.4-mini, gpt-5.3-codex, gpt-5.2-codex, gpt-5.2.",
+    "Add or update focused tests so the Codex picker default list is covered and future regressions are caught.",
+    "Do not modify Gemini or Cursor model lists unless required by the test changes."
+  ],
+  "constraints": [
+    "Do not perform any git operations.",
+    "Stay within the init UI/model picker scope."
+  ],
+  "inputs": {
+    "files": [
+      "src/control_tower/config_ui.py",
+      "tests/test_bootstrap.py"
+    ],
+    "artifacts": [],
+    "references": [
+      "~/.codex/models_cache.json current visible order: gpt-5.4, gpt-5.4-mini, gpt-5.3-codex, gpt-5.2-codex, gpt-5.2, gpt-5.1-codex-max, gpt-5.1-codex-mini"
+    ]
+  },
+  "expected_outputs": [
+    "ResultPacket with changed files and verification results."
+  ],
+  "definition_of_done": [
+    "Codex picker defaults show the new five-model list in the requested order.",
+    "Relevant tests pass."
+  ],
+  "memory_context_refs": [],
+  "doc_context_refs": [],
+  "time_budget": {
+    "soft_seconds": 900,
+    "hard_seconds": 3600
+  },
+  "requires_review": true,
+  "allow_partial": false,
+  "metadata": {}
+}

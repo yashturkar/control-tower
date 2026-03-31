@@ -1,6 +1,13 @@
 {
   "active_decisions": [],
   "inferred_decisions": [
+    "dec_inferred_385f4325-3a0a-473a-9a6b-722ce648c17a_0_the-refreshed-codex-picker-currently-advertises-gpt-5-4-as-the-default-but-enter-still-persists-no-model-for-fresh-agents-merge-readiness-is-blocked-until-picker-semantics-and-tests-align",
+    "dec_inferred_25df214e-7c8f-4a4f-a40a-1edb5d0df07d_0_as-of-2026-03-31-the-best-current-tower-init-shortlist-for-the-codex-backend-is-gpt-5-4-gpt-5-4-mini-gpt-5-3-codex-gpt-5-2-codex-gpt-5-2",
+    "dec_inferred_25df214e-7c8f-4a4f-a40a-1edb5d0df07d_1_official-openai-docs-now-position-gpt-5-4-as-the-default-starting-point-and-gpt-5-4-mini-gpt-5-4-nano-as-the-lower-cost-frontier-variants-while-local-codex-cli-still-visibly-lists-older-codex-specific-fallback-models",
+    "dec_inferred_25df214e-7c8f-4a4f-a40a-1edb5d0df07d_2_codex-mini-latest-is-deprecated-and-should-not-appear-in-tower-init-defaults",
+    "dec_inferred_9DD3A86A-A3CF-4F6E-96BD-62600F9A264B_0_commit-78b38e296b32f0a187879ab17cc2fa1bcaba7256-updates-pr-17-branch-claude-tender-darwin-with-the-cursor-stdout-handling-fix-and-associated-bootstrap-test-coverage",
+    "dec_inferred_782c0c94-eb0b-4857-827b-9d2cba114102_0_local-main-now-matches-origin-main-at-77c1440-after-pr-17-merge",
+    "dec_inferred_782c0c94-eb0b-4857-827b-9d2cba114102_1_transient-control-tower-operational-artifacts-required-a-temporary-stash-during-sync-and-were-restored-afterward-without-being-committed",
     "dec_inferred_01e91bc6-a760-499d-8316-c3f1f17a8ecc_0_commit-93cdca07b6cf480f3ff17da9694103640b051ed3-captures-the-remaining-control-tower-rollout-operational-artifacts",
     "dec_inferred_01e91bc6-a760-499d-8316-c3f1f17a8ecc_1_main-has-been-pushed-to-origin-and-is-now-synchronized-with-the-remote-at-93cdca07b6cf480f3ff17da9694103640b051ed3",
     "dec_inferred_9171049e-0688-4314-a057-c3e2f33d5291_0_control-tower-rollout-bootstrap-is-no-longer-auth-blocked-and-is-recorded-as-a-local-commit-on-main-at-8d9033f06b4ff4a72589972220ddf87832fa7a78",
@@ -42,18 +49,18 @@
     "task:tower-session-bootstrap-curation"
   ],
   "recent_commits": [
+    "commit:77c1440ea0c1a216bc3ae85222638b0e931c5a6c",
+    "commit:78b38e296b32f0a187879ab17cc2fa1bcaba7256",
+    "commit:61c7d552a8a3f68f4a4d36629143875205436b6a",
     "commit:541782cc3ca428c96763a784b05eba15eecbf2ef",
-    "commit:93cdca07b6cf480f3ff17da9694103640b051ed3",
-    "commit:8d9033f06b4ff4a72589972220ddf87832fa7a78",
-    "commit:055b1165945e23e28c36b1fab3ed7e83649f9eb2",
-    "commit:3d0520a5d24b6e341d16dbc75e0d3e370955fe91"
+    "commit:93cdca07b6cf480f3ff17da9694103640b051ed3"
   ],
   "unexplained_commits": [
+    "commit:77c1440ea0c1a216bc3ae85222638b0e931c5a6c",
+    "commit:78b38e296b32f0a187879ab17cc2fa1bcaba7256",
+    "commit:61c7d552a8a3f68f4a4d36629143875205436b6a",
     "commit:541782cc3ca428c96763a784b05eba15eecbf2ef",
-    "commit:93cdca07b6cf480f3ff17da9694103640b051ed3",
-    "commit:8d9033f06b4ff4a72589972220ddf87832fa7a78",
-    "commit:055b1165945e23e28c36b1fab3ed7e83649f9eb2",
-    "commit:3d0520a5d24b6e341d16dbc75e0d3e370955fe91"
+    "commit:93cdca07b6cf480f3ff17da9694103640b051ed3"
   ],
   "session_links": {
     "session:tower-session": [
@@ -66,9 +73,20 @@
       "packet:661c46b8-c47e-4011-a6f9-a7481bbf83f2",
       "packet:6a40bbc4-e77b-4a86-8c3b-e187c230c1d5",
       "packet:d6d0b7d7-74c9-462b-9813-0c70961a21e2",
-      "packet:f98e1644-96d0-4933-8e6a-6f11bfbeaf17"
+      "packet:f98e1644-96d0-4933-8e6a-6f11bfbeaf17",
+      "packet:6f515ff2-e511-4932-a582-1f0d376f52f6",
+      "packet:51df52f2-fb91-4ef5-bc8a-0c3c33d63a69",
+      "packet:44f1a884-404c-4446-8470-b1b962afdf79",
+      "packet:e0827733-9e3e-4da6-9013-9005bc9ca13c",
+      "packet:d38da250-b1dc-4461-9d43-0dc08b42da90",
+      "packet:f8dc6803-1de6-4d8b-87fd-68d6a330c301",
+      "packet:cd8d3ec0-ef18-47f5-bc54-39f0a019d423",
+      "packet:2bd4e3b3-6776-434b-8a51-b338cc64fe82",
+      "packet:abf8f82b-f729-4c81-913f-a8297178a8e8",
+      "packet:3f9ccdd5-a02c-4627-bc27-92b4ca448559",
+      "packet:002666ab-c8a1-4b6a-a048-78ccfe004ee5"
     ]
   },
-  "last_graph_sync": "2026-03-31T05:11:27Z",
+  "last_graph_sync": "2026-03-31T06:00:48Z",
   "current_branch": "main"
 }

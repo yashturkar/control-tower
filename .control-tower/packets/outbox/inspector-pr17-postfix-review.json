@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "packet_type": "task",
+  "packet_id": "d38da250-b1dc-4461-9d43-0dc08b42da90",
+  "trace_id": "4bbc8e26-d301-4334-a982-a96aa814da45",
+  "parent_packet_id": null,
+  "created_at": "2026-03-31T05:44:06Z",
+  "from_agent": "tower",
+  "to_agent": "inspector",
+  "task_type": "review",
+  "priority": "high",
+  "project_id": "control-tower",
+  "session_id": "019d12f0-115b-7a20-a4a0-3a8210a841ee",
+  "title": "Verify PR 17 after Cursor fix",
+  "objective": "Review the updated PR 17 branch claude/tender-darwin after the Cursor backend fix and determine whether it is now safe to merge.",
+  "instructions": [
+    "Work in the PR worktree at /Users/yashturkar/Workspace/control-tower/.claude/worktrees/tender-darwin.",
+    "Review the current diff in src/control_tower/backends.py and tests/test_bootstrap.py with a code-review mindset focused on correctness, regressions, and test coverage.",
+    "Verify that the previously blocking Cursor backend issue and test mismatch are resolved.",
+    "State clearly whether PR 17 is now merge-ready."
+  ],
+  "constraints": [
+    "Do not modify code.",
+    "Ignore unrelated transient files like out.json, .control-tower state drift, and src/control_tower.egg-info unless they affect the review outcome."
+  ],
+  "inputs": {
+    "files": [
+      "src/control_tower/backends.py",
+      "tests/test_bootstrap.py"
+    ],
+    "artifacts": [],
+    "references": [
+      "https://github.com/yashturkar/control-tower/pull/17"
+    ]
+  },
+  "expected_outputs": [
+    "ResultPacket with severity-graded findings and a merge recommendation."
+  ],
+  "definition_of_done": [
+    "Current PR branch changes are reviewed after the fix.",
+    "The response clearly states whether the PR is merge-ready."
+  ],
+  "memory_context_refs": [],
+  "doc_context_refs": [],
+  "time_budget": {
+    "soft_seconds": 900,
+    "hard_seconds": 3600
+  },
+  "requires_review": true,
+  "allow_partial": false,
+  "metadata": {}
+}

@@ -14,11 +14,11 @@ SANDBOX_OPTIONS = ["workspace-write", "read-only", "danger-full-access"]
 
 BACKEND_MODELS: dict[str, list[str]] = {
     "codex": [
-        "o4-mini",
-        "o3",
-        "codex-mini-latest",
-        "gpt-4.1",
-        "o4-mini-high",
+        "gpt-5.4",
+        "gpt-5.4-mini",
+        "gpt-5.3-codex",
+        "gpt-5.2-codex",
+        "gpt-5.2",
     ],
     "gemini": [
         "gemini-2.5-pro",

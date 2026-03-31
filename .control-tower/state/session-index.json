@@ -119,6 +119,66 @@
       "source": "cli",
       "user_message_count": 3,
       "agent_message_count": 21
+    },
+    "019d4262-1041-7c82-9a1e-47e786033359": {
+      "session_id": "019d4262-1041-7c82-9a1e-47e786033359",
+      "timestamp": "2026-03-31T05:33:36.195Z",
+      "source_path": "/Users/yashturkar/.codex/sessions/2026/03/30/rollout-2026-03-30T22-33-36-019d4262-1041-7c82-9a1e-47e786033359.jsonl",
+      "cached_copy": "/Users/yashturkar/Workspace/control-tower/.control-tower/memory/l2/sessions/019d4262-1041-7c82-9a1e-47e786033359.jsonl",
+      "transcript_path": "/Users/yashturkar/Workspace/control-tower/.control-tower/memory/l2/transcripts/019d4262-1041-7c82-9a1e-47e786033359.md",
+      "cwd": "/Users/yashturkar/Workspace/control-tower",
+      "originator": "codex_exec",
+      "source": "exec",
+      "user_message_count": 1,
+      "agent_message_count": 1
+    },
+    "019d4274-7d26-7031-8259-8dd0762b2392": {
+      "session_id": "019d4274-7d26-7031-8259-8dd0762b2392",
+      "timestamp": "2026-03-31T05:53:43.720Z",
+      "source_path": "/Users/yashturkar/.codex/sessions/2026/03/30/rollout-2026-03-30T22-53-43-019d4274-7d26-7031-8259-8dd0762b2392.jsonl",
+      "cached_copy": "/Users/yashturkar/Workspace/control-tower/.control-tower/memory/l2/sessions/019d4274-7d26-7031-8259-8dd0762b2392.jsonl",
+      "transcript_path": "/Users/yashturkar/Workspace/control-tower/.control-tower/memory/l2/transcripts/019d4274-7d26-7031-8259-8dd0762b2392.md",
+      "cwd": "/Users/yashturkar/Workspace/control-tower",
+      "originator": "codex_exec",
+      "source": "exec",
+      "user_message_count": 1,
+      "agent_message_count": 0
+    },
+    "019d4274-7d26-77e2-ac18-5867113dc207": {
+      "session_id": "019d4274-7d26-77e2-ac18-5867113dc207",
+      "timestamp": "2026-03-31T05:53:43.720Z",
+      "source_path": "/Users/yashturkar/.codex/sessions/2026/03/30/rollout-2026-03-30T22-53-43-019d4274-7d26-77e2-ac18-5867113dc207.jsonl",
+      "cached_copy": "/Users/yashturkar/Workspace/control-tower/.control-tower/memory/l2/sessions/019d4274-7d26-77e2-ac18-5867113dc207.jsonl",
+      "transcript_path": "/Users/yashturkar/Workspace/control-tower/.control-tower/memory/l2/transcripts/019d4274-7d26-77e2-ac18-5867113dc207.md",
+      "cwd": "/Users/yashturkar/Workspace/control-tower",
+      "originator": "codex_exec",
+      "source": "exec",
+      "user_message_count": 1,
+      "agent_message_count": 1
+    },
+    "019d4277-30bc-7363-8599-90e43c9eb493": {
+      "session_id": "019d4277-30bc-7363-8599-90e43c9eb493",
+      "timestamp": "2026-03-31T05:56:40.765Z",
+      "source_path": "/Users/yashturkar/.codex/sessions/2026/03/30/rollout-2026-03-30T22-56-40-019d4277-30bc-7363-8599-90e43c9eb493.jsonl",
+      "cached_copy": "/Users/yashturkar/Workspace/control-tower/.control-tower/memory/l2/sessions/019d4277-30bc-7363-8599-90e43c9eb493.jsonl",
+      "transcript_path": "/Users/yashturkar/Workspace/control-tower/.control-tower/memory/l2/transcripts/019d4277-30bc-7363-8599-90e43c9eb493.md",
+      "cwd": "/Users/yashturkar/Workspace/control-tower",
+      "originator": "codex_exec",
+      "source": "exec",
+      "user_message_count": 1,
+      "agent_message_count": 1
+    },
+    "019d4279-5048-7bd3-9ab7-eea62df9970b": {
+      "session_id": "019d4279-5048-7bd3-9ab7-eea62df9970b",
+      "timestamp": "2026-03-31T05:58:59.914Z",
+      "source_path": "/Users/yashturkar/.codex/sessions/2026/03/30/rollout-2026-03-30T22-58-59-019d4279-5048-7bd3-9ab7-eea62df9970b.jsonl",
+      "cached_copy": "/Users/yashturkar/Workspace/control-tower/.control-tower/memory/l2/sessions/019d4279-5048-7bd3-9ab7-eea62df9970b.jsonl",
+      "transcript_path": "/Users/yashturkar/Workspace/control-tower/.control-tower/memory/l2/transcripts/019d4279-5048-7bd3-9ab7-eea62df9970b.md",
+      "cwd": "/Users/yashturkar/Workspace/control-tower",
+      "originator": "codex_exec",
+      "source": "exec",
+      "user_message_count": 1,
+      "agent_message_count": 0
     }
   }
 }

@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "packet_type": "task",
+  "packet_id": "44f1a884-404c-4446-8470-b1b962afdf79",
+  "trace_id": "380cbe3e-f4de-4917-9c46-b5a4ce0c18c4",
+  "parent_packet_id": null,
+  "created_at": "2026-03-31T05:45:18Z",
+  "from_agent": "tower",
+  "to_agent": "git-master",
+  "task_type": "git",
+  "priority": "high",
+  "project_id": "control-tower",
+  "session_id": "019d12f0-115b-7a20-a4a0-3a8210a841ee",
+  "title": "Commit and push PR 17 Cursor fix",
+  "objective": "On branch claude/tender-darwin, create a commit for the Cursor backend fix in PR 17 and push it to origin so the PR is updated.",
+  "instructions": [
+    "Work in the PR worktree at /Users/yashturkar/Workspace/control-tower/.claude/worktrees/tender-darwin on branch claude/tender-darwin.",
+    "Stage and commit only the intentional fix in src/control_tower/backends.py and tests/test_bootstrap.py.",
+    "Do not include unrelated .control-tower runtime drift, out.json, or src/control_tower.egg-info in the commit.",
+    "Push claude/tender-darwin to origin after the local commit succeeds.",
+    "Report the new commit hash, push status, and any leftover untracked or modified files."
+  ],
+  "constraints": [
+    "Do not force-push or rewrite history.",
+    "Do not modify product code beyond minimal Git-adjacent work required for the commit."
+  ],
+  "inputs": {
+    "files": [
+      "src/control_tower/backends.py",
+      "tests/test_bootstrap.py"
+    ],
+    "artifacts": [],
+    "references": []
+  },
+  "expected_outputs": [
+    "ResultPacket with commit hash, pushed branch/ref, and any residual workspace dirt."
+  ],
+  "definition_of_done": [
+    "The PR branch includes the Cursor fix commit.",
+    "The branch is pushed to origin.",
+    "Unrelated transient files remain excluded and are explicitly listed."
+  ],
+  "memory_context_refs": [],
+  "doc_context_refs": [],
+  "time_budget": {
+    "soft_seconds": 900,
+    "hard_seconds": 3600
+  },
+  "requires_review": true,
+  "allow_partial": false,
+  "metadata": {}
+}
