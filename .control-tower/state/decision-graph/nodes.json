@@ -1167,6 +1167,41 @@
       "ref": ".control-tower/packets/outbox/scribe-docs-followup-git-master-20260322T005512Z.json",
       "title": ".control-tower/packets/outbox/scribe-docs-followup-git-master-20260322T005512Z.json",
       "created_at": "2026-03-22T00:55:12Z"
+    },
+    "session:019d4245-9da8-7ef1-832f-4b75b06e5ff1": {
+      "id": "session:019d4245-9da8-7ef1-832f-4b75b06e5ff1",
+      "type": "session",
+      "session_id": "019d4245-9da8-7ef1-832f-4b75b06e5ff1",
+      "timestamp": "2026-03-31T05:02:31.853Z",
+      "source": "cli",
+      "originator": "codex_cli_rs",
+      "transcript_path": ".control-tower/memory/l2/transcripts/019d4245-9da8-7ef1-832f-4b75b06e5ff1.md",
+      "session_path": ".control-tower/memory/l2/sessions/019d4245-9da8-7ef1-832f-4b75b06e5ff1.jsonl"
+    },
+    "event:black-box:10": {
+      "id": "event:black-box:10",
+      "type": "event",
+      "event_type": "codex_session_imported",
+      "timestamp": "2026-03-31T05:02:31.853Z",
+      "payload": {
+        "event_type": "codex_session_imported",
+        "session_id": "019d4245-9da8-7ef1-832f-4b75b06e5ff1",
+        "timestamp": "2026-03-31T05:02:31.853Z",
+        "source": "cli",
+        "originator": "codex_cli_rs",
+        "transcript_path": ".control-tower/memory/l2/transcripts/019d4245-9da8-7ef1-832f-4b75b06e5ff1.md"
+      }
+    },
+    "commit:541782cc3ca428c96763a784b05eba15eecbf2ef": {
+      "id": "commit:541782cc3ca428c96763a784b05eba15eecbf2ef",
+      "type": "commit",
+      "sha": "541782cc3ca428c96763a784b05eba15eecbf2ef",
+      "parents": [
+        "d14924e4fe1e51c8207949c113c63fa05b16c52e"
+      ],
+      "authored_at": "2026-03-30T22:09:44-07:00",
+      "subject": "tower memory",
+      "files": []
     }
   }
 }

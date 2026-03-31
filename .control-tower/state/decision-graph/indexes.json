@@ -42,18 +42,18 @@
     "task:tower-session-bootstrap-curation"
   ],
   "recent_commits": [
+    "commit:541782cc3ca428c96763a784b05eba15eecbf2ef",
     "commit:93cdca07b6cf480f3ff17da9694103640b051ed3",
     "commit:8d9033f06b4ff4a72589972220ddf87832fa7a78",
     "commit:055b1165945e23e28c36b1fab3ed7e83649f9eb2",
-    "commit:3d0520a5d24b6e341d16dbc75e0d3e370955fe91",
-    "commit:a1599c84866be543e7ed47eaa37340bc33aa0a94"
+    "commit:3d0520a5d24b6e341d16dbc75e0d3e370955fe91"
   ],
   "unexplained_commits": [
+    "commit:541782cc3ca428c96763a784b05eba15eecbf2ef",
     "commit:93cdca07b6cf480f3ff17da9694103640b051ed3",
     "commit:8d9033f06b4ff4a72589972220ddf87832fa7a78",
     "commit:055b1165945e23e28c36b1fab3ed7e83649f9eb2",
-    "commit:3d0520a5d24b6e341d16dbc75e0d3e370955fe91",
-    "commit:a1599c84866be543e7ed47eaa37340bc33aa0a94"
+    "commit:3d0520a5d24b6e341d16dbc75e0d3e370955fe91"
   ],
   "session_links": {
     "session:tower-session": [
@@ -69,6 +69,6 @@
       "packet:f98e1644-96d0-4933-8e6a-6f11bfbeaf17"
     ]
   },
-  "last_graph_sync": "2026-03-22T03:21:08Z",
+  "last_graph_sync": "2026-03-31T05:11:27Z",
   "current_branch": "main"
 }
