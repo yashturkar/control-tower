@@ -34,8 +34,7 @@ from .packets import (
     validate_result_packet,
     validate_task_packet,
 )
-from .project import load_agent_registry, load_project_config, load_runtime_state, write_json
-from .project import load_graph_edges, load_graph_nodes
+from .project import load_agent_registry, load_graph_edges, load_graph_indexes, load_graph_nodes, load_project_config, load_runtime_state, write_json
 from .prompts import build_subagent_prompt
 from .sessions import sync_and_capture_latest, update_git_branch
 
@@ -47,6 +46,7 @@ DEFAULT_TASK_TYPES = {
     "git-master": "git-operations",
     "scribe": "documentation",
 }
+MAX_GRAPH_CONTEXT_ITEMS = 3
 
 
 def _positive_int(value: str) -> int:
@@ -125,6 +125,12 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     create_parser.add_argument("--parent-packet-id", help="Parent packet id for chaining")
     create_parser.add_argument("--from-agent", default="tower", help="Source agent name")
     create_parser.add_argument("--from-result", help="Path to a ResultPacket JSON file to seed trace, parent, and artifacts")
+    create_parser.add_argument(
+        "--include-graph-context",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Include relevant decision-graph context in packet metadata",
+    )
     create_parser.add_argument("--output", help="Path to write the TaskPacket JSON file")
 
     delegate_parser = subparsers.add_parser("delegate", help="Run a subagent through a headless backend")
@@ -226,6 +232,42 @@ def cmd_create_packet(project_root: Path, args: argparse.Namespace) -> int:
     artifacts = _dedupe_strings(args.artifact + seeded_artifacts)
     references = _dedupe_strings(args.reference + seeded_references)
     memory_refs = _dedupe_strings(args.memory_ref + seeded_memory_refs)
+    if args.include_graph_context:
+        indexes = load_graph_indexes(project_root)
+        nodes = load_graph_nodes(project_root).get("nodes", {})
+        result_packet_nodes = [
+            node
+            for node in nodes.values()
+            if node.get("type") == "packet" and node.get("packet_type") == "result"
+        ]
+        # created_at values are expected to be ISO 8601 timestamps when present.
+        sorted_result_packet_nodes = sorted(
+            result_packet_nodes,
+            key=lambda node: str(node.get("created_at", "")),
+            reverse=True,
+        )
+        recent_result_packets = [
+            node.get("id")
+            for node in sorted_result_packet_nodes
+            if node.get("id")
+        ][:MAX_GRAPH_CONTEXT_ITEMS]
+        graph_context = {
+            "active_decisions": list(indexes.get("active_decisions", []))[:MAX_GRAPH_CONTEXT_ITEMS],
+            "open_questions": list(indexes.get("open_questions", []))[:MAX_GRAPH_CONTEXT_ITEMS],
+            "known_risks": list(indexes.get("known_risks", []))[:MAX_GRAPH_CONTEXT_ITEMS],
+            "current_tasks": list(indexes.get("current_tasks", []))[:MAX_GRAPH_CONTEXT_ITEMS],
+            "recent_result_packets": recent_result_packets,
+            "unexplained_commits": list(indexes.get("unexplained_commits", []))[:MAX_GRAPH_CONTEXT_ITEMS],
+            "current_branch": indexes.get("current_branch", "unknown"),
+        }
+        signal_lists = [
+            value
+            for key, value in graph_context.items()
+            if key != "current_branch" and isinstance(value, list)
+        ]
+        if any(signal_lists):
+            metadata["graph_context"] = graph_context
+            metadata["graph_context_note"] = "Seeded from decision graph indexes/nodes at packet creation time."
 
     packet = create_task_packet(
         from_agent=args.from_agent,
