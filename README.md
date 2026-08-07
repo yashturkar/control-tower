@@ -57,7 +57,9 @@ tower init
 tower start
 ```
 
-`tower init` defaults to a quick setup that keeps the standard agent lineup and enables dangerous bypass for every subagent except `Scout`, which stays sandboxed. It also records a repo-local session import cutoff so the first Tower sync starts from initialization time forward instead of back-importing older Codex history for the same repo path. If you choose `custom`, it opens the detailed per-agent configurator for enablement, bypass/sandbox, and model overrides. You can always edit `.control-tower/state/agent-registry.json` and `.control-tower/state/project.json` later.
+`tower init` defaults to a quick setup that keeps the standard agent lineup and enables dangerous bypass for every subagent except `Scout`, which stays sandboxed. Built-in Codex agents use the GPT-5.6 catalog by default: Builder and Inspector use `gpt-5.6-sol`, Scout uses `gpt-5.6-terra`, and Git-master and Scribe use `gpt-5.6-luna`, with per-agent `model_reasoning_effort` defaults recorded in `.control-tower/state/agent-registry.json`. It also records a repo-local session import cutoff so the first Tower sync starts from initialization time forward instead of back-importing older Codex history for the same repo path. If you choose `custom`, it opens the detailed per-agent configurator for enablement, bypass/sandbox, backend, model, and Codex reasoning-effort overrides. You can always edit `.control-tower/state/agent-registry.json` and `.control-tower/state/project.json` later.
+
+Existing Tower projects are not automatically migrated to the GPT-5.6 model and effort defaults; they retain their current registry until you update it manually or rerun custom setup, while fresh and future quick setups receive the new defaults.
 
 Tower now runs without sandboxing or approval gates by default:
 
@@ -176,7 +178,7 @@ tower-run create-packet builder \
 tower-run delegate builder --packet .control-tower/packets/outbox/task.json
 ```
 
-Subagents run through `codex exec` with their own prompt, policy, and packet context. Their output is constrained to the ResultPacket schema.
+Codex subagents run through `codex exec` with their own prompt, policy, packet context, configured model, and optional `model_reasoning_effort`. Their output is constrained to the ResultPacket schema. `tower-run delegate` also accepts `--model` and `--reasoning-effort low|medium|high|xhigh|max`; CLI values override the agent registry for that run. Non-Codex backends keep their own model and sandbox command behavior and do not receive Codex reasoning-effort config.
 
 The intended loop is:
 

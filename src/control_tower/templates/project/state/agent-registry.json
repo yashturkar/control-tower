@@ -5,50 +5,60 @@
       "role": "implementation",
       "description": "Writes product code, tests, and refactors within scope.",
       "enabled": true,
-      "model": null,
+      "model": "gpt-5.6-sol",
+      "model_reasoning_effort": "medium",
       "dangerously_bypass": true,
       "sandbox": "workspace-write",
-      "search": false
+      "search": false,
+      "backend": "codex"
     },
     "inspector": {
       "name": "Inspector",
       "role": "review",
       "description": "Reviews work for correctness, regressions, and quality gaps.",
       "enabled": true,
-      "model": null,
+      "model": "gpt-5.6-sol",
+      "model_reasoning_effort": "high",
       "dangerously_bypass": true,
       "sandbox": "workspace-write",
-      "search": false
+      "search": false,
+      "backend": "codex"
     },
     "scout": {
       "name": "Scout",
       "role": "research",
       "description": "Researches options, risks, and technical approaches.",
       "enabled": true,
-      "model": null,
+      "model": "gpt-5.6-terra",
+      "model_reasoning_effort": "medium",
       "dangerously_bypass": false,
       "sandbox": "workspace-write",
-      "search": true
+      "search": true,
+      "backend": "codex"
     },
     "git-master": {
       "name": "Git-master",
       "role": "git-operations",
       "description": "Handles branch, commit, diff, and PR-oriented repo operations.",
       "enabled": true,
-      "model": null,
+      "model": "gpt-5.6-luna",
+      "model_reasoning_effort": "low",
       "dangerously_bypass": true,
       "sandbox": "workspace-write",
-      "search": false
+      "search": false,
+      "backend": "codex"
     },
     "scribe": {
       "name": "Scribe",
       "role": "documentation-memory",
       "description": "Maintains docs, task state, and durable memory.",
       "enabled": true,
-      "model": null,
+      "model": "gpt-5.6-luna",
+      "model_reasoning_effort": "medium",
       "dangerously_bypass": true,
       "sandbox": "workspace-write",
-      "search": false
+      "search": false,
+      "backend": "codex"
     }
   }
 }

@@ -12,6 +12,7 @@ from unittest.mock import patch
 from control_tower.bootstrap import init_project
 from control_tower.cli import cmd_status, main as tower_main
 from control_tower.config_ui import configure_project_interactively
+from control_tower.agents import default_agent_registry
 from control_tower.docs_harness import MANAGED_SECTION_START
 from control_tower.graph import explain_commit, explain_decision
 from control_tower.layout import tower_dir
@@ -104,6 +105,23 @@ class BootstrapTests(unittest.TestCase):
             self.assertTrue((tower / "state" / "decision-graph" / "indexes.json").exists())
             self.assertTrue((tower / "docs" / "state" / "decisions.md").exists())
             self.assertTrue(load_runtime_state(root)["session_import_cutoff"])
+
+    def test_init_project_template_registry_matches_programmatic_defaults(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            registry = load_agent_registry(root)["agents"]
+            defaults = default_agent_registry()["agents"]
+            self.assertEqual(defaults.keys(), registry.keys())
+            for key, default_config in defaults.items():
+                self.assertEqual(default_config["backend"], registry[key]["backend"])
+                self.assertEqual(default_config["model"], registry[key]["model"])
+                self.assertEqual(
+                    default_config["model_reasoning_effort"],
+                    registry[key]["model_reasoning_effort"],
+                )
 
     def test_init_project_refreshes_managed_packet_schemas_for_existing_repo(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -809,20 +827,24 @@ class BootstrapTests(unittest.TestCase):
                 "",       # builder: enable
                 "",       # builder: backend
                 "",       # builder: model
+                "",       # builder: reasoning effort
                 "",       # builder: bypass
                 "n",      # inspector: enable (disabled)
                 "",       # scout: enable
                 "",       # scout: backend
                 "",       # scout: model
+                "",       # scout: reasoning effort
                 "",       # scout: bypass
                 "",       # scout: sandbox
                 "",       # git-master: enable
                 "",       # git-master: backend
                 "",       # git-master: model
+                "",       # git-master: reasoning effort
                 "",       # git-master: bypass
                 "",       # scribe: enable
                 "",       # scribe: backend
                 "",       # scribe: model
+                "",       # scribe: reasoning effort
                 "",       # scribe: bypass
                 "n",      # add custom agent
                 "",       # docs harness
@@ -868,24 +890,29 @@ class BootstrapTests(unittest.TestCase):
                 "",       # builder: enable
                 "",       # builder: backend
                 "",       # builder: model
+                "",       # builder: reasoning effort
                 "n",      # builder: bypass=no
                 "danger-full-access",  # builder: sandbox
                 "",       # inspector: enable
                 "",       # inspector: backend
                 "",       # inspector: model
+                "",       # inspector: reasoning effort
                 "",       # inspector: bypass
                 "",       # scout: enable
                 "",       # scout: backend
                 "",       # scout: model
+                "",       # scout: reasoning effort
                 "",       # scout: bypass
                 "",       # scout: sandbox
                 "",       # git-master: enable
                 "",       # git-master: backend
                 "",       # git-master: model
+                "",       # git-master: reasoning effort
                 "",       # git-master: bypass
                 "",       # scribe: enable
                 "",       # scribe: backend
                 "",       # scribe: model
+                "",       # scribe: reasoning effort
                 "",       # scribe: bypass
                 "n",      # add custom agent
                 "",       # docs harness
@@ -1389,6 +1416,7 @@ class BootstrapTests(unittest.TestCase):
             def fake_run_exec(*args, **kwargs):
                 self.assertTrue(kwargs["dangerous"])
                 self.assertIsNone(kwargs["sandbox"])
+                self.assertEqual("medium", kwargs["reasoning_effort"])
                 output_path.write_text(json.dumps(result_packet) + "\n")
                 return 0
 
@@ -1830,6 +1858,58 @@ class CustomAgentTests(unittest.TestCase):
         self.assertEqual("gemini-2.5-pro", entry["model"])
         self.assertTrue(entry["custom"])
 
+    def test_codex_custom_agent_entry_persists_reasoning_effort(self) -> None:
+        from control_tower.agents import make_custom_agent_entry
+        entry = make_custom_agent_entry(
+            name="Migration Helper",
+            role="migration",
+            description="Handles migrations.",
+            backend="codex",
+            model="gpt-5.6-terra",
+            model_reasoning_effort="xhigh",
+        )
+        self.assertEqual("xhigh", entry["model_reasoning_effort"])
+
+    def test_non_codex_custom_agent_entry_omits_reasoning_effort(self) -> None:
+        from control_tower.agents import make_custom_agent_entry
+        entry = make_custom_agent_entry(
+            name="Security Reviewer",
+            role="security-review",
+            description="Reviews code for security vulnerabilities.",
+            backend="gemini",
+            model="gemini-2.5-pro",
+            model_reasoning_effort="xhigh",
+        )
+        self.assertNotIn("model_reasoning_effort", entry)
+
+    def test_interactive_codex_custom_agent_creation_uses_helper_reasoning_effort(self) -> None:
+        from control_tower.config_ui import _create_custom_agent_interactive
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            responses = iter(
+                [
+                    "Migration Helper",
+                    "migration",
+                    "Handles migrations.",
+                    "",
+                    "",
+                    "xhigh",
+                    "n",
+                    "read-only",
+                    "n",
+                ]
+            )
+
+            with patch("builtins.input", side_effect=lambda _: next(responses)):
+                created = _create_custom_agent_interactive(root, {})
+
+            self.assertIsNotNone(created)
+            key, entry = created
+            self.assertEqual("migration-helper", key)
+            self.assertEqual("codex", entry["backend"])
+            self.assertEqual("xhigh", entry["model_reasoning_effort"])
+
     def test_custom_agent_entry_rejects_invalid_backend(self) -> None:
         from control_tower.agents import make_custom_agent_entry
         with self.assertRaises(ValueError):
@@ -1989,6 +2069,20 @@ class CustomAgentTests(unittest.TestCase):
         for key, config in registry["agents"].items():
             self.assertEqual("codex", config["backend"], f"Agent {key} should default to codex backend")
 
+    def test_default_registry_includes_gpt56_models_and_reasoning(self) -> None:
+        from control_tower.agents import default_agent_registry
+        registry = default_agent_registry()["agents"]
+        expected = {
+            "builder": ("gpt-5.6-sol", "medium"),
+            "inspector": ("gpt-5.6-sol", "high"),
+            "scout": ("gpt-5.6-terra", "medium"),
+            "git-master": ("gpt-5.6-luna", "low"),
+            "scribe": ("gpt-5.6-luna", "medium"),
+        }
+        for key, (model, effort) in expected.items():
+            self.assertEqual(model, registry[key]["model"])
+            self.assertEqual(effort, registry[key]["model_reasoning_effort"])
+
     def test_interactive_custom_agent_creation(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -1997,17 +2091,17 @@ class CustomAgentTests(unittest.TestCase):
 
             prompts = [
                 "custom",
-                # Built-in agents: all default (enable + backend + model + bypass)
-                # builder: enable, backend, model, bypass(Y)
-                "", "", "", "",
-                # inspector: enable, backend, model, bypass(Y)
-                "", "", "", "",
-                # scout: enable, backend, model, bypass(N), sandbox
+                # Built-in agents: all default (enable + backend + model + effort + bypass)
+                # builder: enable, backend, model, effort, bypass(Y)
                 "", "", "", "", "",
-                # git-master: enable, backend, model, bypass(Y)
-                "", "", "", "",
-                # scribe: enable, backend, model, bypass(Y)
-                "", "", "", "",
+                # inspector: enable, backend, model, effort, bypass(Y)
+                "", "", "", "", "",
+                # scout: enable, backend, model, effort, bypass(N), sandbox
+                "", "", "", "", "", "",
+                # git-master: enable, backend, model, effort, bypass(Y)
+                "", "", "", "", "",
+                # scribe: enable, backend, model, effort, bypass(Y)
+                "", "", "", "", "",
                 # Add custom agent? Yes
                 "y",
                 "Security Reviewer",   # name
@@ -2050,7 +2144,7 @@ class BackendTests(unittest.TestCase):
         from control_tower.config_ui import BACKEND_MODELS
 
         self.assertEqual(
-            ["gpt-5.4", "gpt-5.4-mini", "gpt-5.3-codex", "gpt-5.2-codex", "gpt-5.2"],
+            ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"],
             BACKEND_MODELS["codex"],
         )
 
@@ -2066,15 +2160,35 @@ class BackendTests(unittest.TestCase):
         output = captured.getvalue()
         expected_lines = [
             "  Models for codex:",
-            "    1) gpt-5.4 (default)",
-            "    2) gpt-5.4-mini",
-            "    3) gpt-5.3-codex",
-            "    4) gpt-5.2-codex",
-            "    5) gpt-5.2",
-            "    6) custom",
+            "    1) gpt-5.6-sol (default)",
+            "    2) gpt-5.6-terra",
+            "    3) gpt-5.6-luna",
+            "    4) custom",
         ]
         positions = [output.index(line) for line in expected_lines]
         self.assertEqual(sorted(positions), positions)
+
+    def test_codex_reasoning_picker_exposes_approved_efforts_without_ultra(self) -> None:
+        from control_tower.config_ui import CODEX_REASONING_EFFORTS, _prompt_backend_model_and_reasoning
+
+        self.assertEqual(["low", "medium", "high", "xhigh", "max"], CODEX_REASONING_EFFORTS)
+        self.assertNotIn("ultra", CODEX_REASONING_EFFORTS)
+        with patch("builtins.input", side_effect=["", "", "xhigh"]):
+            backend, model, reasoning_effort = _prompt_backend_model_and_reasoning("codex", "", "medium")
+
+        self.assertEqual("codex", backend)
+        self.assertEqual("", model)
+        self.assertEqual("xhigh", reasoning_effort)
+
+    def test_non_codex_backend_does_not_prompt_or_keep_reasoning_effort(self) -> None:
+        from control_tower.config_ui import _prompt_backend_model_and_reasoning
+
+        with patch("builtins.input", side_effect=["gemini", ""]):
+            backend, model, reasoning_effort = _prompt_backend_model_and_reasoning("codex", "", "high")
+
+        self.assertEqual("gemini", backend)
+        self.assertEqual("", model)
+        self.assertEqual("", reasoning_effort)
 
     def test_run_exec_rejects_invalid_backend(self) -> None:
         from control_tower.backends import run_exec
@@ -2102,6 +2216,25 @@ class BackendTests(unittest.TestCase):
                 self.assertEqual("exec", args[1])
                 self.assertIn("-m", args)
                 self.assertIn("gpt-4", args)
+
+    def test_codex_exec_passes_reasoning_effort_config(self) -> None:
+        from control_tower.backends import run_exec
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with patch("control_tower.backends.subprocess.run") as mock_run:
+                mock_run.return_value = subprocess.CompletedProcess(args=[], returncode=0)
+                run_exec(
+                    root,
+                    "test prompt",
+                    Path("schema.json"),
+                    Path("out.json"),
+                    backend="codex",
+                    model="gpt-5.6-sol",
+                    reasoning_effort="max",
+                )
+                args = mock_run.call_args[0][0]
+                self.assertIn("-c", args)
+                self.assertIn("model_reasoning_effort=max", args)
 
     def test_gemini_exec_builds_correct_args(self) -> None:
         from control_tower.backends import run_exec
@@ -2194,6 +2327,161 @@ class BackendTests(unittest.TestCase):
                 cmd_delegate(root, "gemini-agent", packet_path, output=None, model=None, sandbox=None)
 
             self.assertEqual("gemini", mock_exec.call_args[1].get("backend", mock_exec.call_args.kwargs.get("backend")))
+
+    def test_delegate_reasoning_effort_cli_overrides_registry_for_codex(self) -> None:
+        from control_tower.packets import create_task_packet
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            packet = create_task_packet(
+                from_agent="tower",
+                to_agent="builder",
+                task_type="implementation",
+                priority="normal",
+                project_id="test",
+                session_id="test-session",
+                title="Test task",
+                objective="Test objective",
+                instructions=["Do the thing"],
+                constraints=[],
+                files=[],
+                artifacts=[],
+                references=[],
+                expected_outputs=[],
+                definition_of_done=["Done"],
+                memory_context_refs=[],
+                doc_context_refs=[],
+                soft_seconds=900,
+                hard_seconds=3600,
+                requires_review=False,
+                allow_partial=False,
+            )
+            packet_path = root / ".control-tower" / "packets" / "outbox" / "test.json"
+            packet_path.parent.mkdir(parents=True, exist_ok=True)
+            packet_path.write_text(json.dumps(packet, indent=2))
+
+            with patch("control_tower.runtime_cli.run_exec") as mock_exec:
+                mock_exec.return_value = 1
+                cmd_delegate(
+                    root,
+                    "builder",
+                    packet_path,
+                    output=None,
+                    model=None,
+                    sandbox=None,
+                    reasoning_effort="max",
+                )
+
+            self.assertEqual("codex", mock_exec.call_args.kwargs["backend"])
+            self.assertEqual("max", mock_exec.call_args.kwargs["reasoning_effort"])
+
+    def test_delegate_omits_missing_reasoning_effort_for_legacy_codex_registry(self) -> None:
+        from control_tower.packets import create_task_packet
+        from control_tower.project import save_agent_registry
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+            registry = load_agent_registry(root)
+            registry["agents"]["builder"].pop("model_reasoning_effort", None)
+            save_agent_registry(root, registry)
+
+            packet = create_task_packet(
+                from_agent="tower",
+                to_agent="builder",
+                task_type="implementation",
+                priority="normal",
+                project_id="test",
+                session_id="test-session",
+                title="Test task",
+                objective="Test objective",
+                instructions=["Do the thing"],
+                constraints=[],
+                files=[],
+                artifacts=[],
+                references=[],
+                expected_outputs=[],
+                definition_of_done=["Done"],
+                memory_context_refs=[],
+                doc_context_refs=[],
+                soft_seconds=900,
+                hard_seconds=3600,
+                requires_review=False,
+                allow_partial=False,
+            )
+            packet_path = root / ".control-tower" / "packets" / "outbox" / "test.json"
+            packet_path.parent.mkdir(parents=True, exist_ok=True)
+            packet_path.write_text(json.dumps(packet, indent=2))
+
+            with patch("control_tower.runtime_cli.run_exec") as mock_exec:
+                mock_exec.return_value = 1
+                cmd_delegate(root, "builder", packet_path, output=None, model=None, sandbox=None)
+
+            self.assertIsNone(mock_exec.call_args.kwargs["reasoning_effort"])
+
+    def test_delegate_does_not_send_reasoning_effort_to_non_codex_backend(self) -> None:
+        from control_tower.agents import make_custom_agent_entry
+        from control_tower.packets import create_task_packet
+        from control_tower.project import save_agent_registry
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / ".git").mkdir()
+            init_project(root)
+
+            registry = load_agent_registry(root)
+            registry["agents"]["gemini-agent"] = make_custom_agent_entry(
+                name="Gemini Agent",
+                role="implementation",
+                description="Builds with Gemini.",
+                backend="gemini",
+                enabled=True,
+            )
+            registry["agents"]["gemini-agent"]["model_reasoning_effort"] = "max"
+            save_agent_registry(root, registry)
+
+            packet = create_task_packet(
+                from_agent="tower",
+                to_agent="gemini-agent",
+                task_type="implementation",
+                priority="normal",
+                project_id="test",
+                session_id="test-session",
+                title="Test task",
+                objective="Test objective",
+                instructions=["Do the thing"],
+                constraints=[],
+                files=[],
+                artifacts=[],
+                references=[],
+                expected_outputs=[],
+                definition_of_done=["Done"],
+                memory_context_refs=[],
+                doc_context_refs=[],
+                soft_seconds=900,
+                hard_seconds=3600,
+                requires_review=False,
+                allow_partial=False,
+            )
+            packet_path = root / ".control-tower" / "packets" / "outbox" / "test.json"
+            packet_path.parent.mkdir(parents=True, exist_ok=True)
+            packet_path.write_text(json.dumps(packet, indent=2))
+
+            with patch("control_tower.runtime_cli.run_exec") as mock_exec:
+                mock_exec.return_value = 1
+                cmd_delegate(
+                    root,
+                    "gemini-agent",
+                    packet_path,
+                    output=None,
+                    model=None,
+                    sandbox=None,
+                    reasoning_effort="xhigh",
+                )
+
+            self.assertEqual("gemini", mock_exec.call_args.kwargs["backend"])
+            self.assertIsNone(mock_exec.call_args.kwargs["reasoning_effort"])
 
     def test_cli_resolve_options_includes_backend(self) -> None:
         from control_tower.cli import resolve_codex_options

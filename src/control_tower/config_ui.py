@@ -11,14 +11,13 @@ from .project import load_agent_registry, load_project_config, save_agent_regist
 
 
 SANDBOX_OPTIONS = ["workspace-write", "read-only", "danger-full-access"]
+CODEX_REASONING_EFFORTS = ["low", "medium", "high", "xhigh", "max"]
 
 BACKEND_MODELS: dict[str, list[str]] = {
     "codex": [
-        "gpt-5.4",
-        "gpt-5.4-mini",
-        "gpt-5.3-codex",
-        "gpt-5.2-codex",
-        "gpt-5.2",
+        "gpt-5.6-sol",
+        "gpt-5.6-terra",
+        "gpt-5.6-luna",
     ],
     "gemini": [
         "gemini-2.5-pro",
@@ -169,6 +168,8 @@ def configure_project_interactively(project_root: Path) -> None:
                 line += f" sandbox={config['sandbox']}"
             if config["model"]:
                 line += f" model={config['model']}"
+            if backend == "codex" and config.get("model_reasoning_effort"):
+                line += f" effort={config['model_reasoning_effort']}"
         print(line)
     print("")
     print("To adjust this later, edit:")
@@ -206,6 +207,7 @@ def _configure_agents_custom(registry: dict[str, dict[str, object]], project_roo
         print(f"{definition.display_name}: {definition.description}")
         enabled = _prompt_yes_no("Enable this agent", bool(current.get("enabled", definition.default_enabled)))
         model = current.get("model") or ""
+        reasoning_effort = current.get("model_reasoning_effort") or definition.default_model_reasoning_effort
         sandbox = str(current.get("sandbox", definition.default_sandbox))
         search = bool(current.get("search", definition.default_search))
         dangerously_bypass = bool(current.get("dangerously_bypass", definition.default_dangerously_bypass))
@@ -213,12 +215,16 @@ def _configure_agents_custom(registry: dict[str, dict[str, object]], project_roo
         backend = str(backend_raw) if backend_raw and str(backend_raw) in VALID_BACKENDS else definition.default_backend
 
         if enabled:
-            backend, model = _prompt_backend_and_model(backend, str(model))
+            backend, model, reasoning_effort = _prompt_backend_model_and_reasoning(
+                backend,
+                str(model),
+                str(reasoning_effort or ""),
+            )
             dangerously_bypass = _prompt_yes_no("Use dangerous bypass", dangerously_bypass)
             if not dangerously_bypass:
                 sandbox = _prompt_choice("Sandbox", SANDBOX_OPTIONS, sandbox)
 
-        configured_agents[definition.key] = {
+        entry = {
             "name": definition.display_name,
             "role": definition.role,
             "description": definition.description,
@@ -229,6 +235,9 @@ def _configure_agents_custom(registry: dict[str, dict[str, object]], project_roo
             "search": search,
             "backend": backend,
         }
+        if backend == "codex" and reasoning_effort:
+            entry["model_reasoning_effort"] = reasoning_effort
+        configured_agents[definition.key] = entry
         print("")
 
     # Configure existing custom agents
@@ -241,7 +250,11 @@ def _configure_agents_custom(registry: dict[str, dict[str, object]], project_roo
         if enabled:
             backend_raw = config.get("backend")
             backend_default = str(backend_raw) if backend_raw and str(backend_raw) in VALID_BACKENDS else "codex"
-            backend, model = _prompt_backend_and_model(backend_default, str(config.get("model") or ""))
+            backend, model, reasoning_effort = _prompt_backend_model_and_reasoning(
+                backend_default,
+                str(config.get("model") or ""),
+                str(config.get("model_reasoning_effort") or "medium"),
+            )
             dangerously_bypass = _prompt_yes_no("Use dangerous bypass", bool(config.get("dangerously_bypass", False)))
             sandbox = config.get("sandbox", "workspace-write")
             if not dangerously_bypass:
@@ -249,10 +262,11 @@ def _configure_agents_custom(registry: dict[str, dict[str, object]], project_roo
         else:
             backend = str(config.get("backend") or "codex") if config.get("backend") and str(config["backend"]) in VALID_BACKENDS else "codex"
             model = config.get("model") or ""
+            reasoning_effort = config.get("model_reasoning_effort") or ""
             dangerously_bypass = bool(config.get("dangerously_bypass", False))
             sandbox = config.get("sandbox", "workspace-write")
 
-        configured_agents[key] = {
+        entry = {
             "name": config.get("name", key),
             "role": config.get("role", "custom"),
             "description": config.get("description", ""),
@@ -264,8 +278,11 @@ def _configure_agents_custom(registry: dict[str, dict[str, object]], project_roo
             "backend": backend,
             "custom": True,
         }
+        if backend == "codex" and reasoning_effort:
+            entry["model_reasoning_effort"] = reasoning_effort
         if config.get("prompt_file"):
-            configured_agents[key]["prompt_file"] = config["prompt_file"]
+            entry["prompt_file"] = config["prompt_file"]
+        configured_agents[key] = entry
         print("")
 
     # Offer to add new custom agents
@@ -297,7 +314,7 @@ def _create_custom_agent_interactive(
     if not description:
         return None
 
-    backend, model = _prompt_backend_and_model("codex", "")
+    backend, model, reasoning_effort = _prompt_backend_model_and_reasoning("codex", "", "medium")
     dangerously_bypass = _prompt_yes_no("Use dangerous bypass", False)
     sandbox = "workspace-write"
     if not dangerously_bypass:
@@ -340,6 +357,7 @@ def _create_custom_agent_interactive(
         description=description,
         enabled=True,
         model=model or None,
+        model_reasoning_effort=reasoning_effort,
         dangerously_bypass=dangerously_bypass,
         sandbox=sandbox,
         backend=backend,
@@ -454,3 +472,16 @@ def _prompt_backend_and_model(
             continue
         # Accept a typed-in model name directly
         return backend, raw
+
+
+def _prompt_backend_model_and_reasoning(
+    default_backend: str = "codex",
+    default_model: str = "",
+    default_reasoning_effort: str = "medium",
+) -> tuple[str, str, str]:
+    backend, model = _prompt_backend_and_model(default_backend, default_model)
+    if backend != "codex":
+        return backend, model, ""
+    default_effort = default_reasoning_effort if default_reasoning_effort in CODEX_REASONING_EFFORTS else "medium"
+    reasoning_effort = _prompt_choice("  Reasoning effort", CODEX_REASONING_EFFORTS, default_effort)
+    return backend, model, reasoning_effort

@@ -16,6 +16,8 @@ class AgentDefinition:
     default_dangerously_bypass: bool = False
     default_sandbox: str = "workspace-write"
     default_backend: str = DEFAULT_BACKEND
+    default_model: str | None = None
+    default_model_reasoning_effort: str | None = None
 
 
 AGENT_DEFINITIONS = [
@@ -27,6 +29,8 @@ AGENT_DEFINITIONS = [
         default_enabled=True,
         default_search=False,
         default_dangerously_bypass=True,
+        default_model="gpt-5.6-sol",
+        default_model_reasoning_effort="medium",
     ),
     AgentDefinition(
         key="inspector",
@@ -36,6 +40,8 @@ AGENT_DEFINITIONS = [
         default_enabled=True,
         default_search=False,
         default_dangerously_bypass=True,
+        default_model="gpt-5.6-sol",
+        default_model_reasoning_effort="high",
     ),
     AgentDefinition(
         key="scout",
@@ -45,6 +51,8 @@ AGENT_DEFINITIONS = [
         default_enabled=True,
         default_search=True,
         default_dangerously_bypass=False,
+        default_model="gpt-5.6-terra",
+        default_model_reasoning_effort="medium",
     ),
     AgentDefinition(
         key="git-master",
@@ -54,6 +62,8 @@ AGENT_DEFINITIONS = [
         default_enabled=True,
         default_search=False,
         default_dangerously_bypass=True,
+        default_model="gpt-5.6-luna",
+        default_model_reasoning_effort="low",
     ),
     AgentDefinition(
         key="scribe",
@@ -63,6 +73,8 @@ AGENT_DEFINITIONS = [
         default_enabled=True,
         default_search=False,
         default_dangerously_bypass=True,
+        default_model="gpt-5.6-luna",
+        default_model_reasoning_effort="medium",
     ),
 ]
 
@@ -75,7 +87,8 @@ def _agent_entry(definition: AgentDefinition) -> dict[str, object]:
         "role": definition.role,
         "description": definition.description,
         "enabled": definition.default_enabled,
-        "model": None,
+        "model": definition.default_model,
+        "model_reasoning_effort": definition.default_model_reasoning_effort,
         "dangerously_bypass": definition.default_dangerously_bypass,
         "sandbox": definition.default_sandbox,
         "search": definition.default_search,
@@ -99,6 +112,7 @@ def make_custom_agent_entry(
     *,
     enabled: bool = True,
     model: str | None = None,
+    model_reasoning_effort: str | None = None,
     dangerously_bypass: bool = False,
     sandbox: str = "workspace-write",
     search: bool = False,
@@ -119,6 +133,8 @@ def make_custom_agent_entry(
         "backend": backend,
         "custom": True,
     }
+    if backend == DEFAULT_BACKEND and model_reasoning_effort:
+        entry["model_reasoning_effort"] = model_reasoning_effort
     if prompt_file:
         entry["prompt_file"] = prompt_file
     return entry

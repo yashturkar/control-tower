@@ -72,12 +72,15 @@ def _codex_exec(
     output_schema: Path,
     output_path: Path,
     model: str | None = None,
+    reasoning_effort: str | None = None,
     sandbox: str | None = None,
     dangerous: bool = False,
 ) -> int:
     args = ["codex", "exec", "-C", str(project_root), "--output-schema", str(output_schema), "-o", str(output_path)]
     if model:
         args.extend(["-m", model])
+    if reasoning_effort:
+        args.extend(["-c", f"model_reasoning_effort={reasoning_effort}"])
     if dangerous:
         args.append("--dangerously-bypass-approvals-and-sandbox")
     elif sandbox:
@@ -226,13 +229,14 @@ def run_exec(
     output_path: Path,
     backend: str = DEFAULT_BACKEND,
     model: str | None = None,
+    reasoning_effort: str | None = None,
     sandbox: str | None = None,
     dangerous: bool = False,
 ) -> int:
     if backend == "codex":
         return _codex_exec(
             project_root, prompt, output_schema, output_path,
-            model=model, sandbox=sandbox, dangerous=dangerous,
+            model=model, reasoning_effort=reasoning_effort, sandbox=sandbox, dangerous=dangerous,
         )
     if backend == "gemini":
         return _gemini_exec(
